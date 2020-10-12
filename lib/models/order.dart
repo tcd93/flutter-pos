@@ -1,24 +1,35 @@
-// Copyright 2019 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 import 'package:flutter/material.dart';
 
-enum Status { Ongoing, Empty }
+class OrderTracker extends ChangeNotifier {
+  List<TableModel> _tables;
 
-class OrderTracker {
-  final List<TableModel> _tables =
-      List.generate(7, (index) => TableModel(index), growable: false);
+  OrderTracker() {
+    _tables =
+        List.generate(7, (index) => TableModel(this, index), growable: false);
+  }
 
   TableModel getTable(int index) => _tables[index];
+
+  @override
+  void notifyListeners() {
+    super.notifyListeners();
+  }
 }
 
 class TableModel {
+  final OrderTracker tracker;
   final int id;
-  Status status;
+  bool isEmpty = true;
 
-  TableModel(this.id) : status = Status.Empty;
+  operator ==(other) => other is TableModel && other.id == id;
+  int get hashCode => id;
 
-  Color getStatusColor() =>
-      this.status == Status.Empty ? Colors.green[400] : Colors.grey[600];
+  TableModel(this.tracker, this.id);
+
+  Color getStatusColor() => this.isEmpty ? Colors.green[400] : Colors.grey[600];
+
+  void changeStatus() {
+    this.isEmpty = !this.isEmpty;
+    tracker.notifyListeners();
+  }
 }
