@@ -1,9 +1,7 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:vector_math/vector_math.dart' show radians;
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class RadialButton extends StatelessWidget {
   final AnimationController controller;
@@ -15,10 +13,7 @@ class RadialButton extends StatelessWidget {
   final Animation<double> translation;
 
   RadialButton(this.controller, this.angle, this.onPressed,
-      {this.color = Colors.green,
-      this.icon = FontAwesomeIcons.accessibleIcon,
-      this.elevation = 0,
-      Key key})
+      {this.color = Colors.green, this.icon, this.elevation = 0, Key key})
       : translation = Tween<double>(
           begin: 0.0,
           end: 60.0,
