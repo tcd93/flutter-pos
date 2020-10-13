@@ -4,8 +4,7 @@ class OrderTracker extends ChangeNotifier {
   List<TableModel> _tables;
 
   OrderTracker() {
-    _tables =
-        List.generate(7, (index) => TableModel(this, index), growable: false);
+    _tables = List.generate(7, (index) => TableModel(this, index), growable: false);
   }
 
   TableModel getTable(int index) => _tables[index];
@@ -17,19 +16,20 @@ class OrderTracker extends ChangeNotifier {
 }
 
 class TableModel {
-  final OrderTracker tracker;
+  final OrderTracker _tracker;
   final int id;
   bool isEmpty = true;
 
   operator ==(other) => other is TableModel && other.id == id;
   int get hashCode => id;
 
-  TableModel(this.tracker, this.id);
+  TableModel(this._tracker, this.id);
 
   Color getStatusColor() => this.isEmpty ? Colors.green[400] : Colors.grey[600];
 
   void changeStatus() {
     this.isEmpty = !this.isEmpty;
-    tracker.notifyListeners();
+    _tracker.notifyListeners();
+    debugPrint("[NOTIFY LISTENERS]");
   }
 }

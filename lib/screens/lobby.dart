@@ -47,8 +47,7 @@ class _Table extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint("rebuilding _Table... $id");
 
-    var model = context.select<OrderTracker, TableModel>(
-        (tracker) => tracker.getTable(this.id));
+    var model = context.select<OrderTracker, TableModel>((tracker) => tracker.getTable(this.id));
 
     return Padding(
         padding: const EdgeInsets.all(25),
@@ -56,10 +55,10 @@ class _Table extends StatelessWidget {
           key: ValueKey<int>(this.id),
           mainButtonBuilder: (radialAnimationController, context) {
             return FloatingActionButton(
-              child: Icon(FontAwesomeIcons.table),
+              child: Icon(FontAwesomeIcons.circleNotch),
               onPressed: () {
-                radialAnimationController.reverse();
                 model.changeStatus();
+                radialAnimationController.forward();
               },
               backgroundColor: model.getStatusColor(),
             );
@@ -68,16 +67,35 @@ class _Table extends StatelessWidget {
             return FloatingActionButton(
               child: Icon(FontAwesomeIcons.expand),
               onPressed: () {
-                radialAnimationController.forward();
                 model.changeStatus();
+                radialAnimationController.reverse();
               },
               backgroundColor: model.getStatusColor(),
             );
           },
           radialButtonsBuilder: (radialAnimationController, context) => [
-            RadialButton(radialAnimationController, 0, () {
-              radialAnimationController.reverse();
-            }, color: Colors.red, icon: FontAwesomeIcons.thumbtack),
+            RadialButton(
+              radialAnimationController,
+              0,
+              (key) {
+                model.changeStatus();
+                radialAnimationController.reverse();
+              },
+              color: Colors.red,
+              icon: FontAwesomeIcons.plusCircle,
+              key: ValueKey<int>(1),
+            ),
+            RadialButton(
+              radialAnimationController,
+              90,
+              (key) {
+                model.changeStatus();
+                radialAnimationController.reverse();
+              },
+              color: Colors.red,
+              icon: FontAwesomeIcons.minusCircle,
+              key: ValueKey<int>(2),
+            ),
           ],
         ));
   }
