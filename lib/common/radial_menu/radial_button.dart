@@ -8,7 +8,7 @@ class RadialButton extends StatelessWidget {
   final double angle, elevation;
   final Color color;
   final IconData icon;
-  final Function onPressed;
+  final Function(Key key) onPressed;
 
   final Animation<double> translation;
 
@@ -28,10 +28,9 @@ class RadialButton extends StatelessWidget {
 
     return Transform(
         transform: Matrix4.identity()
-          ..translate(
-              (translation.value) * cos(rad), (translation.value) * sin(rad)),
+          ..translate((translation.value) * cos(rad), (translation.value) * sin(rad)),
         child: FloatingActionButton(
-            onPressed: onPressed,
+            onPressed: () => {this.onPressed(this.key)},
             child: Icon(icon),
             backgroundColor: color,
             elevation: elevation));
