@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 
 import '../common/radial_menu/radial_button.dart';
 import '../common/radial_menu/radial_menu.dart';
+
 import '../models/order.dart';
+import '../models/table.dart';
 
 class LobbyScreen extends StatelessWidget {
   @override
@@ -47,7 +49,11 @@ class _Table extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint("rebuilding _Table... $id");
 
+    // the table model to control state
     var model = context.select<OrderTracker, TableModel>((tracker) => tracker.getTable(this.id));
+
+    // create a smooth color transition effect
+    var colorTween = ColorTween(begin: model.currentColor(), end: model.reversedColor());
 
     return Padding(
         padding: const EdgeInsets.all(25),
@@ -57,20 +63,20 @@ class _Table extends StatelessWidget {
             return FloatingActionButton(
               child: Icon(FontAwesomeIcons.circleNotch),
               onPressed: () {
-                model.changeStatus();
+                model.toggleStatus();
                 radialAnimationController.forward();
               },
-              backgroundColor: model.getStatusColor(),
+              backgroundColor: colorTween.animate(radialAnimationController).value,
             );
           },
           secondaryButtonBuilder: (radialAnimationController, context) {
             return FloatingActionButton(
               child: Icon(FontAwesomeIcons.expand),
               onPressed: () {
-                model.changeStatus();
+                model.toggleStatus();
                 radialAnimationController.reverse();
               },
-              backgroundColor: model.getStatusColor(),
+              backgroundColor: colorTween.animate(radialAnimationController).value,
             );
           },
           radialButtonsBuilder: (radialAnimationController, context) => [
@@ -78,7 +84,7 @@ class _Table extends StatelessWidget {
               radialAnimationController,
               0,
               (key) {
-                model.changeStatus();
+                model.toggleStatus();
                 radialAnimationController.reverse();
               },
               color: Colors.red,
@@ -89,7 +95,7 @@ class _Table extends StatelessWidget {
               radialAnimationController,
               90,
               (key) {
-                model.changeStatus();
+                model.toggleStatus();
                 radialAnimationController.reverse();
               },
               color: Colors.red,

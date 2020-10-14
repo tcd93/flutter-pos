@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'table.dart';
+
 class OrderTracker extends ChangeNotifier {
   List<TableModel> _tables;
 
@@ -12,24 +14,5 @@ class OrderTracker extends ChangeNotifier {
   @override
   void notifyListeners() {
     super.notifyListeners();
-  }
-}
-
-class TableModel {
-  final OrderTracker _tracker;
-  final int id;
-  bool isEmpty = true;
-
-  operator ==(other) => other is TableModel && other.id == id;
-  int get hashCode => id;
-
-  TableModel(this._tracker, this.id);
-
-  Color getStatusColor() => this.isEmpty ? Colors.green[400] : Colors.grey[600];
-
-  void changeStatus() {
-    this.isEmpty = !this.isEmpty;
-    _tracker.notifyListeners();
-    debugPrint("[NOTIFY LISTENERS]");
   }
 }
