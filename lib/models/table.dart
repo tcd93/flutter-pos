@@ -14,6 +14,8 @@ class TableModel {
 
   TableModel(this._tracker, this.id);
 
+  bool isAbleToPlaceOrder() => _isEmpty;
+
   /// - When empty: `green`
   /// - When not empty: `grey`
   Color currentColor() => this._isEmpty ? Colors.green[400] : Colors.grey[300];

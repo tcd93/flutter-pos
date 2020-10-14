@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../common/radial_menu/radial_button.dart';
 import '../common/radial_menu/radial_menu.dart';
+import '../common/case2/case2.dart';
 
 import '../models/order.dart';
 import '../models/table.dart';
@@ -50,59 +51,96 @@ class _Table extends StatelessWidget {
     debugPrint("rebuilding _Table... $id");
 
     // the table model to control state
-    var model = context.select<OrderTracker, TableModel>((tracker) => tracker.getTable(this.id));
-
-    // create a smooth color transition effect
-    var colorTween = ColorTween(begin: model.currentColor(), end: model.reversedColor());
+    final model = context.select<OrderTracker, TableModel>((tracker) => tracker.getTable(this.id));
 
     return Padding(
-        padding: const EdgeInsets.all(25),
-        child: RadialMenu(
-          key: ValueKey<int>(this.id),
-          mainButtonBuilder: (radialAnimationController, context) {
-            return FloatingActionButton(
-              child: Icon(FontAwesomeIcons.circleNotch),
-              onPressed: () {
-                model.toggleStatus();
-                radialAnimationController.forward();
-              },
-              backgroundColor: colorTween.animate(radialAnimationController).value,
-            );
-          },
-          secondaryButtonBuilder: (radialAnimationController, context) {
-            return FloatingActionButton(
-              child: Icon(FontAwesomeIcons.expand),
-              onPressed: () {
-                model.toggleStatus();
-                radialAnimationController.reverse();
-              },
-              backgroundColor: colorTween.animate(radialAnimationController).value,
-            );
-          },
-          radialButtonsBuilder: (radialAnimationController, context) => [
-            RadialButton(
-              radialAnimationController,
-              0,
-              (key) {
-                model.toggleStatus();
-                radialAnimationController.reverse();
-              },
-              color: Colors.red,
-              icon: FontAwesomeIcons.plusCircle,
-              key: ValueKey<int>(1),
-            ),
-            RadialButton(
-              radialAnimationController,
-              90,
-              (key) {
-                model.toggleStatus();
-                radialAnimationController.reverse();
-              },
-              color: Colors.red,
-              icon: FontAwesomeIcons.minusCircle,
-              key: ValueKey<int>(2),
-            ),
-          ],
-        ));
+      padding: const EdgeInsets.all(25),
+      child: case2(model.isAbleToPlaceOrder(), {
+        true: menuRenderFullFlow(model),
+        false: menuRenderPartialFlow(model),
+      }),
+    );
   }
+}
+
+RadialMenu menuRenderPartialFlow(TableModel model) {
+  //TODO: implement partial flow (only able to see order details)
+
+  return RadialMenu(
+    key: ValueKey(model.id),
+    mainButtonBuilder: (radialAnimationController, context) {
+      return FloatingActionButton(
+        child: Icon(FontAwesomeIcons.circleNotch),
+        backgroundColor: Colors.grey[400],
+        onPressed: null, // disabled
+        disabledElevation: 0,
+      );
+    },
+    radialButtonsBuilder: (radialAnimationController, context) => [
+      RadialButton(
+        radialAnimationController,
+        0,
+        (key) {
+          radialAnimationController.reverse();
+        },
+        color: Colors.red,
+        icon: FontAwesomeIcons.infoCircle,
+        key: ValueKey<int>(2),
+      ),
+    ],
+  );
+}
+
+/// Full flow: able to place order, see order details
+RadialMenu menuRenderFullFlow(TableModel model) {
+  // create a smooth color transition effect
+  final colorTween = ColorTween(begin: model.currentColor(), end: model.reversedColor());
+
+  return RadialMenu(
+    key: ValueKey(model.id),
+    mainButtonBuilder: (radialAnimationController, context) {
+      return FloatingActionButton(
+        child: Icon(FontAwesomeIcons.circleNotch),
+        onPressed: () {
+          model.toggleStatus();
+          radialAnimationController.forward();
+        },
+        backgroundColor: colorTween.animate(radialAnimationController).value,
+      );
+    },
+    secondaryButtonBuilder: (radialAnimationController, context) {
+      return FloatingActionButton(
+        child: Icon(FontAwesomeIcons.expand),
+        onPressed: () {
+          model.toggleStatus();
+          radialAnimationController.reverse();
+        },
+        backgroundColor: colorTween.animate(radialAnimationController).value,
+      );
+    },
+    radialButtonsBuilder: (radialAnimationController, context) => [
+      RadialButton(
+        radialAnimationController,
+        0,
+        (key) {
+          model.toggleStatus();
+          radialAnimationController.reverse();
+        },
+        color: Colors.red,
+        icon: FontAwesomeIcons.plusCircle,
+        key: ValueKey<int>(1),
+      ),
+      RadialButton(
+        radialAnimationController,
+        90,
+        (key) {
+          model.toggleStatus();
+          radialAnimationController.reverse();
+        },
+        color: Colors.red,
+        icon: FontAwesomeIcons.infoCircle,
+        key: ValueKey<int>(2),
+      ),
+    ],
+  );
 }

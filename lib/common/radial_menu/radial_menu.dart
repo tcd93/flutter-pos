@@ -73,14 +73,16 @@ class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateM
                   angle: radians(rotation.value),
                   child: Stack(alignment: Alignment.center, children: <Widget>[
                     ...this.widget.radialButtonsBuilder(controller, context),
-                    Transform.scale(
-                      scale: scale.value - 1.0,
-                      child: this.widget.secondaryButtonBuilder(controller, context),
-                    ),
-                    Transform.scale(
-                      scale: scale.value,
-                      child: this.widget.mainButtonBuilder(controller, context),
-                    ),
+                    if (this.widget.secondaryButtonBuilder != null)
+                      Transform.scale(
+                        scale: scale.value - 1.0,
+                        child: this.widget.secondaryButtonBuilder(controller, context),
+                      ),
+                    if (this.widget.mainButtonBuilder != null)
+                      Transform.scale(
+                        scale: scale.value,
+                        child: this.widget.mainButtonBuilder(controller, context),
+                      ),
                   ]));
             }));
   }
