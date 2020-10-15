@@ -9,6 +9,7 @@ class RadialButton extends StatelessWidget {
   final Color color;
   final IconData icon;
   final Function(Key key) onPressed;
+  final String heroTag;
 
   final Animation<double> translation;
 
@@ -19,6 +20,7 @@ class RadialButton extends StatelessWidget {
       this.color = Colors.green,
       this.icon,
       this.elevation = 0,
+      this.heroTag,
       Key key})
       : translation = Tween<double>(
           begin: 0.0,
@@ -34,12 +36,10 @@ class RadialButton extends StatelessWidget {
 
     return Transform(
         transform: Matrix4.identity()
-          ..translate(
-              (translation.value) * cos(rad), (translation.value) * sin(rad)),
+          ..translate((translation.value) * cos(rad), (translation.value) * sin(rad)),
         child: FloatingActionButton(
-            onPressed: this.onPressed != null
-                ? () => {this.onPressed(this.key)}
-                : null,
+            heroTag: this.heroTag,
+            onPressed: this.onPressed != null ? () => {this.onPressed(this.key)} : null,
             child: Icon(icon),
             backgroundColor: color,
             foregroundColor: Colors.white,

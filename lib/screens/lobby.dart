@@ -51,8 +51,7 @@ class _Table extends StatelessWidget {
     debugPrint("rebuilding _Table... $id");
 
     // the table model to control state
-    final model = context.select<OrderTracker, TableModel>(
-        (tracker) => tracker.getTable(this.id));
+    final model = context.select<OrderTracker, TableModel>((tracker) => tracker.getTable(this.id));
 
     return Padding(
       padding: const EdgeInsets.all(25),
@@ -114,13 +113,13 @@ RadialMenu menuRenderPartialFlow(TableModel model) {
 /// Full flow: able to place order, see order details
 RadialMenu menuRenderFullFlow(TableModel model) {
   // create a smooth color transition effect
-  final colorTween =
-      ColorTween(begin: model.currentColor(), end: model.reversedColor());
+  final colorTween = ColorTween(begin: model.currentColor(), end: model.reversedColor());
 
   return RadialMenu(
     key: ValueKey(model.id),
     mainButtonBuilder: (radialAnimationController, context) {
       return FloatingActionButton(
+        heroTag: "tag1-${model.id}",
         child: Icon(FontAwesomeIcons.circleNotch),
         onPressed: () {
           model.toggleStatus();
@@ -131,6 +130,7 @@ RadialMenu menuRenderFullFlow(TableModel model) {
     },
     secondaryButtonBuilder: (radialAnimationController, context) {
       return FloatingActionButton(
+        heroTag: "tag2-${model.id}",
         child: Icon(FontAwesomeIcons.expand),
         onPressed: () {
           model.toggleStatus();
@@ -141,17 +141,21 @@ RadialMenu menuRenderFullFlow(TableModel model) {
     },
     radialButtonsBuilder: (radialAnimationController, context) => [
       RadialButton(
+        heroTag: "subtag1-${model.id}",
         controller: radialAnimationController,
         angle: 0,
         onPressed: (key) {
           model.toggleStatus();
-          radialAnimationController.reverse();
+          radialAnimationController.reverse().then((_) {
+            Navigator.pushNamed(context, '/menu');
+          });
         },
         color: Colors.red,
         icon: FontAwesomeIcons.plusCircle,
         key: ValueKey<int>(1),
       ),
       RadialButton(
+        heroTag: "subtag2-${model.id}",
         controller: radialAnimationController,
         angle: 90,
         onPressed: (key) {
