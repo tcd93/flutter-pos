@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MenuScreen extends StatelessWidget {
   @override
@@ -9,6 +10,11 @@ class MenuScreen extends StatelessWidget {
       ),
       body: Center(
         child: Text('This is menu screen'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'tag1-1',
+        child: Icon(FontAwesomeIcons.plusSquare),
+        onPressed: null,
       ),
     );
   }
