@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hembo/screens/menu.dart';
 import 'package:provider/provider.dart';
 import './common/theme.dart';
 import 'models/order.dart';
@@ -21,6 +22,7 @@ class HemBoApp extends StatelessWidget {
       ),
       routes: {
         '/': (context) => LobbyScreen(),
+        '/menu': (context) => MenuScreen(),
       },
     );
   }
