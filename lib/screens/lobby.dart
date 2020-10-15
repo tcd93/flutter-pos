@@ -51,7 +51,8 @@ class _Table extends StatelessWidget {
     debugPrint("rebuilding _Table... $id");
 
     // the table model to control state
-    final model = context.select<OrderTracker, TableModel>((tracker) => tracker.getTable(this.id));
+    final model = context.select<OrderTracker, TableModel>(
+        (tracker) => tracker.getTable(this.id));
 
     return Padding(
       padding: const EdgeInsets.all(25),
@@ -63,24 +64,43 @@ class _Table extends StatelessWidget {
   }
 }
 
+/// Full flow: only able to see order details
 RadialMenu menuRenderPartialFlow(TableModel model) {
-  //TODO: implement partial flow (only able to see order details)
-
   return RadialMenu(
     key: ValueKey(model.id),
     mainButtonBuilder: (radialAnimationController, context) {
       return FloatingActionButton(
         child: Icon(FontAwesomeIcons.circleNotch),
-        backgroundColor: Colors.grey[400],
-        onPressed: null, // disabled
-        disabledElevation: 0,
+        backgroundColor: Colors.yellow[200],
+        onPressed: () {
+          model.toggleStatus();
+          radialAnimationController.forward();
+        },
+      );
+    },
+    secondaryButtonBuilder: (radialAnimationController, context) {
+      return FloatingActionButton(
+        child: Icon(FontAwesomeIcons.expand),
+        onPressed: () {
+          model.toggleStatus();
+          radialAnimationController.reverse();
+        },
+        backgroundColor: Colors.yellow[200],
       );
     },
     radialButtonsBuilder: (radialAnimationController, context) => [
       RadialButton(
-        radialAnimationController,
-        0,
-        (key) {
+        controller: radialAnimationController,
+        angle: 0,
+        onPressed: null, //disabled
+        color: Colors.grey[300],
+        icon: FontAwesomeIcons.plusCircle,
+        key: ValueKey<int>(1),
+      ),
+      RadialButton(
+        controller: radialAnimationController,
+        angle: 90,
+        onPressed: (key) {
           radialAnimationController.reverse();
         },
         color: Colors.red,
@@ -94,7 +114,8 @@ RadialMenu menuRenderPartialFlow(TableModel model) {
 /// Full flow: able to place order, see order details
 RadialMenu menuRenderFullFlow(TableModel model) {
   // create a smooth color transition effect
-  final colorTween = ColorTween(begin: model.currentColor(), end: model.reversedColor());
+  final colorTween =
+      ColorTween(begin: model.currentColor(), end: model.reversedColor());
 
   return RadialMenu(
     key: ValueKey(model.id),
@@ -120,9 +141,9 @@ RadialMenu menuRenderFullFlow(TableModel model) {
     },
     radialButtonsBuilder: (radialAnimationController, context) => [
       RadialButton(
-        radialAnimationController,
-        0,
-        (key) {
+        controller: radialAnimationController,
+        angle: 0,
+        onPressed: (key) {
           model.toggleStatus();
           radialAnimationController.reverse();
         },
@@ -131,9 +152,9 @@ RadialMenu menuRenderFullFlow(TableModel model) {
         key: ValueKey<int>(1),
       ),
       RadialButton(
-        radialAnimationController,
-        90,
-        (key) {
+        controller: radialAnimationController,
+        angle: 90,
+        onPressed: (key) {
           model.toggleStatus();
           radialAnimationController.reverse();
         },
