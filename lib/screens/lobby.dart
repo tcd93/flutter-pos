@@ -146,9 +146,9 @@ RadialMenu menuRenderFullFlow(TableModel model) {
         angle: 0,
         onPressed: (key) {
           model.toggleStatus();
-          radialAnimationController.reverse().then((_) {
-            Navigator.pushNamed(context, '/menu');
-          });
+          radialAnimationController.reverse();
+          //TODO: pass the hero tag to Menu, also change to better name
+          Navigator.pushNamed(context, '/menu');
         },
         color: Colors.red,
         icon: FontAwesomeIcons.plusCircle,

@@ -20,9 +20,27 @@ class HemBoApp extends StatelessWidget {
         create: (_) => OrderTracker(),
         child: child,
       ),
-      routes: {
-        '/': (context) => LobbyScreen(),
-        '/menu': (context) => MenuScreen(),
+      home: LobbyScreen(),
+      onGenerateRoute: (settings) {
+        if (settings.name == '/menu') {
+          //custom page transition animations
+          return PageRouteBuilder(
+            pageBuilder: (_, __, ___) => MenuScreen(),
+            transitionsBuilder: (_, animation, __, child) {
+              return SlideTransition(
+                  position: animation
+                      .drive(CurveTween(curve: Curves.easeOutCirc))
+                      .drive<Offset>(Tween(begin: Offset(0, 1), end: Offset.zero)),
+                  child: FadeTransition(
+                    opacity: animation.drive<double>(CurveTween(curve: Curves.easeOut)),
+                    child: child,
+                  ));
+            },
+            transitionDuration: Duration(milliseconds: 600),
+          );
+        }
+        // unknown route
+        return MaterialPageRoute(builder: (context) => Center(child: Text('404')));
       },
     );
   }
