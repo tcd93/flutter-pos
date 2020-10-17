@@ -23,9 +23,10 @@ class HemBoApp extends StatelessWidget {
       home: LobbyScreen(),
       onGenerateRoute: (settings) {
         if (settings.name == '/menu') {
-          //custom page transition animations
+          final String heroTag = settings.arguments;
+          // custom page transition animations
           return PageRouteBuilder(
-            pageBuilder: (_, __, ___) => MenuScreen(),
+            pageBuilder: (_, __, ___) => MenuScreen(fromHeroTag: heroTag),
             transitionsBuilder: (_, animation, __, child) {
               return SlideTransition(
                   position: animation

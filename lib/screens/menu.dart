@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MenuScreen extends StatelessWidget {
+  final String fromHeroTag;
+
+  MenuScreen({this.fromHeroTag});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -12,7 +16,7 @@ class MenuScreen extends StatelessWidget {
         child: Text('This is menu screen'),
       ),
       floatingActionButton: FloatingActionButton(
-        heroTag: 'tag1-1',
+        heroTag: fromHeroTag,
         child: Icon(FontAwesomeIcons.plusSquare),
         onPressed: null,
       ),

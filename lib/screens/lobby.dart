@@ -147,8 +147,8 @@ RadialMenu menuRenderFullFlow(TableModel model) {
         onPressed: (key) {
           model.toggleStatus();
           radialAnimationController.reverse();
-          //TODO: pass the hero tag to Menu, also change to better name
-          Navigator.pushNamed(context, '/menu');
+          // pass hero tag into new Page to animate the FAB
+          Navigator.pushNamed(context, '/menu', arguments: 'subtag1-${model.id}');
         },
         color: Colors.red,
         icon: FontAwesomeIcons.plusCircle,
@@ -161,6 +161,8 @@ RadialMenu menuRenderFullFlow(TableModel model) {
         onPressed: (key) {
           model.toggleStatus();
           radialAnimationController.reverse();
+          //TODO: implement Order Details page
+          Navigator.pushNamed(context, '/order-details', arguments: 'subtag2-${model.id}');
         },
         color: Colors.red,
         icon: FontAwesomeIcons.infoCircle,
