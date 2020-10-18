@@ -38,6 +38,7 @@ class HemBoApp extends StatelessWidget {
                   ));
             },
             transitionDuration: Duration(milliseconds: 600),
+            reverseTransitionDuration: Duration(milliseconds: 600),
           );
         }
         // unknown route

@@ -146,9 +146,12 @@ RadialMenu menuRenderFullFlow(TableModel model) {
         angle: 0,
         onPressed: (key) {
           model.toggleStatus();
-          radialAnimationController.reverse();
           // pass hero tag into new Page to animate the FAB
-          Navigator.pushNamed(context, '/menu', arguments: 'subtag1-${model.id}');
+          Navigator.pushNamed(context, '/menu', arguments: 'subtag1-${model.id}').then((_) {
+            Future.delayed(Duration(milliseconds: 600), () {
+              radialAnimationController.reverse();
+            });
+          });
         },
         color: Colors.red,
         icon: FontAwesomeIcons.plusCircle,
