@@ -14,7 +14,7 @@ class LobbyScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Catalog', style: Theme.of(context).textTheme.headline1),
+        title: Text('Lobby', style: Theme.of(context).textTheme.headline1),
       ),
       body: _LobbyLayout(),
     );
@@ -70,7 +70,6 @@ RadialMenu menuRenderPartialFlow(TableModel model) {
     mainButtonBuilder: (radialAnimationController, context) {
       return FloatingActionButton(
         child: Icon(FontAwesomeIcons.circleNotch),
-        backgroundColor: Colors.yellow[200],
         onPressed: () {
           model.toggleStatus();
           radialAnimationController.forward();
@@ -84,7 +83,6 @@ RadialMenu menuRenderPartialFlow(TableModel model) {
           model.toggleStatus();
           radialAnimationController.reverse();
         },
-        backgroundColor: Colors.yellow[200],
       );
     },
     radialButtonsBuilder: (radialAnimationController, context) => [
@@ -92,7 +90,6 @@ RadialMenu menuRenderPartialFlow(TableModel model) {
         controller: radialAnimationController,
         angle: 0,
         onPressed: null, //disabled
-        color: Colors.grey[300],
         icon: FontAwesomeIcons.plusCircle,
         key: ValueKey<int>(1),
       ),
@@ -102,7 +99,6 @@ RadialMenu menuRenderPartialFlow(TableModel model) {
         onPressed: (key) {
           radialAnimationController.reverse();
         },
-        color: Colors.red,
         icon: FontAwesomeIcons.infoCircle,
         key: ValueKey<int>(2),
       ),
@@ -167,7 +163,6 @@ RadialMenu menuRenderFullFlow(TableModel model) {
           //TODO: implement Order Details page
           Navigator.pushNamed(context, '/order-details', arguments: 'subtag2-${model.id}');
         },
-        color: Colors.red,
         icon: FontAwesomeIcons.infoCircle,
         key: ValueKey<int>(2),
       ),

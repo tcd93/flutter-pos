@@ -41,8 +41,6 @@ class RadialButton extends StatelessWidget {
             heroTag: this.heroTag,
             onPressed: this.onPressed != null ? () => {this.onPressed(this.key)} : null,
             child: Icon(icon),
-            backgroundColor: color,
-            foregroundColor: Colors.white,
             elevation: elevation));
   }
 }

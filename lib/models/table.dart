@@ -18,10 +18,10 @@ class TableModel {
 
   /// - When empty: `green`
   /// - When not empty: `grey`
-  Color currentColor() => this._isEmpty ? Colors.green[400] : Colors.grey[300];
+  Color currentColor() => this._isEmpty ? Colors.green[300] : Colors.grey[300];
 
   /// The reversed version of `currentColor()`
-  Color reversedColor() => this._isEmpty ? Colors.grey[300] : Colors.green[400];
+  Color reversedColor() => this._isEmpty ? Colors.grey[300] : Colors.green[300];
 
   /// Toggle the "empty" status of current table.
   /// Trigger a rebuild

@@ -14,4 +14,9 @@ final appTheme = ThemeData(
       color: Colors.black,
     ),
   ),
+  iconTheme: IconThemeData(size: 30),
+  floatingActionButtonTheme: FloatingActionButtonThemeData(
+    foregroundColor: Colors.yellow[250],
+    backgroundColor: Colors.green[300],
+  ),
 );
