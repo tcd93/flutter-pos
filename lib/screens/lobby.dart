@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../common/case2/case2.dart';
 import '../common/radial_menu/radial_button.dart';
 import '../common/radial_menu/radial_menu.dart';
-import '../common/case2/case2.dart';
 
 import '../models/order.dart';
 import '../models/table.dart';
@@ -51,7 +51,7 @@ class _Table extends StatelessWidget {
     debugPrint("rebuilding _Table... $id");
 
     // the table model to control state
-    final model = context.select<OrderTracker, TableModel>((tracker) => tracker.getTable(this.id));
+    final model = context.select<OrderTracker, TableModel>((tracker) => tracker.getTable(id));
 
     return Padding(
       padding: const EdgeInsets.all(25),

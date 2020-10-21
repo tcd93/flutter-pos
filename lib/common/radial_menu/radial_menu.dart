@@ -18,7 +18,7 @@ class RadialMenu extends StatefulWidget {
       {this.mainButtonBuilder, this.radialButtonsBuilder, this.secondaryButtonBuilder, Key key})
       : super(key: key);
 
-  createState() => _RadialMenuState();
+  _RadialMenuState createState() => _RadialMenuState();
 }
 
 class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateMixin {

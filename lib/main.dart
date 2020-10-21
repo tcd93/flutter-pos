@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hembo/screens/menu.dart';
 import 'package:provider/provider.dart';
 import './common/theme.dart';
 import 'models/order.dart';
 import 'screens/lobby.dart';
+import 'screens/menu.dart';
 
 void main() {
   runApp(HemBoApp());
