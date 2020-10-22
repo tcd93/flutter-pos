@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+@immutable
 class Counter extends StatelessWidget {
+  final Key key;
   final textEditingController = TextEditingController(text: '0');
+  final void Function(int currentValue) onIncrement;
+  final void Function(int currentValue) onDecrement;
+
+  Counter({this.onIncrement, this.onDecrement, this.key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,31 +21,41 @@ class Counter extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(width: 6),
+            const SizedBox(width: 6),
             FloatingActionButton(
               heroTag: '1', //TODO as parameter
               child: Icon(FontAwesomeIcons.plusCircle),
               onPressed: () {
-                //TODO: increment/decrement this value
-                textEditingController.text = (int.parse(textEditingController.text) + 1).toString();
-                debugPrint("Typed ${textEditingController.text}");
+                var value = int.tryParse(textEditingController.text);
+                if (value == null || value < 0) return;
+
+                value++;
+                textEditingController.text = (value).toString();
+                onIncrement?.call(value);
               },
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Expanded(
               child: TextField(
                   controller: textEditingController,
-                  keyboardType: TextInputType.number,
+                  keyboardType: const TextInputType.numberWithOptions(signed: true),
                   decoration: InputDecoration(border: const OutlineInputBorder()),
                   textAlign: TextAlign.center),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             FloatingActionButton(
               heroTag: '2',
               child: Icon(FontAwesomeIcons.minusCircle),
-              onPressed: () {},
+              onPressed: () {
+                var value = int.tryParse(textEditingController.text);
+                if (value == null || value <= 0) return;
+
+                value--;
+                textEditingController.text = (value).toString();
+                onDecrement?.call(value);
+              },
             ),
-            SizedBox(width: 6),
+            const SizedBox(width: 6),
           ],
         ),
       ),
