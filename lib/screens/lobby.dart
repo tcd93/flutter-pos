@@ -51,7 +51,8 @@ class _Table extends StatelessWidget {
     debugPrint("rebuilding _Table... $id");
 
     // the table model to control state
-    final model = context.select<OrderTracker, TableModel>((tracker) => tracker.getTable(id));
+    final model = context
+        .select<OrderTracker, TableModel>((tracker) => tracker.getTable(id));
 
     return Padding(
       padding: const EdgeInsets.all(25),
@@ -109,13 +110,14 @@ RadialMenu menuRenderPartialFlow(TableModel model) {
 /// Full flow: able to place order, see order details
 RadialMenu menuRenderFullFlow(TableModel model) {
   // create a smooth color transition effect
-  final colorTween = ColorTween(begin: model.currentColor(), end: model.reversedColor());
+  final colorTween =
+      ColorTween(begin: model.currentColor(), end: model.reversedColor());
 
   return RadialMenu(
     key: ValueKey(model.id),
     mainButtonBuilder: (radialAnimationController, context) {
       return FloatingActionButton(
-        heroTag: "tag1-${model.id}",
+        heroTag: null,
         child: Icon(FontAwesomeIcons.circleNotch),
         onPressed: () {
           model.toggleStatus();
@@ -126,7 +128,7 @@ RadialMenu menuRenderFullFlow(TableModel model) {
     },
     secondaryButtonBuilder: (radialAnimationController, context) {
       return FloatingActionButton(
-        heroTag: "tag2-${model.id}",
+        heroTag: null,
         child: Icon(FontAwesomeIcons.expand),
         onPressed: () {
           model.toggleStatus();
@@ -137,13 +139,15 @@ RadialMenu menuRenderFullFlow(TableModel model) {
     },
     radialButtonsBuilder: (radialAnimationController, context) => [
       RadialButton(
-        heroTag: "subtag1-${model.id}",
+        heroTag: "menu-subtag-table-${model.id}",
         controller: radialAnimationController,
         angle: 0,
         onPressed: (key) {
           model.toggleStatus();
           // pass hero tag into new Page to animate the FAB
-          Navigator.pushNamed(context, '/menu', arguments: 'subtag1-${model.id}').then((_) {
+          Navigator.pushNamed(context, '/menu',
+                  arguments: 'subtag1-${model.id}')
+              .then((_) {
             Future.delayed(Duration(milliseconds: 600), () {
               radialAnimationController.reverse();
             });
@@ -154,14 +158,15 @@ RadialMenu menuRenderFullFlow(TableModel model) {
         key: ValueKey<int>(1),
       ),
       RadialButton(
-        heroTag: "subtag2-${model.id}",
+        heroTag: "details-subtag-table-${model.id}",
         controller: radialAnimationController,
         angle: 90,
         onPressed: (key) {
           model.toggleStatus();
           radialAnimationController.reverse();
           //TODO: implement Order Details page
-          Navigator.pushNamed(context, '/order-details', arguments: 'subtag2-${model.id}');
+          Navigator.pushNamed(context, '/order-details',
+              arguments: 'subtag2-${model.id}');
         },
         icon: FontAwesomeIcons.infoCircle,
         key: ValueKey<int>(2),

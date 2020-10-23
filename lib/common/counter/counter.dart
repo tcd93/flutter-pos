@@ -23,7 +23,7 @@ class Counter extends StatelessWidget {
           children: [
             const SizedBox(width: 6),
             FloatingActionButton(
-              heroTag: '1', //TODO as parameter
+              heroTag: null,
               child: Icon(FontAwesomeIcons.plusCircle),
               onPressed: () {
                 var value = int.tryParse(textEditingController.text);
@@ -38,13 +38,15 @@ class Counter extends StatelessWidget {
             Expanded(
               child: TextField(
                   controller: textEditingController,
-                  keyboardType: const TextInputType.numberWithOptions(signed: true),
-                  decoration: InputDecoration(border: const OutlineInputBorder()),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(signed: true),
+                  decoration:
+                      InputDecoration(border: const OutlineInputBorder()),
                   textAlign: TextAlign.center),
             ),
             const SizedBox(width: 8),
             FloatingActionButton(
-              heroTag: '2',
+              heroTag: null,
               child: Icon(FontAwesomeIcons.minusCircle),
               onPressed: () {
                 var value = int.tryParse(textEditingController.text);
