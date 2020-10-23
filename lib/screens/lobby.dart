@@ -49,22 +49,21 @@ class _Table extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // the table model to control state
-    final model = context
-        .select<OrderTracker, TableModel>((tracker) => tracker.getTable(id));
-
+    final model = context.select<OrderTracker, TableModel>((tracker) => tracker.getTable(id));
     debugPrint("rebuilding _Table... $id");
-    // debugPrint("model.isAbleToPlaceOrder(): ${model.isAbleToPlaceOrder()}");
 
     return Padding(
       padding: const EdgeInsets.all(25),
       child: _MainButton(
         model,
-        // surroundingButtonsBuilder: (context, animController) {
-        //   return case2(model.isAbleToPlaceOrder(), {
-        //     true: _fullFlow(context, model, animController),
-        //     false: _partialFlow(context, model, animController),
-        //   });
-        // },
+        surroundingButtonsBuilder: (context, animController) {
+          // be aware that in this callback, model state may has changed
+          return case2(model.isAbleToPlaceOrder(), {
+            true: _fullFlow(context, model, animController),
+            //TODO: add disable FAB color
+            false: _partialFlow(context, model, animController),
+          });
+        },
         key: ObjectKey(model),
       ),
     );
@@ -73,26 +72,26 @@ class _Table extends StatelessWidget {
 
 class _MainButton extends StatelessWidget {
   final TableModel model;
-  final List<RadialButton> Function(BuildContext, AnimationController)
-      surroundingButtonsBuilder;
+  final List<RadialButton> Function(BuildContext, AnimationController) surroundingButtonsBuilder;
 
   // create a smooth color transition effect
   final ColorTween colorTween;
 
   _MainButton(this.model, {this.surroundingButtonsBuilder, Key key})
-      : colorTween =
-            ColorTween(begin: model.currentColor(), end: model.reversedColor()),
+      : colorTween = ColorTween(begin: model.currentColor(), end: model.reversedColor()),
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("rebuilding _MainButton... ${model.id}");
+
     return RadialMenu(
       mainButtonBuilder: (radialAnimationController, context) {
         return FloatingActionButton(
           heroTag: null,
           child: Icon(FontAwesomeIcons.circleNotch),
           onPressed: () {
-            model.toggleStatus();
+            // model.toggleStatus();
             radialAnimationController.forward();
           },
           backgroundColor: colorTween.animate(radialAnimationController).value,
@@ -103,7 +102,7 @@ class _MainButton extends StatelessWidget {
           heroTag: null,
           child: Icon(FontAwesomeIcons.expand),
           onPressed: () {
-            model.toggleStatus();
+            // model.toggleStatus();
             radialAnimationController.reverse();
           },
           backgroundColor: colorTween.animate(radialAnimationController).value,
@@ -115,9 +114,7 @@ class _MainButton extends StatelessWidget {
 }
 
 /// Partial flow: only able to see order details
-_partialFlow(BuildContext _, TableModel __,
-        AnimationController radialAnimationController) =>
-    [
+_partialFlow(BuildContext _, TableModel __, AnimationController radialAnimationController) => [
       RadialButton(
         controller: radialAnimationController,
         angle: 0,
@@ -128,7 +125,7 @@ _partialFlow(BuildContext _, TableModel __,
       RadialButton(
         controller: radialAnimationController,
         angle: 90,
-        onPressed: (key) {
+        onPressed: () {
           radialAnimationController.reverse();
         },
         icon: FontAwesomeIcons.infoCircle,
@@ -137,25 +134,21 @@ _partialFlow(BuildContext _, TableModel __,
     ];
 
 /// Full flow: able to place order, see order details
-_fullFlow(BuildContext context, TableModel model,
-        AnimationController radialAnimationController) =>
+_fullFlow(BuildContext context, TableModel model, AnimationController radialAnimationController) =>
     [
       RadialButton(
         heroTag: "menu-subtag-table-${model.id}",
         controller: radialAnimationController,
         angle: 0,
-        onPressed: (key) {
-          model.toggleStatus();
+        onPressed: () {
+          // model.toggleStatus();
           // pass hero tag into new Page to animate the FAB
-          Navigator.pushNamed(context, '/menu',
-                  arguments: 'subtag1-${model.id}')
-              .then((_) {
+          Navigator.pushNamed(context, '/menu', arguments: 'subtag1-${model.id}').then((_) {
             Future.delayed(Duration(milliseconds: 600), () {
               radialAnimationController.reverse();
             });
           });
         },
-        color: Colors.red,
         icon: FontAwesomeIcons.plusCircle,
         key: ValueKey<int>(1),
       ),
@@ -163,12 +156,11 @@ _fullFlow(BuildContext context, TableModel model,
         heroTag: "details-subtag-table-${model.id}",
         controller: radialAnimationController,
         angle: 90,
-        onPressed: (key) {
-          model.toggleStatus();
+        onPressed: () {
+          // model.toggleStatus();
           radialAnimationController.reverse();
           //TODO: implement Order Details page
-          Navigator.pushNamed(context, '/order-details',
-              arguments: 'subtag2-${model.id}');
+          Navigator.pushNamed(context, '/order-details', arguments: 'subtag2-${model.id}');
         },
         icon: FontAwesomeIcons.infoCircle,
         key: ValueKey<int>(2),
