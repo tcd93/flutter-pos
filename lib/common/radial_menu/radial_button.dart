@@ -36,10 +36,11 @@ class RadialButton extends StatelessWidget {
 
     return Transform(
         transform: Matrix4.identity()
-          ..translate((translation.value) * cos(rad), (translation.value) * sin(rad)),
+          ..translate(
+              (translation.value) * cos(rad), (translation.value) * sin(rad)),
         child: FloatingActionButton(
             heroTag: heroTag,
-            onPressed: onPressed != null ? () => {onPressed(key)} : null,
+            onPressed: onPressed?.call(key),
             child: Icon(icon),
             elevation: elevation));
   }

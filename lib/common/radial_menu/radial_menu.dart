@@ -6,22 +6,28 @@ import 'radial_button.dart';
 
 class RadialMenu extends StatefulWidget {
   /// Builder for surrounding sub-buttons
-  final List<RadialButton> Function(AnimationController, BuildContext) radialButtonsBuilder;
+  final List<RadialButton> Function(BuildContext, AnimationController)
+      radialButtonsBuilder;
 
   /// Builder for center button (normal state)
   final Widget Function(AnimationController, BuildContext) mainButtonBuilder;
 
   /// Builder for center button (expanded state)
-  final Widget Function(AnimationController, BuildContext) secondaryButtonBuilder;
+  final Widget Function(AnimationController, BuildContext)
+      secondaryButtonBuilder;
 
   RadialMenu(
-      {this.mainButtonBuilder, this.radialButtonsBuilder, this.secondaryButtonBuilder, Key key})
+      {this.mainButtonBuilder,
+      this.radialButtonsBuilder,
+      this.secondaryButtonBuilder,
+      Key key})
       : super(key: key);
 
   _RadialMenuState createState() => _RadialMenuState();
 }
 
-class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateMixin {
+class _RadialMenuState extends State<RadialMenu>
+    with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation<double> rotation;
   Animation<double> scale;
@@ -30,7 +36,8 @@ class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateM
   void initState() {
     super.initState();
 
-    controller = AnimationController(duration: Duration(milliseconds: 500), vsync: this);
+    controller =
+        AnimationController(duration: Duration(milliseconds: 500), vsync: this);
 
     scale = Tween<double>(
       begin: 1.5,
@@ -63,7 +70,7 @@ class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     // rotates by rotation value, also scales down in the process
-    return SizedBox(
+    return Container(
         width: 175,
         height: 175,
         child: AnimatedBuilder(
@@ -72,16 +79,20 @@ class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateM
               return Transform.rotate(
                   angle: radians(rotation.value),
                   child: Stack(alignment: Alignment.center, children: <Widget>[
-                    ...this.widget.radialButtonsBuilder(controller, context),
+                    if (this.widget.radialButtonsBuilder != null)
+                      ...this.widget.radialButtonsBuilder(context, controller),
                     if (this.widget.secondaryButtonBuilder != null)
                       Transform.scale(
                         scale: scale.value - 1.0,
-                        child: this.widget.secondaryButtonBuilder(controller, context),
+                        child: this
+                            .widget
+                            .secondaryButtonBuilder(controller, context),
                       ),
                     if (this.widget.mainButtonBuilder != null)
                       Transform.scale(
                         scale: scale.value,
-                        child: this.widget.mainButtonBuilder(controller, context),
+                        child:
+                            this.widget.mainButtonBuilder(controller, context),
                       ),
                   ]));
             }));
