@@ -12,9 +12,18 @@ enum _TableStatus {
   // may be more status here, like Discounted, Need cleaning...
 }
 
+class Dish {
+  // TODO: dish from external file
+  String dish = 'Sample';
+  int quantity = 0;
+}
+
 /// The separate "state" of the immutable [TableModel] class
 class _State {
   _TableStatus status = _TableStatus.empty;
+
+  //TODO: dummy
+  List<Dish> order = [Dish()];
 }
 
 @immutable
@@ -23,7 +32,7 @@ class TableModel {
   final int id;
   //TODO: create menu list (Menu Class)
 
-  final _State tableState = _State();
+  final _State _tableState = _State();
 
   // ignore: type_annotate_public_apis
   operator ==(other) => other is TableModel && other.id == id;
@@ -31,22 +40,25 @@ class TableModel {
 
   TableModel(this._tracker, this.id);
 
-  bool isAbleToPlaceOrder() => tableState.status == _TableStatus.empty ? true : false;
+  bool isAbleToPlaceOrder() => _tableState.status == _TableStatus.empty ? true : false;
 
   /// - When empty: `green`
   /// - When not empty: `grey`
   Color currentColor() =>
-      tableState.status == _TableStatus.empty ? Colors.green[300] : Colors.grey[300];
+      _tableState.status == _TableStatus.empty ? Colors.green[300] : Colors.grey[300];
 
   /// The reversed version of `currentColor()`
   Color reversedColor() =>
-      tableState.status == _TableStatus.empty ? Colors.grey[300] : Colors.green[300];
+      _tableState.status == _TableStatus.empty ? Colors.grey[300] : Colors.green[300];
 
   /// Toggle the "empty" status of current table.
   /// Trigger a rebuild
   void toggleStatus() {
-    tableState.status =
-        tableState.status == _TableStatus.empty ? _TableStatus.occupied : _TableStatus.empty;
+    _tableState.status =
+        _tableState.status == _TableStatus.empty ? _TableStatus.occupied : _TableStatus.empty;
     _tracker.notifyListeners();
   }
+
+  /// Get orders
+  List<Dish> getOrder() => _tableState.order;
 }

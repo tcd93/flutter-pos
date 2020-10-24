@@ -25,9 +25,12 @@ class HemBoApp extends StatelessWidget {
         if (settings.name == '/menu') {
           final argMap = settings.arguments as Map;
           final String heroTag = argMap['heroTag'];
+          final int tableID = argMap['tableID'];
+          debugPrint("Generating menu screen of table $tableID");
+
           // custom page transition animations
           return PageRouteBuilder(
-            pageBuilder: (_, __, ___) => MenuScreen(fromHeroTag: heroTag),
+            pageBuilder: (_, __, ___) => MenuScreen(tableID, fromHeroTag: heroTag),
             transitionsBuilder: (_, animation, __, child) {
               return SlideTransition(
                   position: animation
