@@ -15,6 +15,7 @@ class MenuScreen extends StatelessWidget {
         title: Text('Menu', style: Theme.of(context).textTheme.headline1),
       ),
       body: Counter(
+        0,
         onIncrement: (currentValue) {
           debugPrint(currentValue.toString());
           return;

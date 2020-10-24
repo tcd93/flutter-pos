@@ -61,33 +61,26 @@ class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateM
   }
 
   @override
-  Widget build(BuildContext context) {
-    debugPrint("== rebuilding _RadialMenuState... ==");
-    // rotates by rotation value, also scales down in the process
-    return Container(
-        width: 175,
-        height: 175,
-        child: AnimatedBuilder(
-            animation: controller,
-            builder: (context, _) {
-              // debugPrint("== rebuilding AnimatedBuilder of _RadialMenuState ... ==");
-
-              return Transform.rotate(
-                  angle: radians(rotation.value),
-                  child: Stack(alignment: Alignment.center, children: <Widget>[
-                    if (widget.radialButtonsBuilder != null)
-                      ...widget.radialButtonsBuilder(context, controller),
-                    if (widget.secondaryButtonBuilder != null)
-                      Transform.scale(
-                        scale: scale.value - 1.0,
-                        child: widget.secondaryButtonBuilder(controller, context),
-                      ),
-                    if (widget.mainButtonBuilder != null)
-                      Transform.scale(
-                        scale: scale.value,
-                        child: widget.mainButtonBuilder(controller, context),
-                      ),
-                  ]));
-            }));
-  }
+  // rotates by rotation value, also scales down in the process
+  Widget build(BuildContext context) => Container(
+      width: 175,
+      height: 175,
+      child: AnimatedBuilder(
+          animation: controller,
+          builder: (context, _) => Transform.rotate(
+              angle: radians(rotation.value),
+              child: Stack(alignment: Alignment.center, children: <Widget>[
+                if (widget.radialButtonsBuilder != null)
+                  ...widget.radialButtonsBuilder(context, controller),
+                if (widget.secondaryButtonBuilder != null)
+                  Transform.scale(
+                    scale: scale.value - 1.0,
+                    child: widget.secondaryButtonBuilder(controller, context),
+                  ),
+                if (widget.mainButtonBuilder != null)
+                  Transform.scale(
+                    scale: scale.value,
+                    child: widget.mainButtonBuilder(controller, context),
+                  ),
+              ]))));
 }
