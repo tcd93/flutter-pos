@@ -144,7 +144,8 @@ _fullFlow(BuildContext context, TableModel model, AnimationController radialAnim
         onPressed: () {
           // model.toggleStatus();
           // pass hero tag into new Page to animate the FAB
-          Navigator.pushNamed(context, '/menu', arguments: 'subtag1-${model.id}').then((_) {
+          Navigator.pushNamed(context, '/menu',
+              arguments: {'heroTag': 'menu-subtag-table-${model.id}'}).then((_) {
             Future.delayed(Duration(milliseconds: 600), () {
               radialAnimationController.reverse();
             });
@@ -161,7 +162,8 @@ _fullFlow(BuildContext context, TableModel model, AnimationController radialAnim
           // model.toggleStatus();
           radialAnimationController.reverse();
           //TODO: implement Order Details page
-          Navigator.pushNamed(context, '/order-details', arguments: 'subtag2-${model.id}');
+          Navigator.pushNamed(context, '/order-details',
+              arguments: {'heroTag': 'details-subtag-table-${model.id}'});
         },
         icon: FontAwesomeIcons.infoCircle,
         key: ValueKey<int>(2),
