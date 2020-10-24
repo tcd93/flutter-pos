@@ -14,10 +14,10 @@ class MenuScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Menu', style: Theme.of(context).textTheme.headline1),
       ),
+      // TODO: create a list view of counters
       body: Counter(
         0,
         onIncrement: (currentValue) {
-          debugPrint(currentValue.toString());
           return;
         },
       ),

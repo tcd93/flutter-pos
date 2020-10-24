@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import './common/theme.dart';
-import 'models/order.dart';
+import 'models/tracker.dart';
 import 'screens/lobby.dart';
 import 'screens/menu.dart';
 

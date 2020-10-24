@@ -6,8 +6,8 @@ import '../common/case2/case2.dart';
 import '../common/radial_menu/radial_button.dart';
 import '../common/radial_menu/radial_menu.dart';
 
-import '../models/order.dart';
 import '../models/table.dart';
+import '../models/tracker.dart';
 
 class LobbyScreen extends StatelessWidget {
   @override
@@ -32,6 +32,7 @@ class _LobbyLayout extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            //TODO: angles should be defined from here
             _Table(1),
             _Table(2),
           ],

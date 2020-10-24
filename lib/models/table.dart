@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import 'order.dart';
+import 'tracker.dart';
 
 enum _TableStatus {
   /// No one is sitting at this table
@@ -21,6 +21,7 @@ class _State {
 class TableModel {
   final OrderTracker _tracker;
   final int id;
+  //TODO: create menu list (Menu Class)
 
   final _State tableState = _State();
 
