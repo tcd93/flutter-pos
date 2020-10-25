@@ -41,6 +41,7 @@ class Counter extends StatelessWidget {
                 // text box
                 child: TextField(
                     controller: textEditingController,
+                    enabled: false,
                     keyboardType: const TextInputType.numberWithOptions(signed: true),
                     decoration: InputDecoration(border: const OutlineInputBorder()),
                     textAlign: TextAlign.center),
