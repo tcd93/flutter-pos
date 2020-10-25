@@ -26,7 +26,6 @@ class HemBoApp extends StatelessWidget {
           final argMap = settings.arguments as Map;
           final String heroTag = argMap['heroTag'];
           final int tableID = argMap['tableID'];
-          debugPrint("Generating menu screen of table $tableID");
 
           // custom page transition animations
           return PageRouteBuilder(
