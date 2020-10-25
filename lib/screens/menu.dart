@@ -3,6 +3,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../common/counter/counter.dart';
+
+import '../models/dish.dart';
 import '../models/table.dart';
 import '../models/tracker.dart';
 
@@ -15,18 +17,27 @@ class MenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.select<OrderTracker, TableModel>((tracker) => tracker.getTable(tableID));
-    var orderIndex = 0;
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Menu', style: Theme.of(context).textTheme.headline1),
       ),
-      // TODO: create a list view of counters, index 0 is dummy
-      body: Counter(
-        model.getOrder()[orderIndex].quantity,
-        onIncrement: (_) => model.getOrder()[orderIndex].quantity++,
-        onDecrement: (_) => model.getOrder()[orderIndex].quantity--,
-      ),
+      body: ListView.builder(
+          padding: const EdgeInsets.all(8),
+          itemCount: Dish.getMenu().length,
+          itemBuilder: (context, index) {
+            return Counter(
+              model.getOrder(index)?.quantity ?? 0,
+              onIncrement: (_) {
+                model.getOrPutOrder(index).quantity++;
+                debugPrint('current order: ${model.getOrder(index).toString()}');
+              },
+              onDecrement: (_) {
+                model.getOrPutOrder(index).quantity--;
+                debugPrint('current order: ${model.getOrder(index).toString()}');
+              },
+            );
+          }),
       floatingActionButton: FloatingActionButton(
         heroTag: fromHeroTag,
         child: Icon(FontAwesomeIcons.plusSquare),

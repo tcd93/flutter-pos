@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+import 'order.dart';
 import 'tracker.dart';
 
 enum _TableStatus {
@@ -12,25 +13,23 @@ enum _TableStatus {
   // may be more status here, like Discounted, Need cleaning...
 }
 
-class Dish {
-  // TODO: dish from external file
-  String dish = 'Sample';
-  int quantity = 0;
-}
-
 /// The separate "state" of the immutable [TableModel] class
 class _State {
   _TableStatus status = _TableStatus.empty;
 
   //TODO: dummy
-  List<Dish> order = [Dish()];
+  /// The order associated with a table.
+  /// This is a [Map<int, Order>] where the key is the [Dish] item id
+  Map<int, Order> order = {
+    // 0: Order(dishID: 0),
+    // 1: Order(dishID: 1),
+  };
 }
 
 @immutable
 class TableModel {
   final OrderTracker _tracker;
   final int id;
-  //TODO: create menu list (Menu Class)
 
   final _State _tableState = _State();
 
@@ -59,6 +58,10 @@ class TableModel {
     _tracker.notifyListeners();
   }
 
-  /// Get orders
-  List<Dish> getOrder() => _tableState.order;
+  /// Get [Order] at menu index
+  Order getOrder(int dishID) => _tableState.order[dishID];
+
+  /// putIfAbsent [Order] at menu index
+  Order getOrPutOrder(int dishID) =>
+      _tableState.order.putIfAbsent(dishID, () => Order(dishID: dishID));
 }
