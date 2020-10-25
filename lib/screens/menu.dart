@@ -24,10 +24,8 @@ class MenuScreen extends StatelessWidget {
       // TODO: create a list view of counters, index 0 is dummy
       body: Counter(
         model.getOrder()[orderIndex].quantity,
-        onIncrement: (_) {
-          model.getOrder()[orderIndex].quantity++;
-          return;
-        },
+        onIncrement: (_) => model.getOrder()[orderIndex].quantity++,
+        onDecrement: (_) => model.getOrder()[orderIndex].quantity--,
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: fromHeroTag,
