@@ -10,11 +10,14 @@ class Dish {
   /// Dish name
   final String dish;
 
+  /// Path to image, located under `/assets/`
+  final String imagePath;
+
   // ignore: type_annotate_public_apis
   operator ==(other) => other is Dish && other.id == id;
   int get hashCode => id;
 
-  const Dish(this.id, this.dish);
+  const Dish(this.id, this.dish, [this.imagePath = 'assets/default.png']);
 
   /// Index of menu is the unique ID of associated [Dish]
   static UnmodifiableListView<Dish> getMenu() => UnmodifiableListView([

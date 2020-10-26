@@ -23,7 +23,7 @@ class MenuScreen extends StatelessWidget {
         title: Text('Menu', style: Theme.of(context).textTheme.headline1),
       ),
       body: ListView.builder(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.only(top: 8, bottom: 8),
           itemCount: Dish.getMenu().length,
           itemBuilder: (context, index) {
             return Counter(
@@ -36,6 +36,8 @@ class MenuScreen extends StatelessWidget {
                 model.getOrPutOrder(index).quantity--;
                 debugPrint('current order: ${model.getOrder(index).toString()}');
               },
+              imagePath: Dish.getMenu()[index].imagePath,
+              subtitle: Dish.getMenu()[index].dish,
             );
           }),
       floatingActionButton: FloatingActionButton(

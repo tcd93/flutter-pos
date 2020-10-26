@@ -3,25 +3,45 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 @immutable
 class Counter extends StatelessWidget {
-  final Key key;
+  final String imagePath;
+  final String subtitle;
   final TextEditingController textEditingController;
   final void Function(int currentValue) onIncrement;
   final void Function(int currentValue) onDecrement;
 
-  Counter(int startingValue, {this.onIncrement, this.onDecrement, this.key})
+  Counter(int startingValue,
+      {this.onIncrement, this.onDecrement, this.imagePath, this.subtitle, Key key})
       : textEditingController = TextEditingController(text: startingValue.toString()),
         super(key: key);
 
   @override
   Widget build(BuildContext context) => Container(
         // width: 200,
-        height: 80,
+        height: 100,
         color: Colors.black12,
         child: Align(
           alignment: Alignment.centerRight,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              const SizedBox(width: 6),
+              if (imagePath != null)
+                SizedBox(
+                  height: 95,
+                  child: Image.asset(
+                    imagePath,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              if (subtitle != null)
+                Expanded(
+                  child: Text(
+                    subtitle,
+                    overflow: TextOverflow.fade,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                ),
               const SizedBox(width: 6),
               FloatingActionButton(
                 // decrease
@@ -36,8 +56,9 @@ class Counter extends StatelessWidget {
                   onDecrement?.call(value);
                 },
               ),
-              const SizedBox(width: 8),
-              Expanded(
+              const SizedBox(width: 6),
+              SizedBox(
+                width: 60,
                 // text box
                 child: TextField(
                     controller: textEditingController,
@@ -46,7 +67,7 @@ class Counter extends StatelessWidget {
                     decoration: InputDecoration(border: const OutlineInputBorder()),
                     textAlign: TextAlign.center),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               FloatingActionButton(
                 // increase
                 heroTag: null,
