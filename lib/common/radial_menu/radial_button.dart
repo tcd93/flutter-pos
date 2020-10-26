@@ -17,7 +17,7 @@ class RadialButton extends StatelessWidget {
       {@required this.controller,
       @required this.angle,
       @required this.onPressed,
-      this.color = Colors.green,
+      this.color,
       this.icon,
       this.elevation = 0,
       this.heroTag,
@@ -36,8 +36,14 @@ class RadialButton extends StatelessWidget {
 
     return Transform(
         transform: Matrix4.identity()
-          ..translate((translation.value) * cos(rad), (translation.value) * sin(rad)),
+          ..translate(
+              (translation.value) * cos(rad), (translation.value) * sin(rad)),
         child: FloatingActionButton(
-            heroTag: heroTag, onPressed: onPressed, child: Icon(icon), elevation: elevation));
+          heroTag: heroTag,
+          onPressed: onPressed,
+          child: Icon(icon),
+          elevation: elevation,
+          backgroundColor: color,
+        ));
   }
 }
