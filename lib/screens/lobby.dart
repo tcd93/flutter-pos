@@ -32,9 +32,8 @@ class _LobbyLayout extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            //TODO: angles should be defined from here
-            _Table(1),
-            _Table(2),
+            _Table(1, [0, 90]),
+            _Table(2, [90, 180]),
           ],
         ),
       ],
@@ -44,27 +43,30 @@ class _LobbyLayout extends StatelessWidget {
 
 class _Table extends StatelessWidget {
   final int id;
+  final List<double> displayAngles;
 
-  _Table(this.id);
+  _Table(this.id, this.displayAngles);
 
   @override
   Widget build(BuildContext context) {
     // the table model to control state
-    final model = context.select<OrderTracker, TableModel>((tracker) => tracker.getTable(id));
+    final model = context
+        .select<OrderTracker, TableModel>((tracker) => tracker.getTable(id));
     debugPrint("rebuilding _Table... $id");
 
     return Padding(
       padding: const EdgeInsets.all(25),
       child: _MainButton(
         model,
-        surroundingButtonsBuilder: (context, animController) {
+        surroundingButtonsBuilder: (context, animController, angles) {
           // be aware that in this callback, model state may has changed
           return case2(model.isAbleToPlaceOrder(), {
-            true: _fullFlow(context, model, animController),
+            true: _fullFlow(context, model, animController, angles),
             //TODO: add disable FAB color
-            false: _partialFlow(context, model, animController),
+            false: _partialFlow(context, model, animController, angles),
           });
         },
+        displayAngles: displayAngles,
         key: ObjectKey(model),
       ),
     );
@@ -73,13 +75,26 @@ class _Table extends StatelessWidget {
 
 class _MainButton extends StatelessWidget {
   final TableModel model;
-  final List<RadialButton> Function(BuildContext, AnimationController) surroundingButtonsBuilder;
+
+  /// Returns a list of surrounding [RadialButton].
+  /// Should match the number of elements in [displayAngles]
+  final List<RadialButton> Function(
+          BuildContext, AnimationController, List<double> displayAngles)
+      surroundingButtonsBuilder;
+
+  /// Clock-wise placement angles for surrounding sub-buttons (add order, details...).
+  /// Example: `[0, 90]` would place one at 3 o'clock, the other at 6 o'clock
+  final List<double> displayAngles;
 
   // create a smooth color transition effect
-  final ColorTween colorTween;
+  final ColorTween _colorTween;
 
-  _MainButton(this.model, {this.surroundingButtonsBuilder, Key key})
-      : colorTween = ColorTween(begin: model.currentColor(), end: model.reversedColor()),
+  _MainButton(this.model,
+      {@required this.surroundingButtonsBuilder,
+      @required this.displayAngles,
+      Key key})
+      : _colorTween =
+            ColorTween(begin: model.currentColor(), end: model.reversedColor()),
         super(key: key);
 
   @override
@@ -92,10 +107,9 @@ class _MainButton extends StatelessWidget {
           heroTag: null,
           child: Icon(FontAwesomeIcons.circleNotch),
           onPressed: () {
-            // model.toggleStatus();
             radialAnimationController.forward();
           },
-          backgroundColor: colorTween.animate(radialAnimationController).value,
+          backgroundColor: _colorTween.animate(radialAnimationController).value,
         );
       },
       secondaryButtonBuilder: (radialAnimationController, context) {
@@ -103,29 +117,31 @@ class _MainButton extends StatelessWidget {
           heroTag: null,
           child: Icon(FontAwesomeIcons.expand),
           onPressed: () {
-            // model.toggleStatus();
             radialAnimationController.reverse();
           },
-          backgroundColor: colorTween.animate(radialAnimationController).value,
+          backgroundColor: _colorTween.animate(radialAnimationController).value,
         );
       },
-      radialButtonsBuilder: surroundingButtonsBuilder,
+      radialButtonsBuilder: (context, animController) =>
+          surroundingButtonsBuilder(context, animController, displayAngles),
     );
   }
 }
 
 /// Partial flow: only able to see order details
-_partialFlow(BuildContext _, TableModel __, AnimationController radialAnimationController) => [
+_partialFlow(BuildContext _, TableModel __,
+        AnimationController radialAnimationController, List<double> angles) =>
+    [
       RadialButton(
         controller: radialAnimationController,
-        angle: 0,
+        angle: angles[0],
         onPressed: null, //disabled
         icon: FontAwesomeIcons.plusCircle,
         key: ValueKey<int>(1),
       ),
       RadialButton(
         controller: radialAnimationController,
-        angle: 90,
+        angle: angles[1],
         onPressed: () {
           radialAnimationController.reverse();
         },
@@ -135,18 +151,20 @@ _partialFlow(BuildContext _, TableModel __, AnimationController radialAnimationC
     ];
 
 /// Full flow: able to place order, see order details
-_fullFlow(BuildContext context, TableModel model, AnimationController radialAnimationController) =>
+_fullFlow(BuildContext context, TableModel model,
+        AnimationController radialAnimationController, List<double> angles) =>
     [
       RadialButton(
         heroTag: "menu-subtag-table-${model.id}",
         controller: radialAnimationController,
-        angle: 0,
+        angle: angles[0],
         onPressed: () {
           // model.toggleStatus();
           // pass hero tag into new Page to animate the FAB
-          Navigator.pushNamed(context, '/menu',
-                  arguments: {'heroTag': 'menu-subtag-table-${model.id}', 'tableID': model.id})
-              .then((_) {
+          Navigator.pushNamed(context, '/menu', arguments: {
+            'heroTag': 'menu-subtag-table-${model.id}',
+            'tableID': model.id
+          }).then((_) {
             Future.delayed(Duration(milliseconds: 600), () {
               radialAnimationController.reverse();
             });
@@ -158,12 +176,14 @@ _fullFlow(BuildContext context, TableModel model, AnimationController radialAnim
       RadialButton(
         heroTag: "details-subtag-table-${model.id}",
         controller: radialAnimationController,
-        angle: 90,
+        angle: angles[1],
         onPressed: () {
           // model.toggleStatus();
           radialAnimationController.reverse();
-          Navigator.pushNamed(context, '/order-details',
-              arguments: {'heroTag': 'details-subtag-table-${model.id}', 'tableID': model.id});
+          Navigator.pushNamed(context, '/order-details', arguments: {
+            'heroTag': 'details-subtag-table-${model.id}',
+            'tableID': model.id
+          });
         },
         icon: FontAwesomeIcons.infoCircle,
         key: ValueKey<int>(2),
