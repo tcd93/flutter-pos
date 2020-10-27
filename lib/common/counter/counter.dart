@@ -10,8 +10,13 @@ class Counter extends StatelessWidget {
   final void Function(int currentValue) onDecrement;
 
   Counter(int startingValue,
-      {this.onIncrement, this.onDecrement, this.imagePath, this.subtitle, Key key})
-      : textEditingController = TextEditingController(text: startingValue.toString()),
+      {this.onIncrement,
+      this.onDecrement,
+      this.imagePath,
+      this.subtitle,
+      Key key})
+      : textEditingController =
+            TextEditingController(text: startingValue.toString()),
         super(key: key);
 
   @override
@@ -37,9 +42,11 @@ class Counter extends StatelessWidget {
                 Expanded(
                   child: Text(
                     subtitle,
-                    overflow: TextOverflow.fade,
+                    overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headline6,
+                    softWrap: true,
+                    maxLines: 2,
                   ),
                 ),
               const SizedBox(width: 6),
@@ -63,8 +70,10 @@ class Counter extends StatelessWidget {
                 child: TextField(
                     controller: textEditingController,
                     enabled: false,
-                    keyboardType: const TextInputType.numberWithOptions(signed: true),
-                    decoration: InputDecoration(border: const OutlineInputBorder()),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(signed: true),
+                    decoration:
+                        InputDecoration(border: const OutlineInputBorder()),
                     textAlign: TextAlign.center),
               ),
               const SizedBox(width: 6),

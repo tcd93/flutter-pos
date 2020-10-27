@@ -25,5 +25,13 @@ class Dish {
         Dish(1, 'Fish Tuna'),
         Dish(2, 'Sushi Salmon'),
         Dish(3, 'An armpit'),
+        Dish(4, 'Broken rice'),
+        Dish(5, 'Beef Noddle'),
+        Dish(6, 'Naruto-kun'),
+        Dish(7, '@@@@@@@@@@'),
+        Dish(8, 'Banh Mi'),
+        Dish(9, 'Pho'),
+        Dish(10,
+            'A very long text like lorem ipsum that should be three-dotted'),
       ]);
 }
