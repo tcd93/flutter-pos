@@ -12,25 +12,21 @@ class Counter extends StatelessWidget {
   final void Function(int currentValue) onDecrement;
 
   Counter(int startingValue,
-      {this.onIncrement,
-      this.onDecrement,
-      this.imagePath,
-      this.subtitle,
-      Key key})
-      : textEditingController =
-            TextEditingController(text: startingValue.toString()),
+      {this.onIncrement, this.onDecrement, this.imagePath, this.subtitle, Key key})
+      : textEditingController = TextEditingController(text: startingValue.toString()),
         super(key: key);
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: EdgeInsets.all(6.0),
+        padding: EdgeInsets.all(4.0),
         child: Stack(
           alignment: AlignmentDirectional.centerStart,
           children: [
             Container(
-              padding: const EdgeInsets.only(left: height - 25.0),
-              height: height - 10.0,
+              height: height - 25.0,
               child: Card(
+                margin: const EdgeInsets.only(left: height - 25),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
                 borderOnForeground: false,
                 color: Color.fromARGB(75, 192, 192, 192), // silver
                 elevation: 6.0,
@@ -70,10 +66,8 @@ class Counter extends StatelessWidget {
                       child: TextField(
                           controller: textEditingController,
                           enabled: false,
-                          keyboardType: const TextInputType.numberWithOptions(
-                              signed: true),
-                          decoration: InputDecoration(
-                              border: const OutlineInputBorder()),
+                          keyboardType: const TextInputType.numberWithOptions(signed: true),
+                          decoration: InputDecoration(border: const OutlineInputBorder()),
                           textAlign: TextAlign.center),
                     ),
                     const SizedBox(width: 6),
@@ -98,7 +92,7 @@ class Counter extends StatelessWidget {
             if (imagePath != null)
               Material(
                 shape: CircleBorder(),
-                elevation: 12.0,
+                elevation: 20.0,
                 child: SizedBox(
                   height: height,
                   child: Image.asset(
