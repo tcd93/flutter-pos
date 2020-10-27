@@ -16,11 +16,21 @@ class MenuScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.select<OrderTracker, TableModel>((tracker) => tracker.getTable(tableID));
+    final model = context.select<OrderTracker, TableModel>(
+        (tracker) => tracker.getTable(tableID));
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Menu', style: Theme.of(context).textTheme.headline1),
+        actions: [
+          Hero(
+            tag: fromHeroTag,
+            child: FlatButton(
+              child: Icon(FontAwesomeIcons.check),
+              onPressed: null,
+            ),
+          ),
+        ],
       ),
       body: ListView.builder(
           padding: const EdgeInsets.only(top: 8, bottom: 8),
@@ -30,21 +40,18 @@ class MenuScreen extends StatelessWidget {
               model.getOrder(index)?.quantity ?? 0,
               onIncrement: (_) {
                 model.getOrPutOrder(index).quantity++;
-                debugPrint('current order: ${model.getOrder(index).toString()}');
+                debugPrint(
+                    'current order: ${model.getOrder(index).toString()}');
               },
               onDecrement: (_) {
                 model.getOrPutOrder(index).quantity--;
-                debugPrint('current order: ${model.getOrder(index).toString()}');
+                debugPrint(
+                    'current order: ${model.getOrder(index).toString()}');
               },
               imagePath: Dish.getMenu()[index].imagePath,
               subtitle: Dish.getMenu()[index].dish,
             );
           }),
-      floatingActionButton: FloatingActionButton(
-        heroTag: fromHeroTag,
-        child: Icon(FontAwesomeIcons.plusSquare),
-        onPressed: null,
-      ),
     );
   }
 }
