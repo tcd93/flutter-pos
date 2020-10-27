@@ -33,6 +33,7 @@ class MenuScreen extends StatelessWidget {
         ],
       ),
       body: ListView.builder(
+          physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.only(top: 8, bottom: 8),
           itemCount: Dish.getMenu().length,
           itemBuilder: (context, index) {
