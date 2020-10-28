@@ -22,7 +22,7 @@ class TableComponent extends StatelessWidget {
     debugPrint("rebuilding _Table... $id");
 
     return Padding(
-      padding: const EdgeInsets.all(25),
+      padding: const EdgeInsets.all(15),
       child: _MainButton(
         model,
         surroundingButtonsBuilder: (context, animController, angles) {
