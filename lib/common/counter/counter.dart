@@ -11,22 +11,34 @@ class Counter extends StatelessWidget {
   final void Function(int currentValue) onIncrement;
   final void Function(int currentValue) onDecrement;
 
-  Counter(int startingValue,
-      {this.onIncrement, this.onDecrement, this.imagePath, this.subtitle, Key key})
-      : textEditingController = TextEditingController(text: startingValue.toString()),
+  Counter(
+    int startingValue, {
+    this.onIncrement,
+    this.onDecrement,
+    this.imagePath,
+    this.subtitle,
+    Key key,
+  })  : textEditingController = TextEditingController(
+          text: startingValue.toString(),
+        ),
         super(key: key);
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: EdgeInsets.all(4.0),
+        padding: EdgeInsets.symmetric(
+          vertical: 4,
+          horizontal: 14,
+        ),
         child: Stack(
           alignment: AlignmentDirectional.centerStart,
           children: [
             Container(
-              height: height - 25.0,
+              height: height - 20.0,
               child: Card(
                 margin: const EdgeInsets.only(left: height - 25),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
                 borderOnForeground: false,
                 color: Color.fromARGB(75, 192, 192, 192), // silver
                 elevation: 6.0,
@@ -64,11 +76,16 @@ class Counter extends StatelessWidget {
                       width: 60.0,
                       // text box
                       child: TextField(
-                          controller: textEditingController,
-                          enabled: false,
-                          keyboardType: const TextInputType.numberWithOptions(signed: true),
-                          decoration: InputDecoration(border: const OutlineInputBorder()),
-                          textAlign: TextAlign.center),
+                        controller: textEditingController,
+                        enabled: false,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          signed: true,
+                        ),
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                     const SizedBox(width: 6),
                     FloatingActionButton(
