@@ -19,4 +19,5 @@ final appTheme = ThemeData(
     foregroundColor: Colors.yellow[250],
     backgroundColor: Colors.green[300],
   ),
+  cardColor: Color.fromARGB(75, 192, 192, 192),
 );

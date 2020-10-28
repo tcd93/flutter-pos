@@ -30,7 +30,7 @@ class Counter extends StatelessWidget {
           horizontal: 14,
         ),
         child: Stack(
-          alignment: AlignmentDirectional.centerStart,
+          alignment: Alignment.centerLeft,
           children: [
             Container(
               height: height - 20.0,
@@ -40,7 +40,7 @@ class Counter extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 borderOnForeground: false,
-                color: Color.fromARGB(75, 192, 192, 192), // silver
+                color: Theme.of(context).cardColor,
                 elevation: 6.0,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -108,14 +108,19 @@ class Counter extends StatelessWidget {
             ),
             if (imagePath != null)
               Material(
-                shape: CircleBorder(),
-                elevation: 20.0,
-                child: SizedBox(
-                  height: height,
-                  child: Image.asset(
-                    imagePath,
-                    fit: BoxFit.cover,
+                shape: CircleBorder(
+                  side: BorderSide(
+                    width: 1.5,
+                    color: Theme.of(context).cardColor,
                   ),
+                ),
+                clipBehavior: Clip.antiAlias,
+                elevation: 20.0,
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.cover,
+                  height: height,
+                  width: height,
                 ),
               ),
           ],
