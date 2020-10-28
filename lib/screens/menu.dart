@@ -54,12 +54,8 @@ class MenuScreen extends StatelessWidget {
               imagePath: Dish.getMenu()[index].imagePath,
               subtitle: Dish.getMenu()[index].dish,
               colorTween: ColorTween(
-                begin: startingQuantity == 0
-                    ? Theme.of(context).cardColor // disabled color
-                    : Theme.of(context).primaryColorLight, // hightlight if > 0
-                end: startingQuantity == 0
-                    ? Theme.of(context).primaryColorLight
-                    : Theme.of(context).cardColor,
+                begin: Theme.of(context).cardColor, // disabled color
+                end: Theme.of(context).primaryColorLight, // hightlight if > 0
               ),
             );
           }),
