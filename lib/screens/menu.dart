@@ -37,8 +37,10 @@ class MenuScreen extends StatelessWidget {
           // padding: const EdgeInsets.only(top: 8, bottom: 8),
           itemCount: Dish.getMenu().length,
           itemBuilder: (context, index) {
+            var startingQuantity = model.getOrder(index)?.quantity ?? 0;
+
             return Counter(
-              model.getOrder(index)?.quantity ?? 0,
+              startingQuantity,
               onIncrement: (_) {
                 model.getOrPutOrder(index).quantity++;
                 debugPrint(
@@ -51,6 +53,14 @@ class MenuScreen extends StatelessWidget {
               },
               imagePath: Dish.getMenu()[index].imagePath,
               subtitle: Dish.getMenu()[index].dish,
+              colorTween: ColorTween(
+                begin: startingQuantity == 0
+                    ? Theme.of(context).cardColor // disabled color
+                    : Theme.of(context).primaryColorLight, // hightlight if > 0
+                end: startingQuantity == 0
+                    ? Theme.of(context).primaryColorLight
+                    : Theme.of(context).cardColor,
+              ),
             );
           }),
     );

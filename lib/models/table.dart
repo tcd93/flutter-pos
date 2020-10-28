@@ -39,22 +39,28 @@ class TableModel {
 
   TableModel(this._tracker, this.id);
 
-  bool isAbleToPlaceOrder() => _tableState.status == _TableStatus.empty ? true : false;
+  bool isAbleToPlaceOrder() =>
+      _tableState.status == _TableStatus.empty ? true : false;
 
+  /// TODO - remove these, model should not dictate UI elements
   /// - When empty: `green`
   /// - When not empty: `grey`
-  Color currentColor() =>
-      _tableState.status == _TableStatus.empty ? Colors.green[300] : Colors.grey[300];
+  Color currentColor() => _tableState.status == _TableStatus.empty
+      ? Colors.green[300]
+      : Colors.grey[300];
 
   /// The reversed version of `currentColor()`
-  Color reversedColor() =>
-      _tableState.status == _TableStatus.empty ? Colors.grey[300] : Colors.green[300];
+  Color reversedColor() => _tableState.status == _TableStatus.empty
+      ? Colors.grey[300]
+      : Colors.green[300];
 
+  /// TODO - make this more functional
   /// Toggle the "empty" status of current table.
   /// Trigger a rebuild
   void toggleStatus() {
-    _tableState.status =
-        _tableState.status == _TableStatus.empty ? _TableStatus.occupied : _TableStatus.empty;
+    _tableState.status = _tableState.status == _TableStatus.empty
+        ? _TableStatus.occupied
+        : _TableStatus.empty;
     _tracker.notifyListeners();
   }
 

@@ -4,12 +4,15 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 const double height = 100.0;
 
 @immutable
-class Counter extends StatelessWidget {
+class Counter extends StatefulWidget {
   final String imagePath;
   final String subtitle;
   final TextEditingController textEditingController;
   final void Function(int currentValue) onIncrement;
   final void Function(int currentValue) onDecrement;
+
+  /// Creates a smooth color transition effect when adding / decreasing counter
+  final ColorTween colorTween;
 
   Counter(
     int startingValue, {
@@ -17,6 +20,7 @@ class Counter extends StatelessWidget {
     this.onDecrement,
     this.imagePath,
     this.subtitle,
+    this.colorTween,
     Key key,
   })  : textEditingController = TextEditingController(
           text: startingValue.toString(),
@@ -24,12 +28,35 @@ class Counter extends StatelessWidget {
         super(key: key);
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: 4,
-          horizontal: 14,
-        ),
-        child: Stack(
+  _CounterState createState() => _CounterState();
+}
+
+class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
+  AnimationController animController;
+
+  _CounterState() {
+    animController =
+        AnimationController(duration: Duration(milliseconds: 750), vsync: this);
+  }
+
+  @override
+  void dispose() {
+    animController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var value = int.tryParse(widget.textEditingController.text);
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        vertical: 4,
+        horizontal: 14,
+      ),
+      child: AnimatedBuilder(
+        animation: animController,
+        builder: (context, child) => Stack(
           alignment: Alignment.centerLeft,
           children: [
             Container(
@@ -40,16 +67,17 @@ class Counter extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 borderOnForeground: false,
-                color: Theme.of(context).cardColor,
+                color: widget.colorTween?.animate(animController)?.value ??
+                    Color.fromRGBO(192, 192, 192, 0.75),
                 elevation: 6.0,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const SizedBox(width: 24.0),
-                    if (subtitle != null)
+                    if (widget.subtitle != null)
                       Expanded(
                         child: Text(
-                          subtitle,
+                          widget.subtitle,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyText1,
@@ -63,12 +91,14 @@ class Counter extends StatelessWidget {
                       heroTag: null,
                       child: Icon(FontAwesomeIcons.minusCircle),
                       onPressed: () {
-                        var value = int.tryParse(textEditingController.text);
+                        // animate to "start" color when back to 0
+                        if (value > 0) animController.reverse();
+
                         if (value == null || value <= 0) return;
 
                         value--;
-                        textEditingController.text = (value).toString();
-                        onDecrement?.call(value);
+                        widget.textEditingController.text = (value).toString();
+                        widget.onDecrement?.call(value);
                       },
                     ),
                     const SizedBox(width: 6),
@@ -76,7 +106,7 @@ class Counter extends StatelessWidget {
                       width: 60.0,
                       // text box
                       child: TextField(
-                        controller: textEditingController,
+                        controller: widget.textEditingController,
                         enabled: false,
                         keyboardType: const TextInputType.numberWithOptions(
                           signed: true,
@@ -93,12 +123,12 @@ class Counter extends StatelessWidget {
                       heroTag: null,
                       child: Icon(FontAwesomeIcons.plusCircle),
                       onPressed: () {
-                        var value = int.tryParse(textEditingController.text);
-                        if (value == null || value < 0) return;
+                        // animate to "end" color when starting from 0
+                        if (value == 0) animController.forward();
 
                         value++;
-                        textEditingController.text = (value).toString();
-                        onIncrement?.call(value);
+                        widget.textEditingController.text = (value).toString();
+                        widget.onIncrement?.call(value);
                       },
                     ),
                     const SizedBox(width: 6),
@@ -106,18 +136,19 @@ class Counter extends StatelessWidget {
                 ),
               ),
             ),
-            if (imagePath != null)
+            if (widget.imagePath != null)
               Material(
                 shape: CircleBorder(
                   side: BorderSide(
                     width: 1.5,
-                    color: Theme.of(context).cardColor,
+                    color: widget.colorTween?.animate(animController)?.value ??
+                        Color.fromRGBO(192, 192, 192, 0.75),
                   ),
                 ),
                 clipBehavior: Clip.antiAlias,
                 elevation: 20.0,
                 child: Image.asset(
-                  imagePath,
+                  widget.imagePath,
                   fit: BoxFit.cover,
                   height: height,
                   width: height,
@@ -125,5 +156,7 @@ class Counter extends StatelessWidget {
               ),
           ],
         ),
-      );
+      ),
+    );
+  }
 }
