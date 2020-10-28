@@ -1,3 +1,4 @@
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -5,6 +6,7 @@ const double height = 100.0;
 
 @immutable
 class Counter extends StatefulWidget {
+  final _memoizer = AsyncMemoizer();
   final int startingValue;
   final String imagePath;
   final String subtitle;
@@ -12,16 +14,12 @@ class Counter extends StatefulWidget {
   final void Function(int currentValue) onIncrement;
   final void Function(int currentValue) onDecrement;
 
-  /// Creates a smooth color transition effect when adding / decreasing counter
-  final ColorTween colorTween;
-
   Counter(
     this.startingValue, {
     this.onIncrement,
     this.onDecrement,
     this.imagePath,
     this.subtitle,
-    this.colorTween,
     Key key,
   })  : textEditingController = TextEditingController(
           text: startingValue.toString(),
@@ -36,8 +34,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
   AnimationController animController;
 
   _CounterState() {
-    animController =
-        AnimationController(duration: Duration(milliseconds: 750), vsync: this);
+    animController = AnimationController(duration: Duration(milliseconds: 500), vsync: this);
   }
 
   @override
@@ -59,8 +56,15 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
         animation: animController,
         builder: (context, child) {
           if (widget.startingValue != 0) {
-            animController.forward();
+            widget._memoizer.runOnce(() {
+              animController.forward();
+            });
           }
+
+          final colorTween = ColorTween(
+            begin: Theme.of(context).cardColor, // disabled color
+            end: Theme.of(context).primaryColorLight, // hightlight if > 0
+          );
 
           return Stack(
             alignment: Alignment.centerLeft,
@@ -73,8 +77,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                   borderOnForeground: false,
-                  color: widget.colorTween?.animate(animController)?.value ??
-                      Color.fromRGBO(192, 192, 192, 0.75),
+                  color: colorTween.animate(animController).value,
                   elevation: 6.0,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -98,30 +101,23 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                         child: Icon(FontAwesomeIcons.minusCircle),
                         onPressed: () {
                           // animate to "start" color when back to 0
-                          if (value > 0) animController.reverse();
+                          if (value == 1) animController.reverse();
 
                           if (value == null || value <= 0) return;
 
                           value--;
-                          widget.textEditingController.text =
-                              (value).toString();
+                          widget.textEditingController.text = (value).toString();
                           widget.onDecrement?.call(value);
                         },
                       ),
                       const SizedBox(width: 6),
                       SizedBox(
                         width: 60.0,
-                        // text box
                         child: TextField(
                           controller: widget.textEditingController,
                           enabled: false,
-                          keyboardType: const TextInputType.numberWithOptions(
-                            signed: true,
-                          ),
-                          decoration: InputDecoration(
-                            border: const OutlineInputBorder(),
-                          ),
                           textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.headline4,
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -134,8 +130,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                           if (value == 0) animController.forward();
 
                           value++;
-                          widget.textEditingController.text =
-                              (value).toString();
+                          widget.textEditingController.text = (value).toString();
                           widget.onIncrement?.call(value);
                         },
                       ),
@@ -149,9 +144,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                   shape: CircleBorder(
                     side: BorderSide(
                       width: 1.5,
-                      color:
-                          widget.colorTween?.animate(animController)?.value ??
-                              Color.fromRGBO(192, 192, 192, 0.75),
+                      color: colorTween.animate(animController).value,
                     ),
                   ),
                   clipBehavior: Clip.antiAlias,
@@ -159,8 +152,8 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                   child: Image.asset(
                     widget.imagePath,
                     fit: BoxFit.cover,
-                    height: height,
-                    width: height,
+                    height: height, // have to specify both width & height
+                    width: height, // to properly align
                   ),
                 ),
             ],

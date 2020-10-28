@@ -16,8 +16,7 @@ class MenuScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.select<OrderTracker, TableModel>(
-        (tracker) => tracker.getTable(tableID));
+    final model = context.select<OrderTracker, TableModel>((tracker) => tracker.getTable(tableID));
 
     return Scaffold(
       appBar: AppBar(
@@ -43,20 +42,14 @@ class MenuScreen extends StatelessWidget {
               startingQuantity,
               onIncrement: (_) {
                 model.getOrPutOrder(index).quantity++;
-                debugPrint(
-                    'current order: ${model.getOrder(index).toString()}');
+                debugPrint('current order: ${model.getOrder(index).toString()}');
               },
               onDecrement: (_) {
                 model.getOrPutOrder(index).quantity--;
-                debugPrint(
-                    'current order: ${model.getOrder(index).toString()}');
+                debugPrint('current order: ${model.getOrder(index).toString()}');
               },
               imagePath: Dish.getMenu()[index].imagePath,
               subtitle: Dish.getMenu()[index].dish,
-              colorTween: ColorTween(
-                begin: Theme.of(context).cardColor, // disabled color
-                end: Theme.of(context).primaryColorLight, // hightlight if > 0
-              ),
             );
           }),
     );
