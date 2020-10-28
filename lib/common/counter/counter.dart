@@ -54,7 +54,65 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
       ),
       child: AnimatedBuilder(
         animation: animController,
-        builder: (context, child) {
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const SizedBox(width: 24.0),
+            if (widget.subtitle != null)
+              Expanded(
+                child: Text(
+                  widget.subtitle,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyText1,
+                  softWrap: true,
+                  maxLines: 2,
+                ),
+              ),
+            const SizedBox(width: 6),
+            FloatingActionButton(
+              // decrease
+              heroTag: null,
+              child: Icon(FontAwesomeIcons.minusCircle),
+              onPressed: () {
+                // animate to "start" color when back to 0
+                if (value == 1) animController.reverse();
+
+                if (value == null || value <= 0) return;
+
+                value--;
+                widget.textEditingController.text = (value).toString();
+                widget.onDecrement?.call(value);
+              },
+            ),
+            const SizedBox(width: 6),
+            SizedBox(
+              width: 60.0,
+              child: TextField(
+                controller: widget.textEditingController,
+                enabled: false,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headline4,
+              ),
+            ),
+            const SizedBox(width: 6),
+            FloatingActionButton(
+              // increase
+              heroTag: null,
+              child: Icon(FontAwesomeIcons.plusCircle),
+              onPressed: () {
+                // animate to "end" color when starting from 0
+                if (value == 0) animController.forward();
+
+                value++;
+                widget.textEditingController.text = (value).toString();
+                widget.onIncrement?.call(value);
+              },
+            ),
+            const SizedBox(width: 6),
+          ],
+        ),
+        builder: (context, childWidget) {
           if (widget.startingValue != 0) {
             widget._memoizer.runOnce(() {
               animController.forward();
@@ -78,82 +136,38 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                   ),
                   borderOnForeground: false,
                   color: colorTween.animate(animController).value,
-                  elevation: 6.0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const SizedBox(width: 24.0),
-                      if (widget.subtitle != null)
-                        Expanded(
-                          child: Text(
-                            widget.subtitle,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodyText1,
-                            softWrap: true,
-                            maxLines: 2,
-                          ),
-                        ),
-                      const SizedBox(width: 6),
-                      FloatingActionButton(
-                        // decrease
-                        heroTag: null,
-                        child: Icon(FontAwesomeIcons.minusCircle),
-                        onPressed: () {
-                          // animate to "start" color when back to 0
-                          if (value == 1) animController.reverse();
-
-                          if (value == null || value <= 0) return;
-
-                          value--;
-                          widget.textEditingController.text = (value).toString();
-                          widget.onDecrement?.call(value);
-                        },
-                      ),
-                      const SizedBox(width: 6),
-                      SizedBox(
-                        width: 60.0,
-                        child: TextField(
-                          controller: widget.textEditingController,
-                          enabled: false,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.headline4,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      FloatingActionButton(
-                        // increase
-                        heroTag: null,
-                        child: Icon(FontAwesomeIcons.plusCircle),
-                        onPressed: () {
-                          // animate to "end" color when starting from 0
-                          if (value == 0) animController.forward();
-
-                          value++;
-                          widget.textEditingController.text = (value).toString();
-                          widget.onIncrement?.call(value);
-                        },
-                      ),
-                      const SizedBox(width: 6),
-                    ],
-                  ),
+                  elevation: 2.0,
+                  child: childWidget,
                 ),
               ),
               if (widget.imagePath != null)
-                Material(
-                  shape: CircleBorder(
-                    side: BorderSide(
-                      width: 1.5,
-                      color: colorTween.animate(animController).value,
-                    ),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).primaryColorLight,
+                        blurRadius: animController.value * 6,
+                        spreadRadius: animController.value * 9,
+                      ),
+                    ],
                   ),
-                  clipBehavior: Clip.antiAlias,
-                  elevation: 20.0,
-                  child: Image.asset(
-                    widget.imagePath,
-                    fit: BoxFit.cover,
-                    height: height, // have to specify both width & height
-                    width: height, // to properly align
+                  child: Material(
+                    clipBehavior: Clip.antiAlias,
+                    shape: CircleBorder(
+                      side: BorderSide(
+                        color: Colors.black12,
+                        width: 1.5,
+                      ),
+                    ),
+                    elevation: 2.0,
+                    borderOnForeground: false,
+                    child: Image.asset(
+                      widget.imagePath,
+                      fit: BoxFit.cover,
+                      height: height, // have to specify both width & height
+                      width: height, // to properly align
+                    ),
                   ),
                 ),
             ],
