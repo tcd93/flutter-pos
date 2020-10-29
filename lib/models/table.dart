@@ -39,16 +39,12 @@ class TableModel {
 
   TableModel(this._tracker, this.id);
 
-  bool isAbleToPlaceOrder() =>
-      _tableState.status == _TableStatus.empty ? true : false;
-
   /// TODO - make this more functional
   /// Toggle the "empty" status of current table.
   /// Trigger a rebuild
   void toggleStatus() {
-    _tableState.status = _tableState.status == _TableStatus.empty
-        ? _TableStatus.occupied
-        : _TableStatus.empty;
+    _tableState.status =
+        _tableState.status == _TableStatus.empty ? _TableStatus.occupied : _TableStatus.empty;
     _tracker.notifyListeners();
   }
 

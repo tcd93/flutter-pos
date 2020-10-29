@@ -27,14 +27,8 @@ class TableComponent extends StatelessWidget {
       padding: const EdgeInsets.all(15),
       child: _MainButton(
         model,
-        surroundingButtonsBuilder: (context, animController, angles) {
-          // be aware that in this callback, model state may has changed
-          return case2(model.isAbleToPlaceOrder(), {
-            true: _fullFlow(context, model, animController, angles),
-            //TODO: add disable FAB color
-            false: _partialFlow(context, model, animController, angles),
-          });
-        },
+        surroundingButtonsBuilder: (context, animController, angles) =>
+            _sideButtonsBuilder(context, model, animController, angles),
         displayAngles: displayAngles,
         key: ObjectKey(model),
       ),
@@ -100,34 +94,8 @@ class _MainButton extends StatelessWidget {
   }
 }
 
-/// Partial flow: only able to see order details
-_partialFlow(
-  BuildContext _,
-  TableModel __,
-  AnimationController radialAnimationController,
-  List<double> angles,
-) =>
-    [
-      RadialButton(
-        controller: radialAnimationController,
-        angle: angles[0],
-        onPressed: null, //disabled
-        icon: FontAwesomeIcons.plusCircle,
-        key: ValueKey<int>(1),
-      ),
-      RadialButton(
-        controller: radialAnimationController,
-        angle: angles[1],
-        onPressed: () {
-          radialAnimationController.reverse();
-        },
-        icon: FontAwesomeIcons.infoCircle,
-        key: ValueKey<int>(2),
-      ),
-    ];
-
-/// Full flow: able to place order, see order details
-_fullFlow(
+/// Able to place order, see order details
+_sideButtonsBuilder(
   BuildContext context,
   TableModel model,
   AnimationController radialAnimationController,
