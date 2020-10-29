@@ -18,7 +18,9 @@ class TableComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // the table model to control state
-    final model = context.select<OrderTracker, TableModel>((tracker) => tracker.getTable(id));
+    final model = context.select<OrderTracker, TableModel>(
+      (tracker) => tracker.getTable(id),
+    );
     debugPrint("rebuilding _Table... $id");
 
     return Padding(
@@ -45,24 +47,31 @@ class _MainButton extends StatelessWidget {
 
   /// Returns a list of surrounding [RadialButton].
   /// Should match the number of elements in [displayAngles]
-  final List<RadialButton> Function(BuildContext, AnimationController, List<double> displayAngles)
-      surroundingButtonsBuilder;
+  final List<RadialButton> Function(
+    BuildContext,
+    AnimationController,
+    List<double> displayAngles,
+  ) surroundingButtonsBuilder;
 
   /// Clock-wise placement angles for surrounding sub-buttons (add order, details...).
   /// Example: `[0, 90]` would place one at 3 o'clock, the other at 6 o'clock
   final List<double> displayAngles;
 
-  // create a smooth color transition effect
-  final ColorTween _colorTween;
-
-  _MainButton(this.model,
-      {@required this.surroundingButtonsBuilder, @required this.displayAngles, Key key})
-      : _colorTween = ColorTween(begin: model.currentColor(), end: model.reversedColor()),
-        super(key: key);
+  _MainButton(
+    this.model, {
+    @required this.surroundingButtonsBuilder,
+    @required this.displayAngles,
+    Key key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     debugPrint("rebuilding _MainButton... ${model.id}");
+
+    final _colorTween = ColorTween(
+      begin: Theme.of(context).primaryColor,
+      end: Theme.of(context).disabledColor,
+    );
 
     return RadialMenu(
       mainButtonBuilder: (radialAnimationController, context) {
@@ -92,8 +101,12 @@ class _MainButton extends StatelessWidget {
 }
 
 /// Partial flow: only able to see order details
-_partialFlow(BuildContext _, TableModel __, AnimationController radialAnimationController,
-        List<double> angles) =>
+_partialFlow(
+  BuildContext _,
+  TableModel __,
+  AnimationController radialAnimationController,
+  List<double> angles,
+) =>
     [
       RadialButton(
         controller: radialAnimationController,
@@ -114,8 +127,12 @@ _partialFlow(BuildContext _, TableModel __, AnimationController radialAnimationC
     ];
 
 /// Full flow: able to place order, see order details
-_fullFlow(BuildContext context, TableModel model, AnimationController radialAnimationController,
-        List<double> angles) =>
+_fullFlow(
+  BuildContext context,
+  TableModel model,
+  AnimationController radialAnimationController,
+  List<double> angles,
+) =>
     [
       RadialButton(
         heroTag: "menu-subtag-table-${model.id}",
@@ -124,12 +141,16 @@ _fullFlow(BuildContext context, TableModel model, AnimationController radialAnim
         onPressed: () {
           // model.toggleStatus();
           // pass hero tag into new Page to animate the FAB
-          Navigator.pushNamed(context, '/menu',
-                  arguments: {'heroTag': 'menu-subtag-table-${model.id}', 'tableID': model.id})
-              .then((_) {
-            Future.delayed(Duration(milliseconds: 600), () {
-              radialAnimationController.reverse();
-            });
+          Navigator.pushNamed(context, '/menu', arguments: {
+            'heroTag': 'menu-subtag-table-${model.id}',
+            'tableID': model.id,
+          }).then((_) {
+            Future.delayed(
+              Duration(milliseconds: 600),
+              () {
+                radialAnimationController.reverse();
+              },
+            );
           });
         },
         icon: FontAwesomeIcons.plusCircle,
@@ -142,8 +163,14 @@ _fullFlow(BuildContext context, TableModel model, AnimationController radialAnim
         onPressed: () {
           // model.toggleStatus();
           radialAnimationController.reverse();
-          Navigator.pushNamed(context, '/order-details',
-              arguments: {'heroTag': 'details-subtag-table-${model.id}', 'tableID': model.id});
+          Navigator.pushNamed(
+            context,
+            '/order-details',
+            arguments: {
+              'heroTag': 'details-subtag-table-${model.id}',
+              'tableID': model.id,
+            },
+          );
         },
         icon: FontAwesomeIcons.infoCircle,
         key: ValueKey<int>(2),

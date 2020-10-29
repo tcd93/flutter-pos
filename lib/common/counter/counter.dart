@@ -34,7 +34,8 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
   AnimationController animController;
 
   _CounterState() {
-    animController = AnimationController(duration: Duration(milliseconds: 500), vsync: this);
+    animController =
+        AnimationController(duration: Duration(milliseconds: 500), vsync: this);
   }
 
   @override
@@ -64,7 +65,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                   widget.subtitle,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyText1,
+                  style: Theme.of(context).textTheme.headline3,
                   softWrap: true,
                   maxLines: 2,
                 ),

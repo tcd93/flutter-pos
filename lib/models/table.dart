@@ -42,18 +42,6 @@ class TableModel {
   bool isAbleToPlaceOrder() =>
       _tableState.status == _TableStatus.empty ? true : false;
 
-  /// TODO - remove these, model should not dictate UI elements
-  /// - When empty: `green`
-  /// - When not empty: `grey`
-  Color currentColor() => _tableState.status == _TableStatus.empty
-      ? Colors.green[300]
-      : Colors.grey[300];
-
-  /// The reversed version of `currentColor()`
-  Color reversedColor() => _tableState.status == _TableStatus.empty
-      ? Colors.grey[300]
-      : Colors.green[300];
-
   /// TODO - make this more functional
   /// Toggle the "empty" status of current table.
   /// Trigger a rebuild
