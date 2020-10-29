@@ -4,20 +4,21 @@ import 'package:flutter/widgets.dart';
 import 'order.dart';
 import 'tracker.dart';
 
-enum _TableStatus {
+enum TableStatus {
   /// No one is sitting at this table
   empty,
 
   /// Dining
   occupied,
-  // may be more status here, like Discounted, Need cleaning...
+
+  /// Incomplete order
+  incomplete,
 }
 
 /// The separate "state" of the immutable [TableModel] class
 class _State {
-  _TableStatus status = _TableStatus.empty;
+  TableStatus status = TableStatus.empty;
 
-  //TODO: dummy
   /// The order associated with a table.
   /// This is a [Map<int, Order>] where the key is the [Dish] item id
   Map<int, Order> order = {
@@ -39,19 +40,26 @@ class TableModel {
 
   TableModel(this._tracker, this.id);
 
-  /// TODO - make this more functional
-  /// Toggle the "empty" status of current table.
-  /// Trigger a rebuild
-  void toggleStatus() {
-    _tableState.status =
-        _tableState.status == _TableStatus.empty ? _TableStatus.occupied : _TableStatus.empty;
+  /// Returns current [TableStatus]
+  TableStatus getTableStatus() => _tableState.status;
+
+  // ignore: use_setters_to_change_properties
+  /// Set [TableStatus], notify listeners to rebuild widget
+  void setTableStatus(TableStatus newStatus) {
+    _tableState.status = newStatus;
     _tracker.notifyListeners();
   }
 
-  /// Get [Order] at menu index
-  Order getOrder(int dishID) => _tableState.order[dishID];
+  /// Get [Order] from menu list, [dishID] is the index of Menu list
+  Order orderOf(int dishID) => _tableState.order[dishID];
 
-  /// putIfAbsent [Order] at menu index
-  Order getOrPutOrder(int dishID) =>
+  /// Try putting new [Order] at the order associated with current table
+  Order putOrderIfAbsent(int dishID) =>
       _tableState.order.putIfAbsent(dishID, () => Order(dishID: dishID));
+
+  /// Returns total items (number of dishes) of current table
+  int orderCount() => _tableState.order.entries.fold(
+        0,
+        (previousValue, element) => previousValue + element.value.quantity,
+      );
 }

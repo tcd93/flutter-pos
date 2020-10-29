@@ -19,6 +19,7 @@ class Dish {
 
   const Dish(this.id, this.dish, [this.imagePath = 'assets/default.png']);
 
+  /// TODO: dishid is highly coupled to array index, refactor this
   /// Index of menu is the unique ID of associated [Dish]
   static UnmodifiableListView<Dish> getMenu() => UnmodifiableListView([
         Dish(0, 'Sample'),
@@ -31,7 +32,6 @@ class Dish {
         Dish(7, '@@@@@@@@@@'),
         Dish(8, 'Banh Mi'),
         Dish(9, 'Pho'),
-        Dish(10,
-            'A very long text like lorem ipsum that should be three-dotted'),
+        Dish(10, 'A very long text like lorem ipsum that should be three-dotted'),
       ]);
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
-import '../../common/case2/case2.dart';
 import '../../common/radial_menu/radial_button.dart';
 import '../../common/radial_menu/radial_menu.dart';
 
