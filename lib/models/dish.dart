@@ -2,6 +2,20 @@ import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 
+const menu = {
+  0: 'Sample',
+  1: 'Fish Tuna',
+  2: 'Sushi Salmon',
+  3: 'An armpit',
+  4: 'Broken rice',
+  5: 'Beef Noddle',
+  6: 'Naruto-kun',
+  7: '@@@@@@@@@@',
+  8: 'Banh Mi',
+  9: 'Pho',
+  10: 'A very long text like lorem ipsum that should be three-dotted',
+};
+
 @immutable
 class Dish {
   /// Unique id of [Dish]
@@ -19,19 +33,12 @@ class Dish {
 
   const Dish(this.id, this.dish, [this.imagePath = 'assets/default.png']);
 
-  /// TODO: dishid is highly coupled to array index, refactor this
   /// Index of menu is the unique ID of associated [Dish]
-  static UnmodifiableListView<Dish> getMenu() => UnmodifiableListView([
-        Dish(0, 'Sample'),
-        Dish(1, 'Fish Tuna'),
-        Dish(2, 'Sushi Salmon'),
-        Dish(3, 'An armpit'),
-        Dish(4, 'Broken rice'),
-        Dish(5, 'Beef Noddle'),
-        Dish(6, 'Naruto-kun'),
-        Dish(7, '@@@@@@@@@@'),
-        Dish(8, 'Banh Mi'),
-        Dish(9, 'Pho'),
-        Dish(10, 'A very long text like lorem ipsum that should be three-dotted'),
-      ]);
+  static UnmodifiableListView<Dish> getMenu() => UnmodifiableListView(
+        List.generate(
+          menu.length - 1,
+          (index) => Dish(index, menu[index]),
+          growable: false,
+        ),
+      );
 }
