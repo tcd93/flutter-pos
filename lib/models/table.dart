@@ -17,14 +17,37 @@ enum TableStatus {
 
 /// The separate "state" of the immutable [TableModel] class
 class _State {
-  TableStatus status = TableStatus.empty;
+  _State([this.status = TableStatus.empty, this.order]) {
+    if (order == null) order = {}; // weird that I can't set default value...
+  }
+
+  TableStatus status;
 
   /// The order associated with a table.
   /// This is a [Map<int, Order>] where the key is the [Dish] item id
-  Map<int, Order> order = {
-    // 0: Order(dishID: 0),
-    // 1: Order(dishID: 1),
-  };
+  Map<int, Order> order;
+
+  /// Keep track of state history, overwrite snapshot everytime the confirm
+  /// button is clicked
+  _State previousState;
+
+  /// Create a cloned [_State] object
+  _State copy() => _State(
+      status,
+      Map.fromIterable(
+        order.keys,
+        key: (key) => key,
+        value: (key) {
+          var copiedOrder = Order(dishID: key);
+          copiedOrder.quantity = order[key].quantity;
+          return copiedOrder;
+        },
+      ));
+
+  @override
+  String toString() {
+    return '{status: ${status.toString()}, order: ${order.toString()}}';
+  }
 }
 
 @immutable
@@ -43,9 +66,12 @@ class TableModel {
   /// Returns current [TableStatus]
   TableStatus getTableStatus() => _tableState.status;
 
-  // ignore: use_setters_to_change_properties
   /// Set [TableStatus], notify listeners to rebuild widget
   void setTableStatus(TableStatus newStatus) {
+    if (newStatus == TableStatus.occupied) {
+      _tableState.previousState = _tableState.copy();
+      debugPrint('    Set previous state: \n    ${_tableState.previousState.toString()}');
+    }
     _tableState.status = newStatus;
     _tracker.notifyListeners();
   }
@@ -62,4 +88,12 @@ class TableModel {
         0,
         (previousValue, element) => previousValue + element.value.quantity,
       );
+
+  /// Restore to last "commit"
+  void revert() {
+    debugPrint('    Reverting table state back to: \n    ${_tableState.previousState.toString()}');
+    _tableState.status = _tableState.previousState.status;
+    _tableState.order = _tableState.previousState.order;
+    _tracker.notifyListeners();
+  }
 }

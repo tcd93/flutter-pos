@@ -26,6 +26,10 @@ class MenuScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Menu', style: Theme.of(context).textTheme.headline1),
         actions: [
+          _UndoButton(
+            tableID,
+            fromHeroTag: fromHeroTag,
+          ),
           _ConfirmButton(
             tableID,
             fromHeroTag: fromHeroTag,
@@ -71,12 +75,9 @@ class _ConfirmButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('rebuilding _ConfirmButton...');
-
     final model = context.select<OrderTracker, TableModel>(
       (tracker) => tracker.getTable(tableID),
     );
-
     return Hero(
       tag: fromHeroTag,
       // Use [Selector] here as the table status is deeply embedded
@@ -96,6 +97,39 @@ class _ConfirmButton extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class _UndoButton extends StatelessWidget {
+  final int tableID;
+  final String fromHeroTag;
+
+  _UndoButton(this.tableID, {this.fromHeroTag});
+
+  @override
+  Widget build(BuildContext context) {
+    final model = context.select<OrderTracker, TableModel>(
+      (tracker) => tracker.getTable(tableID),
+    );
+    // refer to [_ConfirmButton]
+    return Selector<OrderTracker, TableStatus>(
+      selector: (_, tracker) => tracker.getTable(tableID).getTableStatus(),
+      builder: (context, status, _) {
+        return FlatButton(
+          child: Icon(FontAwesomeIcons.undoAlt),
+          onPressed: status == TableStatus.incomplete
+              ? () {
+                  model.revert();
+                  //TODO: find a way to rebuild widgets more efficiently
+                  Navigator.popAndPushNamed(context, '/menu', arguments: {
+                    'heroTag': fromHeroTag,
+                    'tableID': tableID,
+                  });
+                }
+              : null,
+        );
+      },
     );
   }
 }
