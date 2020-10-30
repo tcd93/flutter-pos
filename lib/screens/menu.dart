@@ -83,12 +83,15 @@ class _ConfirmButton extends StatelessWidget {
       // in Provider<OrderTracker>
       // We can also use [Tuple2] to select both [TableModel] and [TableStatus]
       child: Selector<OrderTracker, TableStatus>(
-        selector: (context, tracker) => tracker.getTable(tableID).getTableStatus(),
-        builder: (context, status, child) {
+        selector: (_, tracker) => tracker.getTable(tableID).getTableStatus(),
+        builder: (context, status, _) {
           return FlatButton(
             child: Icon(FontAwesomeIcons.check),
             onPressed: status == TableStatus.incomplete
-                ? () => model.setTableStatus(TableStatus.occupied)
+                ? () {
+                    model.setTableStatus(TableStatus.occupied);
+                    Navigator.pop(context); // Go back to Lobby Screen
+                  }
                 : null,
           );
         },
