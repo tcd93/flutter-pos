@@ -23,9 +23,10 @@ class Order {
     _quantity = quantity;
   }
 
-  Order({@required int dishID})
+  Order({@required int dishID, int quantity = 0})
       : assert(dishID != null, dishID >= 0 && dishID < Dish.getMenu().length),
-        _dishID = dishID;
+        _dishID = dishID,
+        _quantity = quantity;
 
   @override
   String toString() {

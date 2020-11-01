@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../common/counter/counter.dart';
 
 import '../models/dish.dart';
+import '../models/order.dart';
 import '../models/table.dart';
 import '../models/tracker.dart';
 
@@ -42,25 +43,31 @@ class MenuScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             var startingQuantity = model.orderOf(index)?.quantity ?? 0;
 
-            return Counter(
-              startingQuantity,
-              onIncrement: (_) {
-                model.putOrderIfAbsent(index).quantity++;
+            return Selector<OrderTracker, Order>(
+              selector: (context, tracker) => tracker.getTable(tableID).orderOf(index),
+              builder: (context, order, _) {
+                return Counter(
+                  startingQuantity,
+                  onIncrement: (_) {
+                    order.quantity++;
 
-                model.setTableStatus(TableStatus.incomplete);
+                    model.setTableStatus(TableStatus.incomplete);
+                  },
+                  onDecrement: (_) {
+                    order.quantity--;
+                    // If there are not a single item in this order left,
+                    // Then set status to "empty" to disable the [_ConfirmButton]
+                    if (model.orderOf(index).quantity == 0 && model.orderCount() == 0) {
+                      model.setTableStatus(TableStatus.empty);
+                    } else {
+                      model.setTableStatus(TableStatus.incomplete);
+                    }
+                  },
+                  imagePath: Dish.getMenu()[index].imagePath,
+                  subtitle: Dish.getMenu()[index].dish,
+                  key: ObjectKey(model),
+                );
               },
-              onDecrement: (_) {
-                model.putOrderIfAbsent(index).quantity--;
-                // If there are not a single item in this order left,
-                // Then set status to "empty" to disable the [_ConfirmButton]
-                if (model.orderOf(index).quantity == 0 && model.orderCount() == 0) {
-                  model.setTableStatus(TableStatus.empty);
-                } else {
-                  model.setTableStatus(TableStatus.incomplete);
-                }
-              },
-              imagePath: Dish.getMenu()[index].imagePath,
-              subtitle: Dish.getMenu()[index].dish,
             );
           }),
     );
@@ -75,9 +82,6 @@ class _ConfirmButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.select<OrderTracker, TableModel>(
-      (tracker) => tracker.getTable(tableID),
-    );
     return Hero(
       tag: fromHeroTag,
       // Use [Selector] here as the table status is deeply embedded
@@ -86,10 +90,14 @@ class _ConfirmButton extends StatelessWidget {
       child: Selector<OrderTracker, TableStatus>(
         selector: (_, tracker) => tracker.getTable(tableID).getTableStatus(),
         builder: (context, status, _) {
+          final model = context.select<OrderTracker, TableModel>(
+            (tracker) => tracker.getTable(tableID),
+          );
           return FlatButton(
             child: Icon(FontAwesomeIcons.check),
             onPressed: status == TableStatus.incomplete
                 ? () {
+                    model.memorizePreviousState();
                     model.setTableStatus(TableStatus.occupied);
                     Navigator.pop(context); // Go back to Lobby Screen
                   }
@@ -109,25 +117,16 @@ class _UndoButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.select<OrderTracker, TableModel>(
-      (tracker) => tracker.getTable(tableID),
-    );
     // refer to [_ConfirmButton]
     return Selector<OrderTracker, TableStatus>(
       selector: (_, tracker) => tracker.getTable(tableID).getTableStatus(),
       builder: (context, status, _) {
+        final model = context.select<OrderTracker, TableModel>(
+          (tracker) => tracker.getTable(tableID),
+        );
         return FlatButton(
           child: Icon(FontAwesomeIcons.undoAlt),
-          onPressed: status == TableStatus.incomplete
-              ? () {
-                  model.revert();
-                  //TODO: find a way to rebuild widgets more efficiently
-                  Navigator.popAndPushNamed(context, '/menu', arguments: {
-                    'heroTag': fromHeroTag,
-                    'tableID': tableID,
-                  });
-                }
-              : null,
+          onPressed: status == TableStatus.incomplete ? model.revert : null,
         );
       },
     );

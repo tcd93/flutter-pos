@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+import '../common/common.dart';
+
+import 'dish.dart';
 import 'order.dart';
 import 'tracker.dart';
 
@@ -18,7 +21,25 @@ enum TableStatus {
 /// The separate "state" of the immutable [TableModel] class
 class _State {
   _State([this.status = TableStatus.empty, this.order]) {
-    if (order == null) order = {}; // weird that I can't set default value...
+    // create an `order` (of quantity 0) to very item on `menu`
+    if (order == null) {
+      order = {
+        for (var dish in Dish.getMenu())
+          dish.id: Order(
+            dishID: dish.id,
+            quantity: 0,
+          )
+      };
+
+      previousOrder = {
+        for (var dish in Dish.getMenu())
+          dish.id: Order(
+            dishID: dish.id,
+            quantity: 0,
+          )
+      };
+    }
+    ; // weird that I can't set default value...
   }
 
   TableStatus status;
@@ -29,20 +50,7 @@ class _State {
 
   /// Keep track of state history, overwrite snapshot everytime the confirm
   /// button is clicked
-  _State previousState;
-
-  /// Create a cloned [_State] object
-  _State copy() => _State(
-      status,
-      Map.fromIterable(
-        order.keys,
-        key: (key) => key,
-        value: (key) {
-          var copiedOrder = Order(dishID: key);
-          copiedOrder.quantity = order[key].quantity;
-          return copiedOrder;
-        },
-      ));
+  Map<int, Order> previousOrder;
 
   @override
   String toString() {
@@ -68,12 +76,20 @@ class TableModel {
 
   /// Set [TableStatus], notify listeners to rebuild widget
   void setTableStatus(TableStatus newStatus) {
-    if (newStatus == TableStatus.occupied) {
-      _tableState.previousState = _tableState.copy();
-      debugPrint('    Set previous state: \n    ${_tableState.previousState.toString()}');
-    }
     _tableState.status = newStatus;
     _tracker.notifyListeners();
+  }
+
+  /// Store current state for rollback operation
+  void memorizePreviousState() {
+    _tableState.previousOrder = Common.cloneMap<int, Order>(
+      _tableState.order,
+      (key, value) => Order(
+        dishID: key,
+        quantity: value.quantity,
+      ),
+    );
+    debugPrint('    Set previous state: \n    ${_tableState.previousOrder.toString()}\n');
   }
 
   /// Get [Order] from menu list, [dishID] is the index of Menu list
@@ -91,9 +107,20 @@ class TableModel {
 
   /// Restore to last "commit"
   void revert() {
-    debugPrint('    Reverting table state back to: \n    ${_tableState.previousState.toString()}');
-    _tableState.status = _tableState.previousState.status;
-    _tableState.order = _tableState.previousState.order;
+    // if has not "commit", revert back to all "0"
+    if (_tableState.previousOrder == null) {}
+    debugPrint(
+        '    Reverting table state back to: \n    ${_tableState.previousOrder.toString()}\n');
+    _tableState.status = TableStatus.occupied;
+    // overwrite current `order` state.
+    // has to do cloning here to not bind the reference of previous [Order]s to current state
+    _tableState.order = Common.cloneMap<int, Order>(
+      _tableState.previousOrder,
+      (key, value) => Order(
+        dishID: key,
+        quantity: value.quantity,
+      ),
+    );
     _tracker.notifyListeners();
   }
 }
