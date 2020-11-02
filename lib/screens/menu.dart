@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:tuple/tuple.dart';
 
 import '../common/counter/counter.dart';
 
@@ -18,10 +19,6 @@ class MenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     debugPrint('rebuilding MenuScreen...');
-
-    final model = context.select<OrderTracker, TableModel>(
-      (tracker) => tracker.getTable(tableID),
-    );
 
     return Scaffold(
       appBar: AppBar(
@@ -41,31 +38,35 @@ class MenuScreen extends StatelessWidget {
           physics: const BouncingScrollPhysics(),
           itemCount: Dish.getMenu().length,
           itemBuilder: (context, index) {
-            var startingQuantity = model.orderOf(index)?.quantity ?? 0;
-
-            return Selector<OrderTracker, Order>(
-              selector: (context, tracker) => tracker.getTable(tableID).orderOf(index),
-              builder: (context, order, _) {
+            return Selector<OrderTracker, Tuple2<TableModel, Order>>(
+              selector: (context, tracker) {
+                return Tuple2(
+                  tracker.getTable(tableID), // item1
+                  tracker.getTable(tableID).orderOf(index), // item2
+                );
+              },
+              builder: (context, tuple, _) {
                 return Counter(
-                  startingQuantity,
+                  tuple.item1.orderOf(index)?.quantity ?? 0,
                   onIncrement: (_) {
-                    order.quantity++;
+                    tuple.item2.quantity++;
 
-                    model.setTableStatus(TableStatus.incomplete);
+                    tuple.item1.setTableStatus(TableStatus.incomplete);
                   },
                   onDecrement: (_) {
-                    order.quantity--;
+                    tuple.item2.quantity--;
                     // If there are not a single item in this order left,
                     // Then set status to "empty" to disable the [_ConfirmButton]
-                    if (model.orderOf(index).quantity == 0 && model.orderCount() == 0) {
-                      model.setTableStatus(TableStatus.empty);
+                    if (tuple.item1.orderOf(index).quantity == 0 &&
+                        tuple.item1.orderCount() == 0) {
+                      tuple.item1.setTableStatus(TableStatus.empty);
                     } else {
-                      model.setTableStatus(TableStatus.incomplete);
+                      tuple.item1.setTableStatus(TableStatus.incomplete);
                     }
                   },
                   imagePath: Dish.getMenu()[index].imagePath,
                   subtitle: Dish.getMenu()[index].dish,
-                  key: ObjectKey(model),
+                  key: ObjectKey(tuple.item1),
                 );
               },
             );
