@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hembo/screens/details.dart';
 import 'package:provider/provider.dart';
 import './common/theme.dart';
 import 'models/tracker.dart';
@@ -22,27 +23,15 @@ class HemBoApp extends StatelessWidget {
       ),
       home: LobbyScreen(),
       onGenerateRoute: (settings) {
-        if (settings.name == '/menu') {
-          final argMap = settings.arguments as Map;
-          final String heroTag = argMap['heroTag'];
-          final int tableID = argMap['tableID'];
+        final argMap = settings.arguments as Map;
+        final String heroTag = argMap['heroTag'];
+        final int tableID = argMap['tableID'];
 
+        if (settings.name == '/menu') {
           // custom page transition animations
-          return PageRouteBuilder(
-            pageBuilder: (_, __, ___) => MenuScreen(tableID, fromHeroTag: heroTag),
-            transitionsBuilder: (_, animation, __, child) {
-              return SlideTransition(
-                  position: animation
-                      .drive(CurveTween(curve: Curves.easeOutCirc))
-                      .drive<Offset>(Tween(begin: Offset(0, 1), end: Offset.zero)),
-                  child: FadeTransition(
-                    opacity: animation.drive<double>(CurveTween(curve: Curves.easeOut)),
-                    child: child,
-                  ));
-            },
-            transitionDuration: Duration(milliseconds: 600),
-            reverseTransitionDuration: Duration(milliseconds: 600),
-          );
+          return routeBuilder(MenuScreen(tableID, fromHeroTag: heroTag));
+        } else if (settings.name == '/order-details') {
+          return routeBuilder(DetailsScreen(tableID, fromHeroTag: heroTag));
         }
         // unknown route
         return MaterialPageRoute(builder: (context) => Center(child: Text('404')));
@@ -50,3 +39,19 @@ class HemBoApp extends StatelessWidget {
     );
   }
 }
+
+PageRouteBuilder routeBuilder(Widget screen) => PageRouteBuilder(
+      pageBuilder: (_, __, ___) => screen,
+      transitionsBuilder: (_, animation, __, child) {
+        return SlideTransition(
+            position: animation
+                .drive(CurveTween(curve: Curves.easeOutCirc))
+                .drive<Offset>(Tween(begin: Offset(0, 1), end: Offset.zero)),
+            child: FadeTransition(
+              opacity: animation.drive<double>(CurveTween(curve: Curves.easeOut)),
+              child: child,
+            ));
+      },
+      transitionDuration: Duration(milliseconds: 600),
+      reverseTransitionDuration: Duration(milliseconds: 600),
+    );

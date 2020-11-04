@@ -127,6 +127,7 @@ _sideButtonsBuilder(
         heroTag: "details-subtag-table-${model.id}",
         controller: radialAnimationController,
         angle: angles[1],
+        //TODO> only clickable if status = occupied
         onPressed: () {
           // model.toggleStatus();
           radialAnimationController.reverse();
