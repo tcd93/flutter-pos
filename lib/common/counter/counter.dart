@@ -58,59 +58,71 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const SizedBox(width: 24.0),
+            const SizedBox(width: 32.0),
             if (widget.subtitle != null)
               Expanded(
                 child: Text(
                   widget.subtitle,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headline3,
+                  style: Theme.of(context).textTheme.subtitle2,
                   softWrap: true,
                   maxLines: 2,
                 ),
               ),
-            const SizedBox(width: 6),
-            FloatingActionButton(
-              // decrease
-              heroTag: null,
-              child: Icon(FontAwesomeIcons.minusCircle),
-              onPressed: () {
-                // animate to "start" color when back to 0
-                if (value == 1) animController.reverse();
-
-                if (value == null || value <= 0) return;
-
-                value--;
-                widget.textEditingController.text = (value).toString();
-                widget.onDecrement?.call(value);
-              },
-            ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 12),
             SizedBox(
-              width: 60.0,
+              width: 40,
+              height: 40,
+              child: FittedBox(
+                child: FloatingActionButton(
+                  // decrease
+                  heroTag: null,
+                  child: Icon(FontAwesomeIcons.minusCircle),
+                  onPressed: () {
+                    // animate to "start" color when back to 0
+                    if (value == 1) animController.reverse();
+
+                    if (value == null || value <= 0) return;
+
+                    value--;
+                    widget.textEditingController.text = (value).toString();
+                    widget.onDecrement?.call(value);
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(width: 4),
+            SizedBox(
+              width: 40.0,
               child: TextField(
                 controller: widget.textEditingController,
                 enabled: false,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headline4,
+                style: Theme.of(context).textTheme.headline5,
               ),
             ),
-            const SizedBox(width: 6),
-            FloatingActionButton(
-              // increase
-              heroTag: null,
-              child: Icon(FontAwesomeIcons.plusCircle),
-              onPressed: () {
-                // animate to "end" color when starting from 0
-                if (value == 0) animController.forward();
+            const SizedBox(width: 4),
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: FittedBox(
+                child: FloatingActionButton(
+                  // increase
+                  heroTag: null,
+                  child: Icon(FontAwesomeIcons.plusCircle),
+                  onPressed: () {
+                    // animate to "end" color when starting from 0
+                    if (value == 0) animController.forward();
 
-                value++;
-                widget.textEditingController.text = (value).toString();
-                widget.onIncrement?.call(value);
-              },
+                    value++;
+                    widget.textEditingController.text = (value).toString();
+                    widget.onIncrement?.call(value);
+                  },
+                ),
+              ),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 4),
           ],
         ),
         builder: (context, childWidget) {

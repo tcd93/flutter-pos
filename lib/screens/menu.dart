@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:tuple/tuple.dart';
 
 import '../common/counter/counter.dart';
+import '../common/money_format/money.dart';
 
 import '../models/dish.dart';
 import '../models/order.dart';
@@ -65,7 +66,8 @@ class MenuScreen extends StatelessWidget {
                     }
                   },
                   imagePath: Dish.getMenu()[index].imagePath,
-                  subtitle: Dish.getMenu()[index].dish,
+                  subtitle:
+                      '${Dish.getMenu()[index].dish} (${Money.format(Dish.getMenu()[index].price.toString())})',
                   key: ObjectKey(tuple.item1),
                 );
               },
