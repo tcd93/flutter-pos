@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../common/money_format/money.dart';
+
 import '../models/dish.dart';
 import '../models/table.dart';
 import '../models/tracker.dart';
 
-//TODO> list out the details of current order
 class DetailsScreen extends StatelessWidget {
   final int tableID;
   final String fromHeroTag;
@@ -39,7 +40,13 @@ class DetailsScreen extends StatelessWidget {
                   child: Text(orders[index].quantity.toString()),
                 ),
                 title: Text(Dish.getMenu()[orders[index].dishID].dish),
-                trailing: Text('pricing...'), //TODO add price&subtitle (note)
+                trailing: Text(
+                  Money.format(
+                    (Dish.getMenu()[orders[index].dishID].price *
+                            orders[index].quantity)
+                        .toString(),
+                  ),
+                ),
               ),
             );
           }),
