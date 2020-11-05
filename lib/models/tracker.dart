@@ -5,8 +5,9 @@ import 'table.dart';
 class OrderTracker extends ChangeNotifier {
   List<TableModel> _tables;
 
-  OrderTracker() {
-    _tables = List.generate(7, (index) => TableModel(this, index), growable: false);
+  OrderTracker({List<TableModel> Function(OrderTracker) modelBuilder}) {
+    _tables = modelBuilder?.call(this) ??
+        List.generate(7, (index) => TableModel(this, index), growable: false);
   }
 
   TableModel getTable(int index) => _tables[index];
