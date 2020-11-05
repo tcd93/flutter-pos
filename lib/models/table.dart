@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 import '../common/common.dart';
 
 import 'dish.dart';
-import 'order.dart';
+import 'line_item.dart';
 import 'tracker.dart';
 
 enum TableStatus {
@@ -27,7 +27,7 @@ class _State {
     if (order == null) {
       order = {
         for (var dish in Dish.getMenu())
-          dish.id: Order(
+          dish.id: LineItem(
             dishID: dish.id,
             quantity: 0,
           )
@@ -35,7 +35,7 @@ class _State {
 
       previousOrder = {
         for (var dish in Dish.getMenu())
-          dish.id: Order(
+          dish.id: LineItem(
             dishID: dish.id,
             quantity: 0,
           )
@@ -47,12 +47,12 @@ class _State {
   TableStatus status;
 
   /// The order associated with a table.
-  /// This is a [Map<int, Order>] where the key is the [Dish] item id
-  Map<int, Order> order;
+  /// This is a [Map<int, LineItem>] where the key is the [Dish] item id
+  Map<int, LineItem> order;
 
   /// Keep track of state history, overwrite snapshot everytime the confirm
   /// button is clicked
-  Map<int, Order> previousOrder;
+  Map<int, LineItem> previousOrder;
 
   @override
   String toString() {
@@ -84,26 +84,25 @@ class TableModel {
 
   /// Store current state for rollback operation
   void memorizePreviousState() {
-    _tableState.previousOrder = Common.cloneMap<int, Order>(
+    _tableState.previousOrder = Common.cloneMap<int, LineItem>(
       _tableState.order,
-      (key, value) => Order(
+      (key, value) => LineItem(
         dishID: key,
         quantity: value.quantity,
       ),
     );
-    debugPrint(
-        '    Set previous state: \n    ${_tableState.previousOrder.toString()}\n');
+    debugPrint('    Set previous state: \n    ${_tableState.previousOrder.toString()}\n');
   }
 
   /// Get [Order] from menu list, [dishID] is the index of Menu list
-  Order orderOf(int dishID) => _tableState.order[dishID];
+  LineItem orderOf(int dishID) => _tableState.order[dishID];
 
   /// Try putting new [Order] at the order associated with current table
-  Order putOrderIfAbsent(int dishID) =>
-      _tableState.order.putIfAbsent(dishID, () => Order(dishID: dishID));
+  LineItem putOrderIfAbsent(int dishID) =>
+      _tableState.order.putIfAbsent(dishID, () => LineItem(dishID: dishID));
 
   /// Get a list of current [Order] (with quantity > 0)
-  UnmodifiableListView<Order> orders() {
+  UnmodifiableListView<LineItem> orders() {
     return UnmodifiableListView(
       _tableState.order.entries
           .where((entry) => entry.value.quantity > 0)
@@ -126,9 +125,9 @@ class TableModel {
     _tableState.status = TableStatus.occupied;
     // overwrite current `order` state.
     // has to do cloning here to not bind the reference of previous [Order]s to current state
-    _tableState.order = Common.cloneMap<int, Order>(
+    _tableState.order = Common.cloneMap<int, LineItem>(
       _tableState.previousOrder,
-      (key, value) => Order(
+      (key, value) => LineItem(
         dishID: key,
         quantity: value.quantity,
       ),

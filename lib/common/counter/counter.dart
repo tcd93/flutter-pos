@@ -34,8 +34,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
   AnimationController animController;
 
   _CounterState() {
-    animController =
-        AnimationController(duration: Duration(milliseconds: 500), vsync: this);
+    animController = AnimationController(duration: Duration(milliseconds: 500), vsync: this);
   }
 
   @override

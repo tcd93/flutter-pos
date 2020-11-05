@@ -7,7 +7,7 @@ import '../common/counter/counter.dart';
 import '../common/money_format/money.dart';
 
 import '../models/dish.dart';
-import '../models/order.dart';
+import '../models/line_item.dart';
 import '../models/table.dart';
 import '../models/tracker.dart';
 
@@ -39,7 +39,7 @@ class MenuScreen extends StatelessWidget {
           physics: const BouncingScrollPhysics(),
           itemCount: Dish.getMenu().length,
           itemBuilder: (context, index) {
-            return Selector<OrderTracker, Tuple2<TableModel, Order>>(
+            return Selector<OrderTracker, Tuple2<TableModel, LineItem>>(
               selector: (context, tracker) {
                 return Tuple2(
                   tracker.getTable(tableID), // item1

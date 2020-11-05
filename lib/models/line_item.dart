@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import 'dish.dart';
 
-class Order {
+class LineItem {
   int _dishID;
 
   /// The unique id from [Dish]
@@ -28,7 +28,7 @@ class Order {
     return Dish.getMenu()[dishID].price * quantity;
   }
 
-  Order({@required int dishID, int quantity = 0})
+  LineItem({@required int dishID, int quantity = 0})
       : assert(dishID != null, dishID >= 0 && dishID < Dish.getMenu().length),
         _dishID = dishID,
         _quantity = quantity;
