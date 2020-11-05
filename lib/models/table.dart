@@ -89,7 +89,8 @@ class TableModel {
         quantity: value.quantity,
       ),
     );
-    debugPrint('    Set previous state: \n    ${_tableState.previousOrder.toString()}\n');
+    debugPrint(
+        '    Set previous state: \n    ${_tableState.previousOrder.toString()}\n');
   }
 
   /// Get [Order] from menu list, [dishID] is the index of Menu list
@@ -100,7 +101,7 @@ class TableModel {
       _tableState.order.putIfAbsent(dishID, () => Order(dishID: dishID));
 
   /// Returns total items (number of dishes) of current table
-  int orderCount() => _tableState.order.entries.fold(
+  int totalMenuItemQuantity() => _tableState.order.entries.fold(
         0,
         (previousValue, element) => previousValue + element.value.quantity,
       );

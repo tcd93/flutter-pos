@@ -58,7 +58,7 @@ class MenuScreen extends StatelessWidget {
                     // If there are not a single item in this order left,
                     // Then set status to "empty" to disable the [_ConfirmButton]
                     if (tuple.item1.orderOf(index).quantity == 0 &&
-                        tuple.item1.orderCount() == 0) {
+                        tuple.item1.totalMenuItemQuantity() == 0) {
                       tuple.item1.setTableStatus(TableStatus.empty);
                     } else {
                       tuple.item1.setTableStatus(TableStatus.incomplete);
