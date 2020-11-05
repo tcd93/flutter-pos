@@ -129,16 +129,17 @@ _sideButtonsBuilder(
         angle: angles[1],
         //TODO> only clickable if status = occupied
         onPressed: () {
-          // model.toggleStatus();
-          radialAnimationController.reverse();
-          Navigator.pushNamed(
-            context,
-            '/order-details',
-            arguments: {
-              'heroTag': 'details-subtag-table-${model.id}',
-              'tableID': model.id,
-            },
-          );
+          Navigator.pushNamed(context, '/order-details', arguments: {
+            'heroTag': 'details-subtag-table-${model.id}',
+            'tableID': model.id,
+          }).then((_) {
+            Future.delayed(
+              Duration(milliseconds: 600),
+              () {
+                radialAnimationController.reverse();
+              },
+            );
+          });
         },
         icon: FontAwesomeIcons.infoCircle,
         key: ValueKey<int>(2),

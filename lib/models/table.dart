@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -99,6 +101,15 @@ class TableModel {
   /// Try putting new [Order] at the order associated with current table
   Order putOrderIfAbsent(int dishID) =>
       _tableState.order.putIfAbsent(dishID, () => Order(dishID: dishID));
+
+  /// Get a list of current [Order] (with quantity > 0)
+  UnmodifiableListView<Order> orders() {
+    return UnmodifiableListView(
+      _tableState.order.entries
+          .where((entry) => entry.value.quantity > 0)
+          .map((entry) => entry.value),
+    );
+  }
 
   /// Returns total items (number of dishes) of current table
   int totalMenuItemQuantity() => _tableState.order.entries.fold(
