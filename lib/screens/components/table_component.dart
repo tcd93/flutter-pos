@@ -40,7 +40,7 @@ class _MainButton extends StatelessWidget {
 
   /// Returns a list of surrounding [RadialButton].
   /// Should match the number of elements in [displayAngles]
-  final List<RadialButton> Function(
+  final List<Widget> Function(
     BuildContext,
     AnimationController,
     List<double> displayAngles,
@@ -99,49 +99,54 @@ _sideButtonsBuilder(
   TableModel model,
   AnimationController radialAnimationController,
   List<double> angles,
-) =>
-    [
-      RadialButton(
-        heroTag: "menu-subtag-table-${model.id}",
-        controller: radialAnimationController,
-        angle: angles[0],
-        onPressed: () {
-          // model.toggleStatus();
-          // pass hero tag into new Page to animate the FAB
-          Navigator.pushNamed(context, '/menu', arguments: {
-            'heroTag': 'menu-subtag-table-${model.id}',
-            'tableID': model.id,
-          }).then((_) {
-            Future.delayed(
-              Duration(milliseconds: 600),
-              () {
-                radialAnimationController.reverse();
-              },
-            );
-          });
-        },
-        icon: FontAwesomeIcons.plusCircle,
-        key: ValueKey<int>(1),
-      ),
-      RadialButton(
-        heroTag: "details-subtag-table-${model.id}",
-        controller: radialAnimationController,
-        angle: angles[1],
-        //TODO> only clickable if status = occupied
-        onPressed: () {
-          Navigator.pushNamed(context, '/order-details', arguments: {
-            'heroTag': 'details-subtag-table-${model.id}',
-            'tableID': model.id,
-          }).then((_) {
-            Future.delayed(
-              Duration(milliseconds: 600),
-              () {
-                radialAnimationController.reverse();
-              },
-            );
-          });
-        },
-        icon: FontAwesomeIcons.infoCircle,
-        key: ValueKey<int>(2),
-      ),
-    ];
+) {
+  final status = context.select<OrderTracker, TableStatus>(
+    (_) => model.getTableStatus(),
+  );
+  return [
+    RadialButton(
+      heroTag: "menu-subtag-table-${model.id}",
+      controller: radialAnimationController,
+      angle: angles[0],
+      onPressed: () {
+        // model.toggleStatus();
+        // pass hero tag into new Page to animate the FAB
+        Navigator.pushNamed(context, '/menu', arguments: {
+          'heroTag': 'menu-subtag-table-${model.id}',
+          'tableID': model.id,
+        }).then((_) {
+          Future.delayed(
+            Duration(milliseconds: 600),
+            () {
+              radialAnimationController.reverse();
+            },
+          );
+        });
+      },
+      icon: FontAwesomeIcons.plusCircle,
+      key: ValueKey<int>(1),
+    ),
+    RadialButton(
+      heroTag: "details-subtag-table-${model.id}",
+      controller: radialAnimationController,
+      angle: angles[1],
+      onPressed: status == TableStatus.occupied
+          ? () {
+              Navigator.pushNamed(context, '/order-details', arguments: {
+                'heroTag': 'details-subtag-table-${model.id}',
+                'tableID': model.id,
+              }).then((_) {
+                Future.delayed(
+                  Duration(milliseconds: 600),
+                  () {
+                    radialAnimationController.reverse();
+                  },
+                );
+              });
+            }
+          : null,
+      icon: FontAwesomeIcons.infoCircle,
+      key: ValueKey<int>(2),
+    ),
+  ];
+}

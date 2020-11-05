@@ -41,9 +41,10 @@ class RadialButton extends StatelessWidget {
         child: FloatingActionButton(
           heroTag: heroTag,
           onPressed: onPressed,
-          child: Icon(icon),
+          child: Icon(icon, color: onPressed == null ? Colors.grey[500] : null),
           elevation: elevation,
-          backgroundColor: color,
+          backgroundColor:
+              onPressed == null ? Theme.of(context).disabledColor : color,
         ));
   }
 }
