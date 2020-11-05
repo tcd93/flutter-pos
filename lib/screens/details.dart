@@ -21,10 +21,16 @@ class DetailsScreen extends StatelessWidget {
       (tracker) => tracker.getTable(tableID),
     );
     final orders = model.orders();
+    final totalPrice = orders.fold(0, (prev, order) {
+      return prev + order.amount();
+    });
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Menu', style: Theme.of(context).textTheme.headline1),
+        title: Text(
+          'Total - ${Money.format(totalPrice.toString())}',
+          style: Theme.of(context).textTheme.headline2,
+        ),
         actions: [
           //TODO > add Checkout button
         ],
@@ -41,11 +47,7 @@ class DetailsScreen extends StatelessWidget {
                 ),
                 title: Text(Dish.getMenu()[orders[index].dishID].dish),
                 trailing: Text(
-                  Money.format(
-                    (Dish.getMenu()[orders[index].dishID].price *
-                            orders[index].quantity)
-                        .toString(),
-                  ),
+                  Money.format(orders[index].amount().toString()),
                 ),
               ),
             );

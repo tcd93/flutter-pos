@@ -23,6 +23,11 @@ class Order {
     _quantity = quantity;
   }
 
+  /// The amount of current line item (price * quantity)
+  int amount() {
+    return Dish.getMenu()[dishID].price * quantity;
+  }
+
   Order({@required int dishID, int quantity = 0})
       : assert(dishID != null, dishID >= 0 && dishID < Dish.getMenu().length),
         _dishID = dishID,
