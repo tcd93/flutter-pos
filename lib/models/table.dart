@@ -23,6 +23,7 @@ enum TableStatus {
 /// The separate "state" of the immutable [TableModel] class
 class _State {
   TableStatus status;
+  TableStatus previousStatus;
 
   /// The lineItem associated with a table.
   /// This is a [Map<int, LineItem>] where the key is the [Dish] item id
@@ -96,6 +97,7 @@ class TableModel {
 
   /// Store current state for rollback operation
   void memorizePreviousState() {
+    _tableState.previousStatus = _tableState.status;
     _tableState.previousOrder = Common.cloneMap<int, LineItem>(
       _tableState.lineItem,
       (key, value) => LineItem(
@@ -107,7 +109,7 @@ class TableModel {
 
   /// Restore to last "commit"
   void revert() {
-    _tableState.status = TableStatus.occupied;
+    _tableState.status = _tableState.previousStatus;
     // overwrite current `lineItem` state.
     // has to do cloning here to not bind the reference of previous [LineItem]s to current state
     _tableState.lineItem = Common.cloneMap<int, LineItem>(
