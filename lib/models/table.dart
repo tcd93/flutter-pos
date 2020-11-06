@@ -16,47 +16,41 @@ enum TableStatus {
   /// Dining
   occupied,
 
-  /// Incomplete order
+  /// Incomplete lineItem
   incomplete,
 }
 
 /// The separate "state" of the immutable [TableModel] class
 class _State {
-  _State([this.status = TableStatus.empty, this.order]) {
-    // create an `order` (of quantity 0) to very item on `menu`
-    if (order == null) {
-      order = {
-        for (var dish in Dish.getMenu())
-          dish.id: LineItem(
-            dishID: dish.id,
-            quantity: 0,
-          )
-      };
-
-      previousOrder = {
-        for (var dish in Dish.getMenu())
-          dish.id: LineItem(
-            dishID: dish.id,
-            quantity: 0,
-          )
-      };
-    }
-    ; // weird that I can't set default value...
-  }
-
   TableStatus status;
 
-  /// The order associated with a table.
+  /// The lineItem associated with a table.
   /// This is a [Map<int, LineItem>] where the key is the [Dish] item id
-  Map<int, LineItem> order;
+  Map<int, LineItem> lineItem;
 
   /// Keep track of state history, overwrite snapshot everytime the confirm
   /// button is clicked
   Map<int, LineItem> previousOrder;
 
+  _State([this.status = TableStatus.empty])
+      : lineItem = {
+          for (var dish in Dish.getMenu())
+            dish.id: LineItem(
+              dishID: dish.id,
+              quantity: 0,
+            )
+        },
+        previousOrder = {
+          for (var dish in Dish.getMenu())
+            dish.id: LineItem(
+              dishID: dish.id,
+              quantity: 0,
+            )
+        };
+
   @override
   String toString() {
-    return '{status: ${status.toString()}, order: ${order.toString()}}';
+    return '{status: ${status.toString()}, lineItem: ${lineItem.toString()}}';
   }
 }
 
@@ -82,50 +76,41 @@ class TableModel {
     _tracker.notifyListeners();
   }
 
-  /// Store current state for rollback operation
-  void memorizePreviousState() {
-    _tableState.previousOrder = Common.cloneMap<int, LineItem>(
-      _tableState.order,
-      (key, value) => LineItem(
-        dishID: key,
-        quantity: value.quantity,
-      ),
-    );
-    debugPrint('    Set previous state: \n    ${_tableState.previousOrder.toString()}\n');
-  }
+  /// Get [LineItem] from menu list
+  LineItem lineItem(int index) => _tableState.lineItem[index];
 
-  /// Get [Order] from menu list, [dishID] is the index of Menu list
-  LineItem orderOf(int dishID) => _tableState.order[dishID];
-
-  /// Try putting new [Order] at the order associated with current table
-  LineItem putOrderIfAbsent(int dishID) =>
-      _tableState.order.putIfAbsent(dishID, () => LineItem(dishID: dishID));
-
-  /// Get a list of current [Order] (with quantity > 0)
-  UnmodifiableListView<LineItem> orders() {
+  /// Get a list of current [LineItem] (with quantity > 0)
+  UnmodifiableListView<LineItem> lineItems() {
     return UnmodifiableListView(
-      _tableState.order.entries
+      _tableState.lineItem.entries
           .where((entry) => entry.value.quantity > 0)
           .map((entry) => entry.value),
     );
   }
 
   /// Returns total items (number of dishes) of current table
-  int totalMenuItemQuantity() => _tableState.order.entries.fold(
+  int totalMenuItemQuantity() => _tableState.lineItem.entries.fold(
         0,
         (previousValue, element) => previousValue + element.value.quantity,
       );
 
+  /// Store current state for rollback operation
+  void memorizePreviousState() {
+    _tableState.previousOrder = Common.cloneMap<int, LineItem>(
+      _tableState.lineItem,
+      (key, value) => LineItem(
+        dishID: key,
+        quantity: value.quantity,
+      ),
+    );
+  }
+
   /// Restore to last "commit"
   void revert() {
-    // if has not "commit", revert back to all "0"
-    if (_tableState.previousOrder == null) {}
-    debugPrint(
-        '    Reverting table state back to: \n    ${_tableState.previousOrder.toString()}\n');
     _tableState.status = TableStatus.occupied;
-    // overwrite current `order` state.
-    // has to do cloning here to not bind the reference of previous [Order]s to current state
-    _tableState.order = Common.cloneMap<int, LineItem>(
+    // overwrite current `lineItem` state.
+    // has to do cloning here to not bind the reference of previous [LineItem]s to current state
+    _tableState.lineItem = Common.cloneMap<int, LineItem>(
       _tableState.previousOrder,
       (key, value) => LineItem(
         dishID: key,

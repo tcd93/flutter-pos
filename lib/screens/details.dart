@@ -20,7 +20,7 @@ class DetailsScreen extends StatelessWidget {
     final model = context.select<OrderTracker, TableModel>(
       (tracker) => tracker.getTable(tableID),
     );
-    final orders = model.orders();
+    final orders = model.lineItems();
     final totalPrice = orders.fold(0, (prev, order) {
       return prev + order.amount();
     });

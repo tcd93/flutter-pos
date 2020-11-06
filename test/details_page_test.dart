@@ -17,12 +17,12 @@ Widget skeletonWidget() => MaterialApp(
       builder: (_, __) => ChangeNotifierProvider(
         create: (_) => OrderTracker(
           modelBuilder: (tracker) => [
-            TableModel(tracker, 1)..putOrderIfAbsent(5).quantity = 1,
+            TableModel(tracker, 1)..lineItem(5).quantity = 1,
             TableModel(tracker, 1)
-              ..putOrderIfAbsent(1).quantity = 5
-              ..putOrderIfAbsent(1).quantity = 7
-              ..putOrderIfAbsent(5).quantity = 55
-              ..putOrderIfAbsent(3).quantity = 10,
+              ..lineItem(1).quantity = 5
+              ..lineItem(2).quantity = 0
+              ..lineItem(5).quantity = 55
+              ..lineItem(3).quantity = 10,
           ],
         ),
         child: DetailsScreen(1),

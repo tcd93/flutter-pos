@@ -37,18 +37,19 @@ class MenuScreen extends StatelessWidget {
       ),
       body: ListView.builder(
           physics: const BouncingScrollPhysics(),
-          itemCount: Dish.getMenu().length,
+          itemCount: Dish.getMenu()
+              .length, // same count of order line items and items in the `menu` constant in [Dish]
           itemBuilder: (context, index) {
             return Selector<OrderTracker, Tuple2<TableModel, LineItem>>(
               selector: (context, tracker) {
                 return Tuple2(
                   tracker.getTable(tableID), // item1
-                  tracker.getTable(tableID).orderOf(index), // item2
+                  tracker.getTable(tableID).lineItem(index), // item2
                 );
               },
               builder: (context, tuple, _) {
                 return Counter(
-                  tuple.item1.orderOf(index)?.quantity ?? 0,
+                  tuple.item1.lineItem(index)?.quantity ?? 0,
                   onIncrement: (_) {
                     tuple.item2.quantity++;
 
@@ -58,7 +59,7 @@ class MenuScreen extends StatelessWidget {
                     tuple.item2.quantity--;
                     // If there are not a single item in this order left,
                     // Then set status to "empty" to disable the [_ConfirmButton]
-                    if (tuple.item1.orderOf(index).quantity == 0 &&
+                    if (tuple.item1.lineItem(index).quantity == 0 &&
                         tuple.item1.totalMenuItemQuantity() == 0) {
                       tuple.item1.setTableStatus(TableStatus.empty);
                     } else {
