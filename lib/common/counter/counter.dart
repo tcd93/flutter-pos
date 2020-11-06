@@ -157,9 +157,15 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
               ),
               if (widget.imagePath != null)
                 DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50),
-                    boxShadow: [
+                  decoration: ShapeDecoration(
+                    shape: CircleBorder(),
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: AssetImage(
+                        widget.imagePath,
+                      ),
+                    ),
+                    shadows: [
                       BoxShadow(
                         color: Theme.of(context).primaryColorLight,
                         blurRadius: animController.value * 6,
@@ -167,11 +173,10 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                       ),
                     ],
                   ),
-                  child: Image.asset(
-                    widget.imagePath,
-                    fit: BoxFit.cover,
-                    height: height, // have to specify both width & height
-                    width: height, // to properly align
+                  // empty box to contain the decoration image
+                  child: SizedBox(
+                    height: height,
+                    width: height,
                   ),
                 ),
             ],
