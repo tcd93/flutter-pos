@@ -32,4 +32,9 @@ final appTheme = ThemeData(
     backgroundColor: Colors.yellow,
   ),
   cardColor: Color.fromARGB(75, 192, 192, 192),
+  pageTransitionsTheme: PageTransitionsTheme(
+    builders: {
+      TargetPlatform.android: OpenUpwardsPageTransitionsBuilder(),
+    },
+  ),
 );

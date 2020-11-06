@@ -44,19 +44,7 @@ class HemBoApp extends StatelessWidget {
   }
 }
 
-PageRouteBuilder routeBuilder(Widget screen) => PageRouteBuilder(
-      pageBuilder: (_, __, ___) => screen,
-      transitionsBuilder: (_, animation, __, child) {
-        return SlideTransition(
-            position: animation
-                .drive(CurveTween(curve: Curves.easeOutCirc))
-                .drive<Offset>(Tween(begin: Offset(0, 1), end: Offset.zero)),
-            child: FadeTransition(
-              opacity:
-                  animation.drive<double>(CurveTween(curve: Curves.easeOut)),
-              child: child,
-            ));
-      },
-      transitionDuration: Duration(milliseconds: 600),
-      reverseTransitionDuration: Duration(milliseconds: 600),
+MaterialPageRoute routeBuilder(Widget screen) => MaterialPageRoute(
+      builder: (_) => screen,
+      maintainState: false,
     );
