@@ -48,28 +48,31 @@ class MenuScreen extends StatelessWidget {
                 );
               },
               builder: (context, tuple, _) {
-                return Counter(
-                  tuple.item1.lineItem(index)?.quantity ?? 0,
-                  onIncrement: (_) {
-                    tuple.item2.quantity++;
+                return Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Counter(
+                    tuple.item1.lineItem(index)?.quantity ?? 0,
+                    onIncrement: (_) {
+                      tuple.item2.quantity++;
 
-                    tuple.item1.setTableStatus(TableStatus.incomplete);
-                  },
-                  onDecrement: (_) {
-                    tuple.item2.quantity--;
-                    // If there are not a single item in this order left,
-                    // Then set status to "empty" to disable the [_ConfirmButton]
-                    if (tuple.item1.lineItem(index).quantity == 0 &&
-                        tuple.item1.totalMenuItemQuantity() == 0) {
-                      tuple.item1.setTableStatus(TableStatus.empty);
-                    } else {
                       tuple.item1.setTableStatus(TableStatus.incomplete);
-                    }
-                  },
-                  imagePath: Dish.getMenu()[index].imagePath,
-                  subtitle:
-                      '${Dish.getMenu()[index].dish} (${Money.format(Dish.getMenu()[index].price.toString())})',
-                  key: ObjectKey(tuple.item1),
+                    },
+                    onDecrement: (_) {
+                      tuple.item2.quantity--;
+                      // If there are not a single item in this order left,
+                      // Then set status to "empty" to disable the [_ConfirmButton]
+                      if (tuple.item1.lineItem(index).quantity == 0 &&
+                          tuple.item1.totalMenuItemQuantity() == 0) {
+                        tuple.item1.setTableStatus(TableStatus.empty);
+                      } else {
+                        tuple.item1.setTableStatus(TableStatus.incomplete);
+                      }
+                    },
+                    imagePath: Dish.getMenu()[index].imagePath,
+                    subtitle:
+                        '${Dish.getMenu()[index].dish} (${Money.format(Dish.getMenu()[index].price.toString())})',
+                    key: ObjectKey(tuple.item1),
+                  ),
                 );
               },
             );
