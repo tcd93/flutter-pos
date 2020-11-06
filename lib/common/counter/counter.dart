@@ -34,7 +34,10 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
   AnimationController animController;
 
   _CounterState() {
-    animController = AnimationController(duration: Duration(milliseconds: 500), vsync: this);
+    animController = AnimationController(
+      duration: Duration(milliseconds: 500),
+      vsync: this,
+    );
   }
 
   @override
@@ -164,22 +167,11 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                       ),
                     ],
                   ),
-                  child: Material(
-                    clipBehavior: Clip.antiAlias,
-                    shape: CircleBorder(
-                      side: BorderSide(
-                        color: Colors.black12,
-                        width: 1.5,
-                      ),
-                    ),
-                    elevation: 2.0,
-                    borderOnForeground: false,
-                    child: Image.asset(
-                      widget.imagePath,
-                      fit: BoxFit.cover,
-                      height: height, // have to specify both width & height
-                      width: height, // to properly align
-                    ),
+                  child: Image.asset(
+                    widget.imagePath,
+                    fit: BoxFit.cover,
+                    height: height, // have to specify both width & height
+                    width: height, // to properly align
                   ),
                 ),
             ],
