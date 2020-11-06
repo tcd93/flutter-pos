@@ -33,21 +33,23 @@ class _State {
   /// button is clicked
   Map<int, LineItem> previousOrder;
 
-  _State([this.status = TableStatus.empty])
-      : lineItem = {
-          for (var dish in Dish.getMenu())
-            dish.id: LineItem(
-              dishID: dish.id,
-              quantity: 0,
-            )
-        },
-        previousOrder = {
-          for (var dish in Dish.getMenu())
-            dish.id: LineItem(
-              dishID: dish.id,
-              quantity: 0,
-            )
-        };
+  _State() {
+    blankState();
+  }
+
+  /// set all line items to 0
+  void blankState() {
+    status = TableStatus.empty;
+    previousStatus = TableStatus.empty;
+    lineItem = {
+      for (var dish in Dish.getMenu())
+        dish.id: LineItem(dishID: dish.id, quantity: 0)
+    };
+    previousOrder = {
+      for (var dish in Dish.getMenu())
+        dish.id: LineItem(dishID: dish.id, quantity: 0)
+    };
+  }
 
   @override
   String toString() {
@@ -120,5 +122,14 @@ class TableModel {
       ),
     );
     _tracker.notifyListeners();
+  }
+
+  void checkout() {
+    debugPrint('Checked out...');
+
+    // TODO: implement checkout (save file to database & print)
+
+    // clear state
+    _tableState.blankState();
   }
 }
