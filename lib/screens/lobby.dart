@@ -120,13 +120,20 @@ class _MainButton extends StatelessWidget {
 
     return RadialMenu(
       mainButtonBuilder: (radialAnimationController, context) {
-        return FloatingActionButton(
-          heroTag: null,
-          child: Icon(FontAwesomeIcons.circleNotch),
-          onPressed: () {
-            radialAnimationController.forward();
-          },
-          backgroundColor: _colorTween.animate(radialAnimationController).value,
+        return SizedBox(
+          width: 85,
+          height: 85,
+          child: FittedBox(
+            child: FloatingActionButton(
+              heroTag: null,
+              child: Icon(FontAwesomeIcons.circleNotch),
+              onPressed: () {
+                radialAnimationController.forward();
+              },
+              backgroundColor:
+                  _colorTween.animate(radialAnimationController).value,
+            ),
+          ),
         );
       },
       secondaryButtonBuilder: (radialAnimationController, context) {
