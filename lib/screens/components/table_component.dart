@@ -62,8 +62,8 @@ class _MainButton extends StatelessWidget {
     debugPrint("rebuilding _MainButton... ${model.id}");
 
     final _colorTween = ColorTween(
-      begin: Theme.of(context).primaryColor,
-      end: Theme.of(context).disabledColor,
+      begin: Theme.of(context).floatingActionButtonTheme.backgroundColor,
+      end: Theme.of(context).floatingActionButtonTheme.focusColor,
     );
 
     return RadialMenu(

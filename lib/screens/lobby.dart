@@ -7,7 +7,7 @@ class LobbyScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lobby', style: Theme.of(context).textTheme.headline1),
+        title: Text('Lobby', style: Theme.of(context).textTheme.headline6),
       ),
       body: _LobbyLayout(),
     );

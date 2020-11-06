@@ -23,7 +23,7 @@ class MenuScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Menu', style: Theme.of(context).textTheme.headline1),
+        title: Text('Menu', style: Theme.of(context).textTheme.headline6),
         actions: [
           _UndoButton(
             tableID,

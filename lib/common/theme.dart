@@ -1,40 +1,32 @@
-// Copyright 2019 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 import 'package:flutter/material.dart';
 
+const Color _darkPrimary = Colors.black;
+const Color _darkAccent = Colors.white;
+const Color _lightBG = Color(0xfffcfcff);
+const Color _darkBG = Colors.black87;
+final Color _focusColor = Colors.blueGrey[300];
+
 final appTheme = ThemeData(
-  primarySwatch: Colors.yellow,
-  primaryColor: Colors.yellow,
-  primaryColorLight: Color.fromRGBO(255, 255, 230, 1),
-  disabledColor: Colors.grey[200],
-  fontFamily: 'Corben',
-  textTheme: TextTheme(
-    headline1: TextStyle(
-      fontWeight: FontWeight.w700,
-      fontSize: 24,
-      color: Colors.black,
-    ),
-    headline2: TextStyle(
-      fontWeight: FontWeight.w600,
-      fontSize: 18,
-    ),
-    headline3: TextStyle(
-      fontWeight: FontWeight.w500,
-      fontSize: 16,
-      color: Colors.black,
+  fontFamily: 'Charmonman',
+  brightness: Brightness.dark,
+  backgroundColor: _darkBG,
+  primaryColor: _darkPrimary,
+  accentColor: _darkAccent,
+  scaffoldBackgroundColor: _darkBG,
+  appBarTheme: AppBarTheme(
+    elevation: 0,
+    textTheme: TextTheme(
+      headline6: TextStyle(
+        color: _lightBG,
+        fontSize: 18.0,
+        fontWeight: FontWeight.w800,
+      ),
     ),
   ),
-  iconTheme: IconThemeData(size: 30),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
-    foregroundColor: Color.fromRGBO(255, 51, 51, 0.8),
-    backgroundColor: Colors.yellow,
-  ),
-  cardColor: Color.fromARGB(75, 192, 192, 192),
-  pageTransitionsTheme: PageTransitionsTheme(
-    builders: {
-      TargetPlatform.android: OpenUpwardsPageTransitionsBuilder(),
-    },
+    backgroundColor: _lightBG,
+    focusColor: _focusColor,
+    focusElevation: 18.0,
+    splashColor: _focusColor,
   ),
 );

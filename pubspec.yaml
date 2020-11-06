@@ -64,10 +64,10 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-    - family: Corben
+    - family: Charmonman
       fonts:
-        - asset: assets/fonts/Corben-Regular.ttf
-        - asset: assets/fonts/Corben-Bold.ttf
+        - asset: assets/fonts/Charmonman-Regular.ttf
+        - asset: assets/fonts/Charmonman-Bold.ttf
 
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
