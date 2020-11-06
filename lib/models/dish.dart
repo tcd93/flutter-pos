@@ -63,7 +63,7 @@ class Dish {
   /// Index of menu is the unique ID of associated [Dish]
   static UnmodifiableListView<Dish> getMenu() => UnmodifiableListView(
         List.generate(
-          menu.length - 1,
+          menu.length,
           (index) => Dish(
             index,
             menu[index].item1,
