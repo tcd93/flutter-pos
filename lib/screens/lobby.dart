@@ -27,14 +27,33 @@ class _LobbyLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _TableComponent(1, [0, 90]),
-            _TableComponent(2, [0, 90]),
-          ],
+    return CustomScrollView(
+      slivers: [
+        SliverList(
+          delegate: SliverChildListDelegate(
+            [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _TableComponent(1, [0, 90]),
+                  _TableComponent(2, [0, 90]),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _TableComponent(3, [0, 90]),
+                  _TableComponent(4, [0, 90]),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  _TableComponent(5, [0, 90]),
+                ],
+              ),
+            ],
+          ),
         ),
       ],
     );
