@@ -50,19 +50,17 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     var value = int.tryParse(widget.textEditingController.text);
 
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: 4,
-        horizontal: 14,
-      ),
-      child: AnimatedBuilder(
-        animation: animController,
+    return AnimatedBuilder(
+      animation: animController,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            const SizedBox(width: 32.0),
+            const Spacer(),
             if (widget.subtitle != null)
               Expanded(
+                flex: 7,
                 child: Text(
                   widget.subtitle,
                   overflow: TextOverflow.ellipsis,
@@ -72,10 +70,12 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                   maxLines: 2,
                 ),
               ),
-            const SizedBox(width: 12),
-            SizedBox(
-              width: 40,
-              height: 40,
+            const VerticalDivider(
+              thickness: 1,
+              indent: 2,
+              endIndent: 2,
+            ),
+            Expanded(
               child: FittedBox(
                 child: FloatingActionButton(
                   // decrease
@@ -94,9 +94,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                 ),
               ),
             ),
-            const SizedBox(width: 4),
-            SizedBox(
-              width: 40.0,
+            Expanded(
               child: TextField(
                 controller: widget.textEditingController,
                 enabled: false,
@@ -104,10 +102,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                 style: Theme.of(context).textTheme.headline5,
               ),
             ),
-            const SizedBox(width: 4),
-            SizedBox(
-              width: 40,
-              height: 40,
+            Expanded(
               child: FittedBox(
                 child: FloatingActionButton(
                   // increase
@@ -124,65 +119,63 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                 ),
               ),
             ),
-            const SizedBox(width: 4),
+            const VerticalDivider(
+              thickness: 1,
+              indent: 2,
+              endIndent: 2,
+            ),
           ],
         ),
-        builder: (context, childWidget) {
-          if (widget.startingValue != 0) {
-            widget._memoizer.runOnce(() {
-              animController.forward();
-            });
-          }
+      ),
+      builder: (context, cardContent) {
+        if (widget.startingValue != 0) {
+          widget._memoizer.runOnce(() {
+            animController.forward();
+          });
+        }
 
-          final colorTween = ColorTween(
-            begin: Theme.of(context).cardColor, // disabled color
-            end: Theme.of(context).primaryColorLight, // hightlight if > 0
-          );
+        final colorTween = ColorTween(
+          begin: Theme.of(context).cardColor, // disabled color
+          end: Theme.of(context).primaryColorLight, // hightlight if > 0
+        );
 
-          return Stack(
-            alignment: Alignment.centerLeft,
-            children: [
-              Container(
-                height: height - 20.0,
-                child: Card(
-                  margin: const EdgeInsets.only(left: height - 25),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+        return Stack(
+          alignment: Alignment.centerLeft,
+          children: [
+            Container(
+              height: height - 20.0,
+              child: Card(
+                margin: const EdgeInsets.only(left: height - 20),
+                color: colorTween.animate(animController).value,
+                elevation: 2.0,
+                child: cardContent,
+              ),
+            ),
+            if (widget.imagePath != null)
+              DecoratedBox(
+                decoration: ShapeDecoration(
+                  shape: CircleBorder(),
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: AssetImage(widget.imagePath),
                   ),
-                  borderOnForeground: false,
-                  color: colorTween.animate(animController).value,
-                  elevation: 2.0,
-                  child: childWidget,
+                  shadows: [
+                    BoxShadow(
+                      color: Theme.of(context).primaryColorLight,
+                      blurRadius: animController.value * 6,
+                      spreadRadius: animController.value * 9,
+                    ),
+                  ],
+                ),
+                // empty box to contain the decoration image
+                child: SizedBox(
+                  height: height,
+                  width: height,
                 ),
               ),
-              if (widget.imagePath != null)
-                DecoratedBox(
-                  decoration: ShapeDecoration(
-                    shape: CircleBorder(),
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: AssetImage(
-                        widget.imagePath,
-                      ),
-                    ),
-                    shadows: [
-                      BoxShadow(
-                        color: Theme.of(context).primaryColorLight,
-                        blurRadius: animController.value * 6,
-                        spreadRadius: animController.value * 9,
-                      ),
-                    ],
-                  ),
-                  // empty box to contain the decoration image
-                  child: SizedBox(
-                    height: height,
-                    width: height,
-                  ),
-                ),
-            ],
-          );
-        },
-      ),
+          ],
+        );
+      },
     );
   }
 }
