@@ -113,8 +113,15 @@ class _MainButton extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint("rebuilding _MainButton... ${model.id}");
 
+    final status = context.select<OrderTracker, TableStatus>(
+      (_) => model.getTableStatus(),
+    );
+
+    // display different color when table is occupied
     final _colorTween = ColorTween(
-      begin: Theme.of(context).floatingActionButtonTheme.backgroundColor,
+      begin: status == TableStatus.occupied
+          ? Colors.yellow[300]
+          : Theme.of(context).floatingActionButtonTheme.backgroundColor,
       end: Theme.of(context).floatingActionButtonTheme.focusColor,
     );
 

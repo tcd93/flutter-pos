@@ -131,5 +131,6 @@ class TableModel {
 
     // clear state
     _tableState.blankState();
+    _tracker.notifyListeners();
   }
 }
