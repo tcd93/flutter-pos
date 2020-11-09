@@ -10,13 +10,10 @@ import 'screens/details.dart';
 import 'screens/lobby.dart';
 import 'screens/menu.dart';
 
-const String databaseName = 'hembo.app';
-const String storeName = 'order';
-
 void main() {
-  final storage = DatabaseFactory.pickConnection('local-storage');
+  final factory = DatabaseFactory('local-storage');
 
-  runApp(HemBoApp(storage));
+  runApp(HemBoApp(factory.storage()));
 }
 
 class HemBoApp extends StatelessWidget {
@@ -35,9 +32,7 @@ class HemBoApp extends StatelessWidget {
         builder: (_, dbSnapshot) {
           if (dbSnapshot.hasData) {
             return ChangeNotifierProvider(
-              create: (_) => OrderTracker(
-                database: _storage,
-              ),
+              create: (_) => OrderTracker(),
               child: screen,
             );
           } else {

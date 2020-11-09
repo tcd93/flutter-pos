@@ -22,11 +22,23 @@ class _LocalStorage implements DatabaseConnectionInterface {
 }
 
 class DatabaseFactory {
+  static DatabaseFactory _singleton;
+  static DatabaseConnectionInterface _interface;
+
+  DatabaseFactory._init();
+
   /// Returns an [DatabaseConnectionInterface] instance, currently support `local-storage`
-  static DatabaseConnectionInterface pickConnection(String name) {
-    if (name == 'local-storage') {
-      return _LocalStorage(dbName);
+  factory DatabaseFactory(String name) {
+    if (_singleton == null) {
+      _singleton = DatabaseFactory._init();
     }
-    return null;
+
+    if (name == 'local-storage' && _interface == null) {
+      _interface = _LocalStorage(dbName);
+    }
+
+    return _singleton;
   }
+
+  DatabaseConnectionInterface storage() => _interface;
 }

@@ -5,9 +5,10 @@ import 'table.dart';
 
 class OrderTracker extends ChangeNotifier {
   List<TableModel> _tables;
+  DatabaseConnectionInterface database;
 
   OrderTracker({
-    DatabaseConnectionInterface database,
+    this.database,
     List<TableModel> Function(OrderTracker) modelBuilder,
   }) {
     _tables = modelBuilder?.call(this) ??
