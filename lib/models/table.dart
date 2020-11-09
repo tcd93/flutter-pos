@@ -21,7 +21,7 @@ enum TableStatus {
 }
 
 /// The separate "state" of the immutable [TableModel] class
-class _State {
+class TableState {
   TableStatus status;
   TableStatus previousStatus;
 
@@ -33,7 +33,7 @@ class _State {
   /// button is clicked
   Map<int, LineItem> previousLineItem;
 
-  _State() {
+  TableState() {
     blankState();
   }
 
@@ -62,13 +62,14 @@ class TableModel {
   final OrderTracker _tracker;
   final int id;
 
-  final _State _tableState = _State();
+  final TableState _tableState;
 
   // ignore: type_annotate_public_apis
   operator ==(other) => other is TableModel && other.id == id;
   int get hashCode => id;
 
-  TableModel(this._tracker, this.id);
+  TableModel(this._tracker, this.id, [TableState mockState])
+      : _tableState = mockState ?? TableState();
 
   /// Returns current [TableStatus]
   TableStatus getTableStatus() => _tableState.status;
