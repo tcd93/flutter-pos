@@ -25,8 +25,8 @@ dependencies:
     sdk: flutter
   provider: ^4.3.2+2
   font_awesome_flutter: ^8.10.0
-  effective_dart: ^1.0.0
   tuple: ^1.0.3
+  localstorage: ^3.0.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -36,6 +36,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  effective_dart: ^1.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
