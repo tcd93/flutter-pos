@@ -31,7 +31,7 @@ class _State {
 
   /// Keep track of state history, overwrite snapshot everytime the confirm
   /// button is clicked
-  Map<int, LineItem> previousOrder;
+  Map<int, LineItem> previousLineItem;
 
   _State() {
     blankState();
@@ -45,7 +45,7 @@ class _State {
       for (var dish in Dish.getMenu())
         dish.id: LineItem(dishID: dish.id, quantity: 0)
     };
-    previousOrder = {
+    previousLineItem = {
       for (var dish in Dish.getMenu())
         dish.id: LineItem(dishID: dish.id, quantity: 0)
     };
@@ -100,7 +100,7 @@ class TableModel {
   /// Store current state for rollback operation
   void memorizePreviousState() {
     _tableState.previousStatus = _tableState.status;
-    _tableState.previousOrder = Common.cloneMap<int, LineItem>(
+    _tableState.previousLineItem = Common.cloneMap<int, LineItem>(
       _tableState.lineItem,
       (key, value) => LineItem(
         dishID: key,
@@ -115,7 +115,7 @@ class TableModel {
     // overwrite current `lineItem` state.
     // has to do cloning here to not bind the reference of previous [LineItem]s to current state
     _tableState.lineItem = Common.cloneMap<int, LineItem>(
-      _tableState.previousOrder,
+      _tableState.previousLineItem,
       (key, value) => LineItem(
         dishID: key,
         quantity: value.quantity,
