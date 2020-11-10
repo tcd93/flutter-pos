@@ -49,7 +49,7 @@ class _LocalStorage implements DatabaseConnectionInterface {
 
     // current orders of the day that have been saved
     // if this is first order then create it as an List
-    List<String> orders = ls.getItem(key);
+    List<dynamic> orders = ls.getItem(key);
     if (orders != null) {
       orders.add(newOrder);
     } else {

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hembo/database_factory.dart';
 
@@ -40,12 +38,25 @@ void main() {
   });
 
   test('Order should persist to local storage after checkout', () {
-    mockTable.checkout(DateTime.parse('20200201'));
-
+    mockTable.checkout(DateTime.parse('20200201 11:00:00'));
     var items = DatabaseFactory('local-storage').storage().get('20200201');
-    expect(items, isNotNull);
 
+    expect(items, isNotNull);
     expect(items[0]['orderID'], 0);
     expect(() => items[1], throwsRangeError);
+  });
+
+  test('OrderID increase by 1 after first order', () {
+    mockTable.checkout(DateTime.parse('20200201 11:00:00'));
+    // create new order
+    mockTable
+      ..lineItem(0).quantity = 2
+      ..lineItem(1).quantity = 1;
+    mockTable.checkout(DateTime.parse('20200201 13:00:00'));
+
+    var items = DatabaseFactory('local-storage').storage().get('20200201');
+    expect(items.length, 2);
+    expect(items[0]['orderID'], 0);
+    expect(items[1]['orderID'], 1);
   });
 }
