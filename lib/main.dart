@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hembo/screens/history.dart';
 import 'package:provider/provider.dart';
 
 import 'common/theme.dart';
@@ -51,18 +52,19 @@ class HemBoApp extends StatelessWidget {
       home: LobbyScreen(),
       onGenerateRoute: (settings) {
         final argMap = settings.arguments as Map;
-        final String heroTag = argMap['heroTag'];
-        final int tableID = argMap['tableID'];
+        final String heroTag = argMap != null ? argMap['heroTag'] : null;
+        final int tableID = argMap != null ? argMap['tableID'] : null;
 
         if (settings.name == '/menu') {
           // custom page transition animations
           return routeBuilder(MenuScreen(tableID, fromHeroTag: heroTag));
         } else if (settings.name == '/order-details') {
           return routeBuilder(DetailsScreen(tableID, fromHeroTag: heroTag));
+        } else if (settings.name == '/history') {
+          return routeBuilder(HistoryScreen());
         }
         // unknown route
-        return MaterialPageRoute(
-            builder: (context) => Center(child: Text('404')));
+        return MaterialPageRoute(builder: (context) => Center(child: Text('404')));
       },
     );
   }

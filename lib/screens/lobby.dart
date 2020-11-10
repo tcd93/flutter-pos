@@ -16,6 +16,19 @@ class LobbyScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Lobby', style: Theme.of(context).textTheme.headline6),
       ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            ListTile(
+              title: Text('History'),
+              onTap: () {
+                Navigator.pushNamed(context, '/history');
+              },
+            ),
+          ],
+        ),
+      ),
       body: _LobbyLayout(),
     );
   }
@@ -137,8 +150,7 @@ class _MainButton extends StatelessWidget {
               onPressed: () {
                 radialAnimationController.forward();
               },
-              backgroundColor:
-                  _colorTween.animate(radialAnimationController).value,
+              backgroundColor: _colorTween.animate(radialAnimationController).value,
             ),
           ),
         );
