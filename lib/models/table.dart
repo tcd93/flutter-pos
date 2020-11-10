@@ -24,12 +24,10 @@ enum TableStatus {
 class TableState {
   /// The associated table id
   final int tableID;
-
   int _orderID;
 
   /// The incremental unique ID (for reporting), should be generated when [checkout]
   int get orderID => _orderID;
-
   set orderID(int orderID) {
     assert(orderID != null, orderID > 0);
     _orderID = orderID;
@@ -37,7 +35,6 @@ class TableState {
 
   TableStatus status;
   TableStatus previousStatus;
-
   DateTime checkoutTime;
 
   /// The lineItems associated with a table.
@@ -49,22 +46,34 @@ class TableState {
   Map<int, LineItem> previouslineItems;
 
   TableState(this.tableID) {
-    blankState();
+    cleanState();
   }
 
   /// set all line items to 0
-  void blankState() {
+  void cleanState() {
     status = TableStatus.empty;
     previousStatus = TableStatus.empty;
     lineItems = {
       for (var dish in Dish.getMenu())
-        dish.id: LineItem(dishID: dish.id, quantity: 0)
+        dish.id: LineItem(
+          dishID: dish.id,
+          quantity: 0,
+        )
     };
     previouslineItems = {
       for (var dish in Dish.getMenu())
-        dish.id: LineItem(dishID: dish.id, quantity: 0)
+        dish.id: LineItem(
+          dishID: dish.id,
+          quantity: 0,
+        )
     };
   }
+
+  /// Total price of all line items in this order
+  int totalPrice() => lineItems.entries
+      .where((entry) => entry.value.quantity > 0)
+      .map((entry) => entry.value)
+      .fold(0, (prev, order) => prev + order.amount());
 
   /// Convert to JSON string object, line items with quantity > 0 are filtered
   ///
@@ -78,15 +87,13 @@ class TableState {
   /// }
   /// ```
   String toJson() {
-    var totalPrice = lineItems.entries
-        .where((entry) => entry.value.quantity > 0)
-        .map((entry) => entry.value)
-        .fold(0, (prev, order) => prev + order.amount());
+    var lineItemList = lineItems.values
+        .where(
+          (element) => element.quantity > 0,
+        )
+        .toList();
 
-    var lineItemList =
-        lineItems.values.where((element) => element.quantity > 0).toList();
-
-    return '{"orderID": $orderID, "datetime": "${checkoutTime.toString()}", "price": $totalPrice, "lineItems": ${lineItemList.toString()}}';
+    return '{"orderID": $orderID, "datetime": "${checkoutTime.toString()}", "price": ${totalPrice()}, "lineItems": ${lineItemList.toString()}}';
   }
 
   @override
@@ -135,9 +142,7 @@ class TableModel {
       );
 
   /// Total price of all line items in this order
-  int totalPrice() => lineItems().fold(0, (prev, order) {
-        return prev + order.amount();
-      });
+  int totalPrice() => _tableState.totalPrice();
 
   /// Store current state for rollback operation
   void memorizePreviousState() {
@@ -166,15 +171,11 @@ class TableModel {
     _tracker.notifyListeners();
   }
 
-  void checkout([DateTime atTime]) {
-    _tableState.orderID = _tracker.database.nextUID();
+  Future<void> checkout([DateTime atTime]) async {
+    _tableState.orderID = await _tracker.database.nextUID();
     _tableState.checkoutTime = atTime ?? DateTime.now();
-
-    _tracker.database.insert(_tableState);
-
-    // clear state
-    _tableState.blankState();
-
+    await _tracker.database.insert(_tableState);
+    _tableState.cleanState(); // clear state
     _tracker.notifyListeners();
   }
 }

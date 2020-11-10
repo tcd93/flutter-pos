@@ -8,17 +8,21 @@ const dbName = 'hembo';
 
 class DatabaseConnectionInterface {
   /// Used in [FutureBuilder]
-  Future<dynamic> open() {
-    return Future.value(null);
-  }
+  Future<dynamic> open() => Future.value(null);
 
   /// Get next incremental unique ID
-  int nextUID() => -1;
+  Future<int> nextUID() => Future.value(-1);
 
   /// Insert stringified version of [TableState] into database
   Future<void> insert(TableState state) => Future.microtask(() => null);
 
   List<Map<String, dynamic>> get(String key) => null;
+
+  /// Removes all items from database
+  Future<void> destroy() => Future.microtask(() => null);
+
+  /// Close connection
+  void close() => null;
 }
 
 class _LocalStorage implements DatabaseConnectionInterface {
@@ -28,14 +32,12 @@ class _LocalStorage implements DatabaseConnectionInterface {
       : ls = LocalStorage(name, path, initialData);
 
   @override
-  Future<bool> open() async {
-    return ls.ready;
-  }
+  Future<bool> open() => ls.ready;
 
   @override
-  int nextUID() {
+  Future<int> nextUID() async {
     int current = ls.getItem('order_id_highkey') ?? -1;
-    ls.setItem('order_id_highkey', ++current);
+    await ls.setItem('order_id_highkey', ++current);
     return current;
   }
 
@@ -67,6 +69,12 @@ class _LocalStorage implements DatabaseConnectionInterface {
         ?.map((e) => json.decode(e) as Map<String, dynamic>)
         ?.toList(growable: false);
   }
+
+  @override
+  Future<void> destroy() => ls.clear();
+
+  @override
+  void close() => ls.dispose();
 
   String extractYYYYMMDD(DateTime dateTime) =>
       "${dateTime.year.toString()}${dateTime.month.toString().padLeft(2, '0')}${dateTime.day.toString().padLeft(2, '0')}";
