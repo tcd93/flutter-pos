@@ -22,9 +22,7 @@ class DetailsScreen extends StatelessWidget {
       (tracker) => tracker.getTable(tableID),
     );
     final orders = model.lineItems();
-    final totalPrice = orders.fold(0, (prev, order) {
-      return prev + order.amount();
-    });
+    final totalPrice = model.totalPrice();
 
     return Scaffold(
       appBar: AppBar(

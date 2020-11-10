@@ -27,8 +27,10 @@ class LineItem {
         _dishID = dishID,
         _quantity = quantity;
 
-  @override
-  String toString() {
-    return '{dishID: $_dishID, quantity: $_quantity}';
+  String toJson() {
+    return '{"dishID": $_dishID, "quantity": $_quantity, "amount": ${amount()}}';
   }
+
+  @override
+  String toString() => toJson();
 }

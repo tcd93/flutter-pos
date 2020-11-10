@@ -22,18 +22,33 @@ enum TableStatus {
 
 /// The separate "state" of the immutable [TableModel] class
 class TableState {
+  /// The associated table id
+  final int tableID;
+
+  int _orderID;
+
+  /// The incremental unique ID (for reporting), should be generated when [checkout]
+  int get orderID => _orderID;
+
+  set orderID(int orderID) {
+    assert(orderID != null, orderID > 0);
+    _orderID = orderID;
+  }
+
   TableStatus status;
   TableStatus previousStatus;
 
-  /// The lineItem associated with a table.
-  /// This is a [Map<int, LineItem>] where the key is the [Dish] item id
-  Map<int, LineItem> lineItem;
+  DateTime checkoutTime;
+
+  /// The lineItems associated with a table.
+  /// This is a [Map<int, lineItems>] where the key is the [Dish] item id
+  Map<int, LineItem> lineItems;
 
   /// Keep track of state history, overwrite snapshot everytime the confirm
   /// button is clicked
-  Map<int, LineItem> previousLineItem;
+  Map<int, LineItem> previouslineItems;
 
-  TableState() {
+  TableState(this.tableID) {
     blankState();
   }
 
@@ -41,20 +56,41 @@ class TableState {
   void blankState() {
     status = TableStatus.empty;
     previousStatus = TableStatus.empty;
-    lineItem = {
+    lineItems = {
       for (var dish in Dish.getMenu())
         dish.id: LineItem(dishID: dish.id, quantity: 0)
     };
-    previousLineItem = {
+    previouslineItems = {
       for (var dish in Dish.getMenu())
         dish.id: LineItem(dishID: dish.id, quantity: 0)
     };
   }
 
-  @override
-  String toString() {
-    return '{status: ${status.toString()}, lineItem: ${lineItem.toString()}}';
+  /// Convert to JSON string object, line items with quantity > 0 are filtered
+  ///
+  /// @example:
+  /// ```
+  /// {
+  ///   "orderID": 1,
+  ///   "datetime": "2020-02-01 00:00:00.000",
+  ///   "price": 100000,
+  ///   "lineItems": [{"dishID": 1, "quantity": 5, "amount": 100000}]
+  /// }
+  /// ```
+  String toJson() {
+    var totalPrice = lineItems.entries
+        .where((entry) => entry.value.quantity > 0)
+        .map((entry) => entry.value)
+        .fold(0, (prev, order) => prev + order.amount());
+
+    var lineItemList =
+        lineItems.values.where((element) => element.quantity > 0).toList();
+
+    return '{"orderID": $orderID, "datetime": "${checkoutTime.toString()}", "price": $totalPrice, "lineItems": ${lineItemList.toString()}}';
   }
+
+  @override
+  String toString() => toJson();
 }
 
 @immutable
@@ -69,7 +105,7 @@ class TableModel {
   int get hashCode => id;
 
   TableModel(this._tracker, this.id, [TableState mockState])
-      : _tableState = mockState ?? TableState();
+      : _tableState = mockState ?? TableState(id);
 
   /// Returns current [TableStatus]
   TableStatus getTableStatus() => _tableState.status;
@@ -80,29 +116,34 @@ class TableModel {
     _tracker.notifyListeners();
   }
 
-  /// Get [LineItem] from menu list
-  LineItem lineItem(int index) => _tableState.lineItem[index];
+  /// Get [lineItems] from menu list
+  LineItem lineItem(int index) => _tableState.lineItems[index];
 
-  /// Get a list of current [LineItem] (with quantity > 0)
+  /// Get a list of current [lineItems] (with quantity > 0)
   UnmodifiableListView<LineItem> lineItems() {
     return UnmodifiableListView(
-      _tableState.lineItem.entries
+      _tableState.lineItems.entries
           .where((entry) => entry.value.quantity > 0)
           .map((entry) => entry.value),
     );
   }
 
   /// Returns total items (number of dishes) of current table
-  int totalMenuItemQuantity() => _tableState.lineItem.entries.fold(
+  int totalMenuItemQuantity() => _tableState.lineItems.entries.fold(
         0,
         (previousValue, element) => previousValue + element.value.quantity,
       );
 
+  /// Total price of all line items in this order
+  int totalPrice() => lineItems().fold(0, (prev, order) {
+        return prev + order.amount();
+      });
+
   /// Store current state for rollback operation
   void memorizePreviousState() {
     _tableState.previousStatus = _tableState.status;
-    _tableState.previousLineItem = Common.cloneMap<int, LineItem>(
-      _tableState.lineItem,
+    _tableState.previouslineItems = Common.cloneMap<int, LineItem>(
+      _tableState.lineItems,
       (key, value) => LineItem(
         dishID: key,
         quantity: value.quantity,
@@ -113,10 +154,10 @@ class TableModel {
   /// Restore to last "commit"
   void revert() {
     _tableState.status = _tableState.previousStatus;
-    // overwrite current `lineItem` state.
-    // has to do cloning here to not bind the reference of previous [LineItem]s to current state
-    _tableState.lineItem = Common.cloneMap<int, LineItem>(
-      _tableState.previousLineItem,
+    // overwrite current `lineItems` state.
+    // has to do cloning here to not bind the reference of previous [lineItems]s to current state
+    _tableState.lineItems = Common.cloneMap<int, LineItem>(
+      _tableState.previouslineItems,
       (key, value) => LineItem(
         dishID: key,
         quantity: value.quantity,
@@ -125,13 +166,15 @@ class TableModel {
     _tracker.notifyListeners();
   }
 
-  void checkout() {
-    debugPrint('Checked out...');
+  void checkout([DateTime atTime]) {
+    _tableState.orderID = _tracker.database.nextUID();
+    _tableState.checkoutTime = atTime ?? DateTime.now();
 
-    // TODO: implement checkout (save file to database & print)
+    _tracker.database.insert(_tableState);
 
     // clear state
     _tableState.blankState();
+
     _tracker.notifyListeners();
   }
 }
