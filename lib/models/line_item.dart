@@ -3,16 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'dish.dart';
 
 class LineItem {
-  int _dishID;
+  final int _dishID;
 
   /// The unique id from [Dish]
   int get dishID => _dishID;
-
-  /// The unique id from [Dish]
-  set dishID(int dishID) {
-    assert(dishID != null, dishID >= 0 && dishID < Dish.getMenu().length);
-    _dishID = dishID;
-  }
 
   int _quantity = 0;
 
