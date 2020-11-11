@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:localstorage/localstorage.dart' as lib;
 
+import '../common/common.dart';
+
 import '../models/dish.dart';
 import '../models/line_item.dart';
 import '../models/table.dart';
@@ -58,7 +60,7 @@ class LocalStorage implements DatabaseConnectionInterface {
     if (state == null) throw '`state` is required for localstorage';
     if (state.orderID == null || state.orderID < 0) throw 'Invalid `orderID`';
 
-    var key = '${extractYYYYMMDD(state.checkoutTime)}'; // key by checkout date
+    var key = '${Common.extractYYYYMMDD(state.checkoutTime)}'; // key by checkout date
     var newOrder = state.toJson(); // new order in json format
 
     // current orders of the day that have been saved
@@ -74,8 +76,8 @@ class LocalStorage implements DatabaseConnectionInterface {
   }
 
   @override
-  List<Order> get(String key) {
-    List<dynamic> cache = ls.getItem(key);
+  List<Order> get(DateTime day) {
+    List<dynamic> cache = ls.getItem(Common.extractYYYYMMDD(day));
     return cache?.cast<String>()?.map((e) {
       var decoded = json.decode(e) as Map<String, dynamic>;
       List<dynamic> lines = decoded['lineItems'];
@@ -98,11 +100,14 @@ class LocalStorage implements DatabaseConnectionInterface {
   }
 
   @override
+  List<Order> getRange(DateTime start, DateTime end) => List.generate(
+        end.difference(start).inDays,
+        (i) => get(DateTime(start.year, start.month, start.day + i)),
+      ).expand((e) => e).toList();
+
+  @override
   Future<void> destroy() => ls.clear();
 
   @override
   void close() => ls.dispose();
-
-  String extractYYYYMMDD(DateTime dateTime) =>
-      "${dateTime.year.toString()}${dateTime.month.toString().padLeft(2, '0')}${dateTime.day.toString().padLeft(2, '0')}";
 }

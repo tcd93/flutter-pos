@@ -4,4 +4,8 @@ class Common {
   /// `creator` is the method to create _new_ instance of `V`
   static Map<K, V> cloneMap<K, V>(Map<K, V> map, V Function(K, V) creator) =>
       {for (var key in map.keys) key: creator(key, map[key])};
+
+  /// Create a string in the form of `YYYYMMDD`
+  static String extractYYYYMMDD(DateTime dateTime) =>
+      '${dateTime.year.toString()}${dateTime.month.toString().padLeft(2, '0')}${dateTime.day.toString().padLeft(2, '0')}';
 }
