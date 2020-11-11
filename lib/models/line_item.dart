@@ -26,7 +26,7 @@ class LineItem {
         _quantity = quantity;
 
   String toJson() {
-    return '{"dishID": $_dishID, "quantity": $_quantity, "amount": $amount}';
+    return '{"dishID": $_dishID, "dishName": "${Dish.getMenu()[_dishID].dish}", "quantity": $_quantity, "amount": $amount}';
   }
 
   @override

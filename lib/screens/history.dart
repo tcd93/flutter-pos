@@ -29,11 +29,11 @@ class HistoryScreen extends StatelessWidget {
               key: ObjectKey(data[index]),
               child: ListTile(
                 leading: CircleAvatar(
-                  child: Text(data[index]['orderID'].toString()),
+                  child: Text(data[index].orderID.toString()),
                 ),
                 title: Text('20201111'),
                 trailing: Text(
-                  Money.format(data[index]['price']),
+                  Money.format(data[index].price),
                 ),
               ),
             );

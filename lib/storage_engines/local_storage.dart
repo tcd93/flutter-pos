@@ -41,12 +41,27 @@ class LocalStorage implements DatabaseConnectionInterface {
   }
 
   @override
-  List<Map<String, dynamic>> get(String key) {
+  List<Order> get(String key) {
     List<dynamic> cache = ls.getItem(key);
-    return cache
-        ?.cast<String>()
-        ?.map((e) => json.decode(e) as Map<String, dynamic>)
-        ?.toList(growable: false);
+    return cache?.cast<String>()?.map((e) {
+      var decoded = json.decode(e) as Map<String, dynamic>;
+      List<dynamic> lines = decoded['lineItems'];
+      return Order(
+        decoded['orderID'],
+        decoded['dateTime'],
+        decoded['price'],
+        lines
+            .map(
+              (e) => OrderItem(
+                e['dishID'],
+                e['dishName'],
+                e['quantity'],
+                e['amount'],
+              ),
+            )
+            .toList(),
+      );
+    })?.toList(growable: false);
   }
 
   @override
