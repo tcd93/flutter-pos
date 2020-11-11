@@ -23,7 +23,7 @@ class HistoryScreen extends StatelessWidget {
       ),
       body: ListView.builder(
           physics: const BouncingScrollPhysics(),
-          itemCount: data.length,
+          itemCount: data?.length ?? 0,
           itemBuilder: (context, index) {
             return Card(
               key: ObjectKey(data[index]),
@@ -33,7 +33,7 @@ class HistoryScreen extends StatelessWidget {
                 ),
                 title: Text('20201111'),
                 trailing: Text(
-                  Money.format(data[index]['price']).toString(),
+                  Money.format(data[index]['price']),
                 ),
               ),
             );

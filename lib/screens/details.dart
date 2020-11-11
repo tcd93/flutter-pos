@@ -27,7 +27,7 @@ class DetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Total - ${Money.format(totalPrice.toString())}',
+          'Total - ${Money.format(totalPrice)}',
           style: Theme.of(context).textTheme.headline6,
         ),
         actions: [
@@ -46,7 +46,7 @@ class DetailsScreen extends StatelessWidget {
                 ),
                 title: Text(Dish.getMenu()[orders[index].dishID].dish),
                 trailing: Text(
-                  Money.format(orders[index].amount().toString()),
+                  Money.format(orders[index].amount()),
                 ),
               ),
             );

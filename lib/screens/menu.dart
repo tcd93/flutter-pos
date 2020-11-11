@@ -70,7 +70,7 @@ class MenuScreen extends StatelessWidget {
                     },
                     imagePath: Dish.getMenu()[index].imagePath,
                     subtitle:
-                        '${Dish.getMenu()[index].dish} (${Money.format(Dish.getMenu()[index].price.toString())})',
+                        '${Dish.getMenu()[index].dish} (${Money.format(Dish.getMenu()[index].price)})',
                     key: ObjectKey(tuple.item1),
                   ),
                 );
