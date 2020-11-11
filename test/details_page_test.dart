@@ -8,14 +8,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:hembo/models/tracker.dart';
+import 'package:hembo/models/supplier.dart';
 import 'package:hembo/models/table.dart';
 import 'package:hembo/screens/details.dart';
 import 'package:provider/provider.dart';
 
 Widget skeletonWidget() => MaterialApp(
       builder: (_, __) => ChangeNotifierProvider(
-        create: (_) => OrderTracker(
+        create: (_) => Supplier(
           modelBuilder: (tracker) => [
             TableModel(tracker, 1)..lineItem(5).quantity = 1,
             TableModel(tracker, 1)

@@ -8,8 +8,8 @@ import '../common/money_format/money.dart';
 
 import '../models/dish.dart';
 import '../models/line_item.dart';
+import '../models/supplier.dart';
 import '../models/table.dart';
-import '../models/tracker.dart';
 
 class MenuScreen extends StatelessWidget {
   final int tableID;
@@ -40,7 +40,7 @@ class MenuScreen extends StatelessWidget {
           itemCount: Dish.getMenu()
               .length, // same count of order line items and items in the `menu` constant in [Dish]
           itemBuilder: (context, index) {
-            return Selector<OrderTracker, Tuple2<TableModel, LineItem>>(
+            return Selector<Supplier, Tuple2<TableModel, LineItem>>(
               selector: (context, tracker) {
                 return Tuple2(
                   tracker.getTable(tableID), // item1
@@ -92,12 +92,12 @@ class _ConfirmButton extends StatelessWidget {
     return Hero(
       tag: fromHeroTag,
       // Use [Selector] here as the table status is deeply embedded
-      // in Provider<OrderTracker>
+      // in Provider<Supplier>
       // We can also use [Tuple2] to select both [TableModel] and [TableStatus]
-      child: Selector<OrderTracker, TableStatus>(
+      child: Selector<Supplier, TableStatus>(
         selector: (_, tracker) => tracker.getTable(tableID).getTableStatus(),
         builder: (context, status, _) {
-          final model = context.select<OrderTracker, TableModel>(
+          final model = context.select<Supplier, TableModel>(
             (tracker) => tracker.getTable(tableID),
           );
           return FlatButton(
@@ -125,10 +125,10 @@ class _UndoButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // refer to [_ConfirmButton]
-    return Selector<OrderTracker, TableStatus>(
+    return Selector<Supplier, TableStatus>(
       selector: (_, tracker) => tracker.getTable(tableID).getTableStatus(),
       builder: (context, status, _) {
-        final model = context.select<OrderTracker, TableModel>(
+        final model = context.select<Supplier, TableModel>(
           (tracker) => tracker.getTable(tableID),
         );
         return FlatButton(

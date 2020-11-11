@@ -5,8 +5,8 @@ import 'package:provider/provider.dart';
 import '../common/money_format/money.dart';
 
 import '../models/dish.dart';
+import '../models/supplier.dart';
 import '../models/table.dart';
-import '../models/tracker.dart';
 
 class DetailsScreen extends StatelessWidget {
   final int tableID;
@@ -18,7 +18,7 @@ class DetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint('rebuilding DetailsScreen...');
 
-    final model = context.select<OrderTracker, TableModel>(
+    final model = context.select<Supplier, TableModel>(
       (tracker) => tracker.getTable(tableID),
     );
     final orders = model.lineItems();
@@ -65,10 +65,10 @@ class _CheckoutButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Hero(
       tag: fromHeroTag,
-      child: Selector<OrderTracker, TableStatus>(
+      child: Selector<Supplier, TableStatus>(
         selector: (_, tracker) => tracker.getTable(tableID).getTableStatus(),
         builder: (context, status, _) {
-          final model = context.select<OrderTracker, TableModel>(
+          final model = context.select<Supplier, TableModel>(
             (tracker) => tracker.getTable(tableID),
           );
           return FlatButton(

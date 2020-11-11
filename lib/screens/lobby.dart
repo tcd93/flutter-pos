@@ -6,8 +6,8 @@ import 'package:provider/provider.dart';
 import '../common/radial_menu/radial_button.dart';
 import '../common/radial_menu/radial_menu.dart';
 
+import '../models/supplier.dart';
 import '../models/table.dart';
-import '../models/tracker.dart';
 
 class LobbyScreen extends StatelessWidget {
   @override
@@ -82,7 +82,7 @@ class _TableComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // the table model to control state
-    final model = context.select<OrderTracker, TableModel>(
+    final model = context.select<Supplier, TableModel>(
       (tracker) => tracker.getTable(id),
     );
     debugPrint("rebuilding _Table... $id");
@@ -126,7 +126,7 @@ class _MainButton extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint("rebuilding _MainButton... ${model.id}");
 
-    final status = context.select<OrderTracker, TableStatus>(
+    final status = context.select<Supplier, TableStatus>(
       (_) => model.getTableStatus(),
     );
 
@@ -150,7 +150,8 @@ class _MainButton extends StatelessWidget {
               onPressed: () {
                 radialAnimationController.forward();
               },
-              backgroundColor: _colorTween.animate(radialAnimationController).value,
+              backgroundColor:
+                  _colorTween.animate(radialAnimationController).value,
             ),
           ),
         );
@@ -178,7 +179,7 @@ _sideButtonsBuilder(
   AnimationController radialAnimationController,
   List<double> angles,
 ) {
-  final status = context.select<OrderTracker, TableStatus>(
+  final status = context.select<Supplier, TableStatus>(
     (_) => model.getTableStatus(),
   );
   return [

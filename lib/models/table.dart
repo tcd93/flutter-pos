@@ -7,7 +7,7 @@ import '../common/common.dart';
 
 import 'dish.dart';
 import 'line_item.dart';
-import 'tracker.dart';
+import 'supplier.dart';
 
 enum TableStatus {
   /// No one is sitting at this table
@@ -102,7 +102,7 @@ class TableState {
 
 @immutable
 class TableModel {
-  final OrderTracker _tracker;
+  final Supplier _tracker;
   final int id;
 
   final TableState _tableState;

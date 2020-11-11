@@ -5,7 +5,9 @@ const dbName = 'hembo';
 
 class DatabaseFactory {
   static DatabaseFactory _singleton;
-  static DatabaseConnectionInterface _interface;
+  static DatabaseConnectionInterface _storage;
+
+  DatabaseConnectionInterface get storage => _storage;
 
   DatabaseFactory._init();
 
@@ -15,16 +17,14 @@ class DatabaseFactory {
       _singleton = DatabaseFactory._init();
     }
 
-    if (name == 'local-storage' && _interface == null) {
-      _interface = LocalStorage(dbName);
+    if (name == 'local-storage' && _storage == null) {
+      _storage = LocalStorage(dbName);
     }
 
-    if (_interface == null) {
+    if (_storage == null) {
       throw Exception('Must define a storage type name');
     }
 
     return _singleton;
   }
-
-  DatabaseConnectionInterface storage() => _interface;
 }

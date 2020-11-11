@@ -3,13 +3,13 @@ import '../storage_engines/connection_interface.dart';
 
 import 'table.dart';
 
-class OrderTracker extends ChangeNotifier {
+class Supplier extends ChangeNotifier {
   List<TableModel> _tables;
-  DatabaseConnectionInterface database;
+  final DatabaseConnectionInterface database;
 
-  OrderTracker({
+  Supplier({
     this.database,
-    List<TableModel> Function(OrderTracker) modelBuilder,
+    List<TableModel> Function(Supplier) modelBuilder,
   }) {
     _tables = modelBuilder?.call(this) ??
         List.generate(7, (index) => TableModel(this, index), growable: false);

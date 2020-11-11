@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'common/theme.dart';
 
 import 'database_factory.dart';
-import 'models/tracker.dart';
+import 'models/supplier.dart';
 
 import 'screens/details.dart';
 import 'screens/history.dart';
@@ -15,7 +15,7 @@ import 'storage_engines/connection_interface.dart';
 void main() {
   final factory = DatabaseFactory('local-storage');
 
-  runApp(HemBoApp(factory.storage()));
+  runApp(HemBoApp(factory.storage));
 }
 
 class HemBoApp extends StatelessWidget {
@@ -34,7 +34,7 @@ class HemBoApp extends StatelessWidget {
         builder: (_, dbSnapshot) {
           if (dbSnapshot.hasData) {
             return ChangeNotifierProvider(
-              create: (_) => OrderTracker(),
+              create: (_) => Supplier(database: _storage),
               child: screen,
             );
           } else {
