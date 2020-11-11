@@ -3,12 +3,16 @@ import 'package:flutter/foundation.dart';
 import 'dish.dart';
 
 class LineItem {
+  /// The unique id from [Dish]
   final int _dishID;
+
+  int _quantity = 0;
+
+  /// The amount of current line item (price * quantity)
+  int get amount => Dish.getMenu()[dishID].price * quantity;
 
   /// The unique id from [Dish]
   int get dishID => _dishID;
-
-  int _quantity = 0;
 
   int get quantity => _quantity;
 
@@ -17,18 +21,8 @@ class LineItem {
     _quantity = quantity;
   }
 
-  /// The amount of current line item (price * quantity)
-  int get amount => Dish.getMenu()[dishID].price * quantity;
-
   LineItem({@required int dishID, int quantity = 0})
       : assert(dishID != null, dishID >= 0 && dishID < Dish.getMenu().length),
         _dishID = dishID,
         _quantity = quantity;
-
-  String toJson() {
-    return '{"dishID": $_dishID, "dishName": "${Dish.getMenu()[_dishID].dish}", "quantity": $_quantity, "amount": $amount}';
-  }
-
-  @override
-  String toString() => toJson();
 }

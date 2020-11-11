@@ -29,6 +29,11 @@ class Order {
   final List<OrderItem> lineItems;
 
   const Order(this.orderID, this.dateTime, this.price, this.lineItems);
+
+  @override
+  String toString() {
+    return '$orderID: {$price, ${dateTime.toString()}, $lineItems}';
+  }
 }
 
 @immutable
@@ -39,4 +44,9 @@ class OrderItem {
   final int amount;
 
   const OrderItem(this.dishID, this.dishName, this.quantity, this.amount);
+
+  @override
+  String toString() {
+    return '[$dishID, $dishName, $quantity, $amount]';
+  }
 }

@@ -1,8 +1,41 @@
 import 'dart:convert';
 import 'package:localstorage/localstorage.dart' as lib;
 
+import '../models/dish.dart';
+import '../models/line_item.dart';
 import '../models/table.dart';
+
 import 'connection_interface.dart';
+
+extension LineItemJson on LineItem {
+  String toJson() {
+    return '{"dishID": $dishID, "dishName": "${Dish.getMenu()[dishID].dish}", "quantity": $quantity, "amount": $amount}';
+  }
+}
+
+extension TableStateJson on TableState {
+  /// Convert to JSON string object, line items with quantity > 0 are filtered
+  ///
+  /// @example:
+  /// ```
+  /// {
+  ///   "orderID": 1,
+  ///   "checkoutTime": "2020-02-01 00:00:00.000",
+  ///   "totalPrice": 100000,
+  ///   "lineItems": [{"dishID": 1, "quantity": 5, "amount": 100000}]
+  /// }
+  /// ```
+  String toJson() {
+    var lineItemList = lineItems.values
+        .where(
+          (element) => element.quantity > 0,
+        )
+        .map((e) => e.toJson())
+        .toList();
+
+    return '{"orderID": $orderID, "checkoutTime": "${checkoutTime.toString()}", "totalPrice": ${totalPrice()}, "lineItems": ${lineItemList.toString()}}';
+  }
+}
 
 class LocalStorage implements DatabaseConnectionInterface {
   final lib.LocalStorage ls;
@@ -48,8 +81,8 @@ class LocalStorage implements DatabaseConnectionInterface {
       List<dynamic> lines = decoded['lineItems'];
       return Order(
         decoded['orderID'],
-        decoded['dateTime'],
-        decoded['price'],
+        DateTime.parse(decoded['checkoutTime']),
+        decoded['totalPrice'],
         lines
             .map(
               (e) => OrderItem(

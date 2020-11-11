@@ -24,17 +24,13 @@ enum TableStatus {
 class TableState {
   /// The associated table id
   final int tableID;
+
   int _orderID;
 
-  /// The incremental unique ID (for reporting), should be generated when [checkout]
-  int get orderID => _orderID;
-  set orderID(int orderID) {
-    assert(orderID != null, orderID > 0);
-    _orderID = orderID;
-  }
-
   TableStatus status;
+
   TableStatus previousStatus;
+
   DateTime checkoutTime;
 
   /// The lineItems associated with a table.
@@ -44,6 +40,13 @@ class TableState {
   /// Keep track of state history, overwrite snapshot everytime the confirm
   /// button is clicked
   Map<int, LineItem> previouslineItems;
+
+  /// The incremental unique ID (for reporting), should be generated when [checkout]
+  int get orderID => _orderID;
+  set orderID(int orderID) {
+    assert(orderID != null, orderID > 0);
+    _orderID = orderID;
+  }
 
   TableState(this.tableID) {
     cleanState();
@@ -74,30 +77,6 @@ class TableState {
       .where((entry) => entry.value.quantity > 0)
       .map((entry) => entry.value)
       .fold(0, (prev, order) => prev + order.amount);
-
-  /// Convert to JSON string object, line items with quantity > 0 are filtered
-  ///
-  /// @example:
-  /// ```
-  /// {
-  ///   "orderID": 1,
-  ///   "datetime": "2020-02-01 00:00:00.000",
-  ///   "price": 100000,
-  ///   "lineItems": [{"dishID": 1, "quantity": 5, "amount": 100000}]
-  /// }
-  /// ```
-  String toJson() {
-    var lineItemList = lineItems.values
-        .where(
-          (element) => element.quantity > 0,
-        )
-        .toList();
-
-    return '{"orderID": $orderID, "datetime": "${checkoutTime.toString()}", "price": ${totalPrice()}, "lineItems": ${lineItemList.toString()}}';
-  }
-
-  @override
-  String toString() => toJson();
 }
 
 @immutable
