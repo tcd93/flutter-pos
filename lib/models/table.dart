@@ -73,7 +73,7 @@ class TableState {
   int totalPrice() => lineItems.entries
       .where((entry) => entry.value.quantity > 0)
       .map((entry) => entry.value)
-      .fold(0, (prev, order) => prev + order.amount());
+      .fold(0, (prev, order) => prev + order.amount);
 
   /// Convert to JSON string object, line items with quantity > 0 are filtered
   ///

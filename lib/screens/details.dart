@@ -46,7 +46,7 @@ class DetailsScreen extends StatelessWidget {
                 ),
                 title: Text(Dish.getMenu()[orders[index].dishID].dish),
                 trailing: Text(
-                  Money.format(orders[index].amount()),
+                  Money.format(orders[index].amount),
                 ),
               ),
             );

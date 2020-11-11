@@ -18,9 +18,7 @@ class LineItem {
   }
 
   /// The amount of current line item (price * quantity)
-  int amount() {
-    return Dish.getMenu()[dishID].price * quantity;
-  }
+  int get amount => Dish.getMenu()[dishID].price * quantity;
 
   LineItem({@required int dishID, int quantity = 0})
       : assert(dishID != null, dishID >= 0 && dishID < Dish.getMenu().length),
@@ -28,7 +26,7 @@ class LineItem {
         _quantity = quantity;
 
   String toJson() {
-    return '{"dishID": $_dishID, "quantity": $_quantity, "amount": ${amount()}}';
+    return '{"dishID": $_dishID, "quantity": $_quantity, "amount": $amount}';
   }
 
   @override
