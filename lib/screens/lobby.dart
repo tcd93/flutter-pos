@@ -20,6 +20,18 @@ class LobbyScreen extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColorDark,
+              ),
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: Text(
+                  'Restaurant App',
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+              ),
+            ),
             ListTile(
               title: Text('History'),
               onTap: () {
@@ -150,8 +162,7 @@ class _MainButton extends StatelessWidget {
               onPressed: () {
                 radialAnimationController.forward();
               },
-              backgroundColor:
-                  _colorTween.animate(radialAnimationController).value,
+              backgroundColor: _colorTween.animate(radialAnimationController).value,
             ),
           ),
         );

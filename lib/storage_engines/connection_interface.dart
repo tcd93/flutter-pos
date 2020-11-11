@@ -12,7 +12,9 @@ class DatabaseConnectionInterface {
   /// Insert stringified version of [TableState] into database
   Future<void> insert(TableState state) => Future.microtask(() => null);
 
-  List<Order> get(String key) => null;
+  List<Order> get(DateTime day) => null;
+
+  List<Order> getRange(DateTime from, DateTime to) => null;
 
   /// Removes all items from database
   Future<void> destroy() => Future.microtask(() => null);
@@ -24,15 +26,15 @@ class DatabaseConnectionInterface {
 @immutable
 class Order {
   final int orderID;
-  final DateTime dateTime;
+  final DateTime checkoutTime;
   final int price;
   final List<OrderItem> lineItems;
 
-  const Order(this.orderID, this.dateTime, this.price, this.lineItems);
+  const Order(this.orderID, this.checkoutTime, this.price, this.lineItems);
 
   @override
   String toString() {
-    return '$orderID: {$price, ${dateTime.toString()}, $lineItems}';
+    return '$orderID: {$price, ${checkoutTime.toString()}, $lineItems}';
   }
 }
 

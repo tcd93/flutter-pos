@@ -43,9 +43,9 @@ void main() {
 
   test('Order should persist to local storage after checkout', () async {
     await mockTable.checkout(DateTime.parse('20200201 11:00:00'));
-    var items = DatabaseFactory('local-storage').storage.get('20200201');
+    var items = DatabaseFactory('local-storage').storage.get(DateTime.parse('20200201 11:00:00'));
     expect(items, isNotNull);
-    expect(items[0].dateTime, DateTime.parse('20200201 11:00:00'));
+    expect(items[0].checkoutTime, DateTime.parse('20200201 11:00:00'));
     expect(items[0].orderID, 0);
     expect(() => items[1], throwsRangeError);
   });
@@ -58,7 +58,7 @@ void main() {
       ..lineItem(1).quantity = 1;
     await mockTable.checkout(DateTime.parse('20200201 13:00:00'));
 
-    var items = DatabaseFactory('local-storage').storage.get('20200201');
+    var items = DatabaseFactory('local-storage').storage.get(DateTime.parse('20200201 13:00:00'));
     expect(items.length, 2);
     expect(items[0].orderID, 0);
     expect(items[1].orderID, 1);
