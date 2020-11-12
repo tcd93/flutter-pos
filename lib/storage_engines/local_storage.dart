@@ -102,9 +102,9 @@ class LocalStorage implements DatabaseConnectionInterface {
   @override
   List<Order> getRange(DateTime start, DateTime end) {
     return List.generate(
-        end.add(Duration(days: 1)).difference(start).inDays,
-        (i) => get(DateTime(start.year, start.month, start.day + i)),
-      ).expand((e) => e).toList();
+      end.difference(start).inDays + 1,
+      (i) => get(DateTime(start.year, start.month, start.day + i)) ?? [],
+    ).expand((e) => e).toList();
   }
 
   @override
