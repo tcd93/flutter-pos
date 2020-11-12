@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../common/money_format/money.dart';
@@ -72,7 +71,7 @@ class _CheckoutButton extends StatelessWidget {
             (tracker) => tracker.getTable(tableID),
           );
           return FlatButton(
-            child: Icon(FontAwesomeIcons.print),
+            child: Icon(Icons.print),
             onPressed: () {
               model.checkout();
               Navigator.pop(context); // Go back to Lobby Screen

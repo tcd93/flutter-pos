@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:tuple/tuple.dart';
 
@@ -101,7 +100,7 @@ class _ConfirmButton extends StatelessWidget {
             (tracker) => tracker.getTable(tableID),
           );
           return FlatButton(
-            child: Icon(FontAwesomeIcons.check),
+            child: Icon(Icons.done),
             onPressed: status == TableStatus.incomplete
                 ? () {
                     model.memorizePreviousState();
@@ -132,7 +131,7 @@ class _UndoButton extends StatelessWidget {
           (tracker) => tracker.getTable(tableID),
         );
         return FlatButton(
-          child: Icon(FontAwesomeIcons.undoAlt),
+          child: Icon(Icons.undo),
           onPressed: status == TableStatus.incomplete ? model.revert : null,
         );
       },

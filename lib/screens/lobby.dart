@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../common/radial_menu/radial_button.dart';
@@ -158,7 +157,7 @@ class _MainButton extends StatelessWidget {
           child: FittedBox(
             child: FloatingActionButton(
               heroTag: null,
-              child: Icon(FontAwesomeIcons.circleNotch),
+              child: Icon(Icons.crop_square),
               onPressed: () {
                 radialAnimationController.forward();
               },
@@ -170,7 +169,7 @@ class _MainButton extends StatelessWidget {
       secondaryButtonBuilder: (radialAnimationController, context) {
         return FloatingActionButton(
           heroTag: null,
-          child: Icon(FontAwesomeIcons.expand),
+          child: Icon(Icons.circle),
           onPressed: () {
             radialAnimationController.reverse();
           },
@@ -213,7 +212,7 @@ _sideButtonsBuilder(
           );
         });
       },
-      icon: FontAwesomeIcons.plusCircle,
+      icon: Icons.add,
       key: ValueKey<int>(1),
     ),
     RadialButton(
@@ -235,7 +234,7 @@ _sideButtonsBuilder(
               });
             }
           : null,
-      icon: FontAwesomeIcons.infoCircle,
+      icon: Icons.receipt,
       key: ValueKey<int>(2),
     ),
   ];

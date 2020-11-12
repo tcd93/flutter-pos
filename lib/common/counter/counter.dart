@@ -1,6 +1,5 @@
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 const double height = 100.0;
 
@@ -80,7 +79,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                 child: FloatingActionButton(
                   // decrease
                   heroTag: null,
-                  child: Icon(FontAwesomeIcons.minusCircle),
+                  child: Icon(Icons.remove),
                   onPressed: () {
                     // animate to "start" color when back to 0
                     if (value == 1) animController.reverse();
@@ -107,7 +106,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                 child: FloatingActionButton(
                   // increase
                   heroTag: null,
-                  child: Icon(FontAwesomeIcons.plusCircle),
+                  child: Icon(Icons.add),
                   onPressed: () {
                     // animate to "end" color when starting from 0
                     if (value == 0) animController.forward();
