@@ -1,0 +1,14 @@
+trigger:
+- master
+- develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: FlutterInstall@0
+  inputs:
+    channel: 'stable'
+    version: 'latest'
+
+- script: flutter run test
