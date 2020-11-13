@@ -13,9 +13,9 @@ import 'screens/menu.dart';
 import 'storage_engines/connection_interface.dart';
 
 void main() {
-  final factory = DatabaseFactory('local-storage');
+  final storage = DatabaseFactory().create('local-storage');
 
-  runApp(HemBoApp(factory.storage));
+  runApp(HemBoApp(storage));
 }
 
 class HemBoApp extends StatelessWidget {

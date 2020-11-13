@@ -10,7 +10,7 @@ TableModel mockTable;
 void main() {
   setUp(() {
     mockTracker = Supplier(
-      database: DatabaseFactory('local-storage').storage,
+      database: DatabaseFactory().create('local-storage'),
       modelBuilder: (tracker) => [
         TableModel(tracker, 0)
           ..lineItem(1).quantity = 7
@@ -24,7 +24,7 @@ void main() {
   });
 
   tearDown(() async {
-    await DatabaseFactory('local-storage').storage.destroy();
+    await DatabaseFactory().create('local-storage').destroy();
   });
 
   test('Tracker should be tracking only one table (index 0)', () {
@@ -43,7 +43,9 @@ void main() {
 
   test('Order should persist to local storage after checkout', () async {
     await mockTable.checkout(DateTime.parse('20200201 11:00:00'));
-    var items = DatabaseFactory('local-storage').storage.get(DateTime.parse('20200201 11:00:00'));
+    var items = DatabaseFactory()
+        .create('local-storage')
+        .get(DateTime.parse('20200201 11:00:00'));
     expect(items, isNotNull);
     expect(items[0].checkoutTime, DateTime.parse('20200201 11:00:00'));
     expect(items[0].orderID, 0);
@@ -58,7 +60,9 @@ void main() {
       ..lineItem(1).quantity = 1;
     await mockTable.checkout(DateTime.parse('20200201 13:00:00'));
 
-    var items = DatabaseFactory('local-storage').storage.get(DateTime.parse('20200201 13:00:00'));
+    var items = DatabaseFactory()
+        .create('local-storage')
+        .get(DateTime.parse('20200201 13:00:00'));
     expect(items.length, 2);
     expect(items[0].orderID, 0);
     expect(items[1].orderID, 1);

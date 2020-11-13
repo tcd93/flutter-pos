@@ -5,26 +5,25 @@ const dbName = 'hembo';
 
 class DatabaseFactory {
   static DatabaseFactory _singleton;
-  static DatabaseConnectionInterface _storage;
-
-  DatabaseConnectionInterface get storage => _storage;
+  final Map<String, DatabaseConnectionInterface> _storages = {};
 
   DatabaseFactory._init();
 
   /// Returns an [DatabaseConnectionInterface] instance, currently support `local-storage`
-  factory DatabaseFactory(String name) {
+  factory DatabaseFactory() {
     if (_singleton == null) {
       _singleton = DatabaseFactory._init();
     }
 
-    if (name == 'local-storage' && _storage == null) {
-      _storage = LocalStorage(dbName);
-    }
-
-    if (_storage == null) {
-      throw Exception('Must define a storage type name');
-    }
-
     return _singleton;
+  }
+
+  DatabaseConnectionInterface create(String name) {
+    if (_storages[name] == null) {
+      if (name == 'local-storage') {
+        _storages[name] = LocalStorage(dbName);
+      }
+    }
+    return _storages[name];
   }
 }

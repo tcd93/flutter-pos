@@ -38,9 +38,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     debugPrint('rebuilding HistoryScreen...');
 
-    final storage = DatabaseFactory('local-storage').storage;
+    final storage = DatabaseFactory().create('local-storage');
     final data = storage.getRange(from, to);
-    var summaryPrice = data?.fold(0, (previousValue, e) => previousValue + e.price);
+    var summaryPrice =
+        data?.fold(0, (previousValue, e) => previousValue + e.price);
 
     return Scaffold(
       appBar: AppBar(
@@ -57,7 +58,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
               ),
               TextSpan(text: ' '),
-              TextSpan(text: '(${Common.extractYYYYMMDD2(from)} - ${Common.extractYYYYMMDD2(to)})')
+              TextSpan(
+                  text:
+                      '(${Common.extractYYYYMMDD2(from)} - ${Common.extractYYYYMMDD2(to)})')
             ],
           ),
         ),
@@ -74,7 +77,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   child: Text(data[index].orderID.toString()),
                 ),
                 title: Text(Common.extractYYYYMMDD3(data[index].checkoutTime)),
-                onTap: () {}, //TODO: reuse Detais Screen -> allow soft delete a past order
+                onTap:
+                    () {}, //TODO: reuse Detais Screen -> allow soft delete a past order
                 trailing: Text(
                   Money.format(data[index].price),
                   style: TextStyle(

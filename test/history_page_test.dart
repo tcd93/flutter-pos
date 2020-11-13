@@ -16,7 +16,7 @@ void main() {
 
   setUp(() async {
     supplier = Supplier(
-      database: DatabaseFactory('local-storage').storage,
+      database: DatabaseFactory().create('local-storage'),
       modelBuilder: (tracker) => [
         TableModel(tracker, 1)..lineItem(5).quantity = 1,
         TableModel(tracker, 1)
@@ -39,7 +39,7 @@ void main() {
   });
 
   tearDown(() async {
-    await DatabaseFactory('local-storage').storage.destroy();
+    await DatabaseFactory().create('local-storage').destroy();
   });
 
   testWidgets(
