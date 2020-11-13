@@ -1,63 +1,160 @@
-// Copyright 2019 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-/// A proxy of the catalog of items the user can buy.
-///
-/// In a real app, this might be backed by a backend and cached on device.
-/// In this sample app, the catalog is procedurally generated and infinite.
-///
-/// For simplicity, the catalog is expected to be immutable (no products are
-/// expected to be added, removed or changed during the execution of the app).
-class TableModel {
-  static List<String> itemNames = [
-    'Code Smell',
-    'Control Flow',
-    'Interpreter',
-    'Recursion',
-    'Sprint',
-    'Heisenbug',
-    'Spaghetti',
-    'Hydra Code',
-    'Off-By-One',
-    'Scope',
-    'Callback',
-    'Closure',
-    'Automata',
-    'Bit Shift',
-    'Currying',
-  ];
+import '../common/common.dart';
 
-  /// Get item by [id].
-  ///
-  /// In this sample, the catalog is infinite, looping over [itemNames].
-  Item getById(int id) => Item(id, itemNames[id % itemNames.length]);
+import 'dish.dart';
+import 'line_item.dart';
+import 'supplier.dart';
 
-  /// Get item by its position in the catalog.
-  Item getByPosition(int position) {
-    // In this simplified case, an item's position in the catalog
-    // is also its id.
-    return getById(position);
+enum TableStatus {
+  /// No one is sitting at this table
+  empty,
+
+  /// Dining
+  occupied,
+
+  /// Incomplete lineItem
+  incomplete,
+}
+
+/// The separate "state" of the immutable [TableModel] class
+class TableState {
+  /// The associated table id
+  final int tableID;
+
+  int _orderID;
+
+  TableStatus status;
+
+  TableStatus previousStatus;
+
+  DateTime checkoutTime;
+
+  /// The lineItems associated with a table.
+  /// This is a [Map<int, lineItems>] where the key is the [Dish] item id
+  Map<int, LineItem> lineItems;
+
+  /// Keep track of state history, overwrite snapshot everytime the confirm
+  /// button is clicked
+  Map<int, LineItem> previouslineItems;
+
+  /// The incremental unique ID (for reporting), should be generated when [checkout]
+  int get orderID => _orderID;
+  set orderID(int orderID) {
+    assert(orderID != null, orderID > 0);
+    _orderID = orderID;
   }
+
+  TableState(this.tableID) {
+    cleanState();
+  }
+
+  /// set all line items to 0
+  void cleanState() {
+    status = TableStatus.empty;
+    previousStatus = TableStatus.empty;
+    lineItems = {
+      for (var dish in Dish.getMenu())
+        dish.id: LineItem(
+          dishID: dish.id,
+          quantity: 0,
+        )
+    };
+    previouslineItems = {
+      for (var dish in Dish.getMenu())
+        dish.id: LineItem(
+          dishID: dish.id,
+          quantity: 0,
+        )
+    };
+  }
+
+  /// Total price of all line items in this order
+  int totalPrice() => lineItems.entries
+      .where((entry) => entry.value.quantity > 0)
+      .map((entry) => entry.value)
+      .fold(0, (prev, order) => prev + order.amount);
 }
 
 @immutable
-class Item {
+class TableModel {
+  final Supplier _tracker;
   final int id;
-  final String name;
-  final Color color;
-  final int price = 42;
 
-  Item(this.id, this.name)
-      // To make the sample app look nicer, each item is given one of the
-      // Material Design primary colors.
-      : color = Colors.primaries[id % Colors.primaries.length];
+  final TableState _tableState;
 
-  @override
+  // ignore: type_annotate_public_apis
+  operator ==(other) => other is TableModel && other.id == id;
   int get hashCode => id;
 
-  @override
-  bool operator ==(Object other) => other is Item && other.id == id;
+  TableModel(this._tracker, this.id, [TableState mockState])
+      : _tableState = mockState ?? TableState(id);
+
+  /// Returns current [TableStatus]
+  TableStatus getTableStatus() => _tableState.status;
+
+  /// Set [TableStatus], notify listeners to rebuild widget
+  void setTableStatus(TableStatus newStatus) {
+    _tableState.status = newStatus;
+    _tracker.notifyListeners();
+  }
+
+  /// Get [lineItems] from menu list
+  LineItem lineItem(int index) => _tableState.lineItems[index];
+
+  /// Get a list of current [lineItems] (with quantity > 0)
+  UnmodifiableListView<LineItem> lineItems() {
+    return UnmodifiableListView(
+      _tableState.lineItems.entries
+          .where((entry) => entry.value.quantity > 0)
+          .map((entry) => entry.value),
+    );
+  }
+
+  /// Returns total items (number of dishes) of current table
+  int totalMenuItemQuantity() => _tableState.lineItems.entries.fold(
+        0,
+        (previousValue, element) => previousValue + element.value.quantity,
+      );
+
+  /// Total price of all line items in this order
+  int totalPrice() => _tableState.totalPrice();
+
+  /// Store current state for rollback operation
+  void memorizePreviousState() {
+    _tableState.previousStatus = _tableState.status;
+    _tableState.previouslineItems = Common.cloneMap<int, LineItem>(
+      _tableState.lineItems,
+      (key, value) => LineItem(
+        dishID: key,
+        quantity: value.quantity,
+      ),
+    );
+  }
+
+  /// Restore to last "commit"
+  void revert() {
+    _tableState.status = _tableState.previousStatus;
+    // overwrite current `lineItems` state.
+    // has to do cloning here to not bind the reference of previous [lineItems]s to current state
+    _tableState.lineItems = Common.cloneMap<int, LineItem>(
+      _tableState.previouslineItems,
+      (key, value) => LineItem(
+        dishID: key,
+        quantity: value.quantity,
+      ),
+    );
+    _tracker.notifyListeners();
+  }
+
+  Future<void> checkout([DateTime atTime]) async {
+    _tableState.orderID = await _tracker.database.nextUID();
+    _tableState.checkoutTime = atTime ?? DateTime.now();
+    await _tracker.database.insert(_tableState);
+    _tableState.cleanState(); // clear state
+    _tracker.notifyListeners();
+  }
 }
