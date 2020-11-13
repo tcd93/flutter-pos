@@ -63,7 +63,7 @@ class _CheckoutButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Hero(
-      tag: fromHeroTag,
+      tag: fromHeroTag ?? 'CheckoutButtonHeroTag',
       child: Selector<Supplier, TableStatus>(
         selector: (_, tracker) => tracker.getTable(tableID).getTableStatus(),
         builder: (context, status, _) {
