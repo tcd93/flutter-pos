@@ -30,6 +30,7 @@ void main() {
 
   tearDown(() async {
     await storage.destroy();
+    await Future.delayed(const Duration(milliseconds: 500));
   });
 
   test('Tracker should be tracking only one table (index 0)', () async {
