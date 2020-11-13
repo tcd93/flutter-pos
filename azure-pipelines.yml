@@ -5,7 +5,7 @@ trigger:
 jobs:
   - job: UnitTest
     pool:
-      vmImage: 'ubuntu-latest'
+      vmImage: 'windows-latest'
     steps:
     - task: FlutterInstall@0
       inputs:
