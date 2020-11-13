@@ -2,21 +2,19 @@ name: Flutter
 on: [push]
 jobs:
   test:
-    name: Test stable:${{ matrix.version }} on ${{ matrix.os }}
+    name: Test stable on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [windows-latest, macos-latest]
-        version: ["1.22.x", "1.9.1+hotfix.6"]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
         with:
           java-version: '12.x'
-      - uses: subosito/flutter-action@v1.4.0
+      - uses: subosito/flutter-action@v1
         with:
           channel: stable
-          flutter-version: ${{ matrix.version }}
       - run: flutter --version
       - run: dart --version
       - run: flutter pub get
@@ -30,7 +28,7 @@ jobs:
         os: [windows-latest, macos-latest]
     steps:
     - uses: actions/checkout@v2
-    - uses: subosito/flutter-action@v1.4.0
+    - uses: subosito/flutter-action@v1
       with:
         channel: beta
     - run: flutter config --enable-web
