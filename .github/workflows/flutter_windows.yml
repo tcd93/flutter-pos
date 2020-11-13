@@ -3,7 +3,7 @@ on: [push]
 jobs:
   test:
     name: Test stable channel on Windows
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
