@@ -46,7 +46,7 @@ void main() {
     expect(() => mockTracker.getTable(1), throwsRangeError);
   });
 
-  test('mockTable total quantity should be 30', () {
+  test('mockTable total quantity should be 30', () async {
     expect(mockTable.totalMenuItemQuantity(), 30);
   });
 
