@@ -2,13 +2,17 @@ trigger:
 - master
 - develop
 
-pool:
-  vmImage: 'ubuntu-latest'
+jobs:
+  - job: Android
+    pool:
+      vmImage: 'macOS-latest'
+    steps:
+    - task: FlutterInstall@0
+      inputs:
+        channel: 'stable'
+        version: 'latest'
+    - task: FlutterTest@0
+      inputs:
+        projectDirectory: '/'
 
-steps:
-- task: FlutterInstall@0
-  inputs:
-    channel: 'stable'
-    version: 'latest'
 
-- script: flutter run test
