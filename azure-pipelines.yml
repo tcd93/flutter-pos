@@ -3,9 +3,9 @@ trigger:
 - develop
 
 jobs:
-  - job: Android
+  - job: UnitTest
     pool:
-      vmImage: 'macOS-latest'
+      vmImage: 'ubuntu-latest'
     steps:
     - task: FlutterInstall@0
       inputs:
