@@ -1,0 +1,38 @@
+name: Flutter
+on: [push]
+jobs:
+  test:
+    name: Test ${{ matrix.channel }}:${{ matrix.version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        version: ["", "1.12.x", "1.2.1"]
+        channel: [stable, beta, dev]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '12.x'
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: ${{ matrix.version }}
+          channel: ${{ matrix.channel }}
+      - run: flutter --version
+      - run: dart --version
+  master:
+    name: "Test master: on ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '12.x'
+      - uses: subosito/flutter-action@master
+        with:
+          channel: master
+      - run: flutter --version
+      - run: dart --version
