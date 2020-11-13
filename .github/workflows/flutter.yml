@@ -20,8 +20,11 @@ jobs:
           channel: ${{ matrix.channel }}
       - run: flutter --version
       - run: dart --version
+      - run: flutter pub get
+      - run: flutter test
+      - run: flutter build apk
   master:
-    name: "Test master: on ${{ matrix.os }}"
+    name: "Test Flutter 'master' channel: on ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -36,3 +39,6 @@ jobs:
           channel: master
       - run: flutter --version
       - run: dart --version
+      - run: flutter pub get
+      - run: flutter test
+      - run: flutter build apk
