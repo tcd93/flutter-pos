@@ -3,14 +3,19 @@ import 'package:hembo/database_factory.dart';
 
 import 'package:hembo/models/supplier.dart';
 import 'package:hembo/models/table.dart';
-
-Supplier mockTracker;
-TableModel mockTable;
+import 'package:hembo/storage_engines/connection_interface.dart';
 
 void main() {
-  setUp(() {
+  DatabaseConnectionInterface storage;
+  Supplier mockTracker;
+  TableModel mockTable;
+
+  setUp(() async {
+    storage = DatabaseFactory().create('local-storage');
+    await storage.open();
+
     mockTracker = Supplier(
-      database: DatabaseFactory().create('local-storage'),
+      database: storage,
       modelBuilder: (tracker) => [
         TableModel(tracker, 0)
           ..lineItem(1).quantity = 7
@@ -24,14 +29,14 @@ void main() {
   });
 
   tearDown(() async {
-    await DatabaseFactory().create('local-storage').destroy();
+    await storage.destroy();
   });
 
-  test('Tracker should be tracking only one table (index 0)', () {
+  test('Tracker should be tracking only one table (index 0)', () async {
     expect(() => mockTracker.getTable(1), throwsRangeError);
   });
 
-  test('mockTable total quantity should be 30', () {
+  test('mockTable total quantity should be 30', () async {
     expect(mockTable.totalMenuItemQuantity(), 30);
   });
 
