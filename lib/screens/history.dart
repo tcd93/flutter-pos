@@ -4,13 +4,14 @@ import 'package:flutter/widgets.dart';
 import '../common/common.dart';
 import '../common/money_format/money.dart';
 
-import '../database_factory.dart';
+import '../storage_engines/connection_interface.dart';
 
 class HistoryScreen extends StatefulWidget {
+  final DatabaseConnectionInterface database;
   final DateTime from;
   final DateTime to;
 
-  HistoryScreen([this.from, this.to]);
+  HistoryScreen(this.database, [this.from, this.to]);
 
   @override
   _HistoryScreenState createState() => _HistoryScreenState();
@@ -38,11 +39,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     debugPrint('rebuilding HistoryScreen...');
 
-    final storage = DatabaseFactory().create('local-storage');
+    // `database` must be passed in or otherwise cause deadlocks during unit test!
+    final storage = widget.database;
     final data = storage.getRange(from, to);
-    var summaryPrice =
-        data?.fold(0, (previousValue, e) => previousValue + e.price);
-
+    var summaryPrice = data?.fold(0, (previousValue, e) => previousValue + e.price);
     return Scaffold(
       appBar: AppBar(
         title: RichText(
@@ -58,9 +58,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
               ),
               TextSpan(text: ' '),
-              TextSpan(
-                  text:
-                      '(${Common.extractYYYYMMDD2(from)} - ${Common.extractYYYYMMDD2(to)})')
+              TextSpan(text: '(${Common.extractYYYYMMDD2(from)} - ${Common.extractYYYYMMDD2(to)})')
             ],
           ),
         ),
@@ -77,8 +75,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   child: Text(data[index].orderID.toString()),
                 ),
                 title: Text(Common.extractYYYYMMDD3(data[index].checkoutTime)),
-                onTap:
-                    () {}, //TODO: reuse Detais Screen -> allow soft delete a past order
+                onTap: () {}, //TODO: reuse Detais Screen -> allow soft delete a past order
                 trailing: Text(
                   Money.format(data[index].price),
                   style: TextStyle(

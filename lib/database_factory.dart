@@ -1,11 +1,10 @@
 import 'storage_engines/connection_interface.dart';
 import 'storage_engines/local_storage.dart';
 
-const dbName = 'hembo';
+const appName = 'hembo';
 
 class DatabaseFactory {
   static DatabaseFactory _singleton;
-  final Map<String, DatabaseConnectionInterface> _storages = {};
 
   DatabaseFactory._init();
 
@@ -18,12 +17,16 @@ class DatabaseFactory {
     return _singleton;
   }
 
-  DatabaseConnectionInterface create(String name) {
-    if (_storages[name] == null) {
-      if (name == 'local-storage') {
-        _storages[name] = LocalStorage(dbName);
-      }
+  DatabaseConnectionInterface create(
+    String name, [
+    String path,
+    Map<String, dynamic> initialData,
+    String dbName,
+  ]) {
+    if (name == 'local-storage') {
+      return LocalStorage(dbName ?? appName, path, initialData);
+    } else {
+      throw UnimplementedError('$name is not implemented for database connection');
     }
-    return _storages[name];
   }
 }

@@ -62,11 +62,10 @@ class HemBoApp extends StatelessWidget {
         } else if (settings.name == '/order-details') {
           return routeBuilder(DetailsScreen(tableID, fromHeroTag: heroTag));
         } else if (settings.name == '/history') {
-          return routeBuilder(HistoryScreen());
+          return routeBuilder(HistoryScreen(_storage));
         }
         // unknown route
-        return MaterialPageRoute(
-            builder: (context) => Center(child: Text('404')));
+        return MaterialPageRoute(builder: (context) => Center(child: Text('404')));
       },
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hembo/database_factory.dart';
 
@@ -6,14 +8,26 @@ import 'package:hembo/models/table.dart';
 import 'package:hembo/storage_engines/connection_interface.dart';
 
 void main() {
-  DatabaseConnectionInterface storage;
   Supplier mockTracker;
   TableModel mockTable;
+  DatabaseConnectionInterface storage;
+
+  setUpAll(() async {
+    // must set up like this to "overwrite" existing data
+    storage = DatabaseFactory().create('local-storage', 'test', {});
+    await storage.open();
+  });
+  tearDownAll(() {
+    storage.close();
+    File('test/hembo').deleteSync(); // delete the newly created storage file
+  });
+  tearDown(() async {
+    try {
+      await storage.destroy();
+    } on Exception {}
+  });
 
   setUp(() async {
-    storage = DatabaseFactory().create('local-storage');
-    await storage.open();
-
     mockTracker = Supplier(
       database: storage,
       modelBuilder: (tracker) => [
@@ -28,16 +42,11 @@ void main() {
     mockTable = mockTracker.getTable(0);
   });
 
-  tearDown(() async {
-    await storage.destroy();
-    await Future.delayed(const Duration(milliseconds: 500));
-  });
-
-  test('Tracker should be tracking only one table (index 0)', () async {
+  test('Tracker should be tracking only one table (index 0)', () {
     expect(() => mockTracker.getTable(1), throwsRangeError);
   });
 
-  test('mockTable total quantity should be 30', () async {
+  test('mockTable total quantity should be 30', () {
     expect(mockTable.totalMenuItemQuantity(), 30);
   });
 
@@ -49,9 +58,7 @@ void main() {
 
   test('Order should persist to local storage after checkout', () async {
     await mockTable.checkout(DateTime.parse('20200201 11:00:00'));
-    var items = DatabaseFactory()
-        .create('local-storage')
-        .get(DateTime.parse('20200201 11:00:00'));
+    var items = DatabaseFactory().create('local-storage').get(DateTime.parse('20200201 11:00:00'));
     expect(items, isNotNull);
     expect(items[0].checkoutTime, DateTime.parse('20200201 11:00:00'));
     expect(items[0].orderID, 0);
@@ -66,9 +73,7 @@ void main() {
       ..lineItem(1).quantity = 1;
     await mockTable.checkout(DateTime.parse('20200201 13:00:00'));
 
-    var items = DatabaseFactory()
-        .create('local-storage')
-        .get(DateTime.parse('20200201 13:00:00'));
+    var items = DatabaseFactory().create('local-storage').get(DateTime.parse('20200201 13:00:00'));
     expect(items.length, 2);
     expect(items[0].orderID, 0);
     expect(items[1].orderID, 1);

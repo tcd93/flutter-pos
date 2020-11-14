@@ -16,7 +16,7 @@ class DatabaseConnectionInterface {
 
   List<Order> getRange(DateTime from, DateTime to) => null;
 
-  /// Removes all items from database
+  /// Removes all items from database, should be wrapped in try/catch block
   Future<void> destroy() => Future.microtask(() => null);
 
   /// Close connection
