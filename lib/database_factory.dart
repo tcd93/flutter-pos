@@ -1,30 +1,32 @@
 import 'storage_engines/connection_interface.dart';
 import 'storage_engines/local_storage.dart';
 
-const dbName = 'hembo';
+const appName = 'hembo';
 
 class DatabaseFactory {
   static DatabaseFactory _singleton;
-  static DatabaseConnectionInterface _storage;
-
-  DatabaseConnectionInterface get storage => _storage;
 
   DatabaseFactory._init();
 
   /// Returns an [DatabaseConnectionInterface] instance, currently support `local-storage`
-  factory DatabaseFactory(String name) {
+  factory DatabaseFactory() {
     if (_singleton == null) {
       _singleton = DatabaseFactory._init();
     }
 
-    if (name == 'local-storage' && _storage == null) {
-      _storage = LocalStorage(dbName);
-    }
-
-    if (_storage == null) {
-      throw Exception('Must define a storage type name');
-    }
-
     return _singleton;
+  }
+
+  DatabaseConnectionInterface create(
+    String name, [
+    String path,
+    Map<String, dynamic> initialData,
+    String dbName,
+  ]) {
+    if (name == 'local-storage') {
+      return LocalStorage(dbName ?? appName, path, initialData);
+    } else {
+      throw UnimplementedError('$name is not implemented for database connection');
+    }
   }
 }

@@ -4,13 +4,14 @@ import 'package:flutter/widgets.dart';
 import '../common/common.dart';
 import '../common/money_format/money.dart';
 
-import '../database_factory.dart';
+import '../storage_engines/connection_interface.dart';
 
 class HistoryScreen extends StatefulWidget {
+  final DatabaseConnectionInterface database;
   final DateTime from;
   final DateTime to;
 
-  HistoryScreen([this.from, this.to]);
+  HistoryScreen(this.database, [this.from, this.to]);
 
   @override
   _HistoryScreenState createState() => _HistoryScreenState();
@@ -38,10 +39,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     debugPrint('rebuilding HistoryScreen...');
 
-    final storage = DatabaseFactory('local-storage').storage;
+    // `database` must be passed in or otherwise cause deadlocks during unit test!
+    final storage = widget.database;
     final data = storage.getRange(from, to);
     var summaryPrice = data?.fold(0, (previousValue, e) => previousValue + e.price);
-
     return Scaffold(
       appBar: AppBar(
         title: RichText(

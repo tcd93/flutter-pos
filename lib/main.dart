@@ -13,9 +13,9 @@ import 'screens/menu.dart';
 import 'storage_engines/connection_interface.dart';
 
 void main() {
-  final factory = DatabaseFactory('local-storage');
+  final storage = DatabaseFactory().create('local-storage');
 
-  runApp(HemBoApp(factory.storage));
+  runApp(HemBoApp(storage));
 }
 
 class HemBoApp extends StatelessWidget {
@@ -62,11 +62,10 @@ class HemBoApp extends StatelessWidget {
         } else if (settings.name == '/order-details') {
           return routeBuilder(DetailsScreen(tableID, fromHeroTag: heroTag));
         } else if (settings.name == '/history') {
-          return routeBuilder(HistoryScreen());
+          return routeBuilder(HistoryScreen(_storage));
         }
         // unknown route
-        return MaterialPageRoute(
-            builder: (context) => Center(child: Text('404')));
+        return MaterialPageRoute(builder: (context) => Center(child: Text('404')));
       },
     );
   }

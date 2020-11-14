@@ -77,9 +77,10 @@ class LocalStorage implements DatabaseConnectionInterface {
 
   @override
   List<Order> get(DateTime day) {
-    List<dynamic> cache = ls.getItem(Common.extractYYYYMMDD(day));
-    return cache?.cast<String>()?.map((e) {
-      var decoded = json.decode(e) as Map<String, dynamic>;
+    List<dynamic> storageData = ls.getItem(Common.extractYYYYMMDD(day));
+    var cache = storageData is List<Map> ? storageData : storageData?.cast<String>();
+    return cache?.map((e) {
+      var decoded = e is Map<String, dynamic> ? e : json.decode(e) as Map<String, dynamic>;
       List<dynamic> lines = decoded['lineItems'];
       return Order(
         decoded['orderID'],
