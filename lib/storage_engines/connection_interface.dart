@@ -16,6 +16,9 @@ class DatabaseConnectionInterface {
 
   List<Order> getRange(DateTime from, DateTime to) => null;
 
+  /// Soft deletes an order in specified date
+  Future<Order> delete(DateTime day, int orderID) => Future.microtask(() => null);
+
   /// Removes all items from database, should be wrapped in try/catch block
   Future<void> destroy() => Future.microtask(() => null);
 
@@ -29,12 +32,19 @@ class Order {
   final DateTime checkoutTime;
   final int price;
   final List<OrderItem> lineItems;
+  final bool isDeleted;
 
-  const Order(this.orderID, this.checkoutTime, this.price, this.lineItems);
+  const Order(
+    this.orderID,
+    this.checkoutTime,
+    this.price,
+    this.lineItems, {
+    this.isDeleted = false,
+  });
 
   @override
   String toString() {
-    return '$orderID: {$price, ${checkoutTime.toString()}, $lineItems}';
+    return '$orderID: {$price, ${checkoutTime.toString()}, $lineItems, isDeleted: $isDeleted}';
   }
 }
 

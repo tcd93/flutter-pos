@@ -185,4 +185,62 @@ void main() {
       },
     );
   });
+
+  group('Soft delete order test:', () {
+    setUpAll(() async {
+      // create existing checked out data
+      storage = DatabaseFactory().create(
+        'local-storage',
+        'test',
+        {
+          "order_id_highkey": 1,
+          "20201112": [
+            {
+              "orderID": 0,
+              "checkoutTime": "2020-11-12 01:31:32.840",
+              "totalPrice": 30000,
+              "lineItems": [
+                {"dishID": 0, "dishName": "Rice Noodles", "quantity": 1, "amount": 10000},
+                {"dishID": 1, "dishName": "Lime Juice", "quantity": 1, "amount": 20000},
+              ],
+              "isDeleted": false,
+            },
+            {
+              "orderID": 1,
+              "checkoutTime": "2020-11-12 02:31:32.840",
+              "totalPrice": 70000,
+              "lineItems": [
+                {"dishID": 1, "dishName": "Lime Juice", "quantity": 2, "amount": 40000},
+                {"dishID": 2, "dishName": "Vegan Noodle", "quantity": 1, "amount": 30000}
+              ],
+              "isDeleted": false,
+            },
+          ],
+        },
+        'test-group-3',
+      );
+      await storage.open();
+    });
+    tearDownAll(() {
+      storage.close();
+      try {
+        File('test/test-group-3').deleteSync();
+      } on Exception {}
+      ; // delete the newly created storage file
+    });
+
+    test('Confirm data access normal', () async {
+      final nextInt = await storage.nextUID();
+      expect(nextInt, 2);
+    });
+
+    test('Should be able to set isDeleted to true', () async {
+      await storage.delete(DateTime.parse('2020-11-12'), 1);
+
+      var order = storage.get(DateTime.parse('2020-11-12'));
+
+      expect(order[0].isDeleted, false);
+      expect(order[1].isDeleted, true);
+    });
+  });
 }
