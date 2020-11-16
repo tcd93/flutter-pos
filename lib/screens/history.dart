@@ -62,8 +62,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
               TextSpan(text: ' '),
               TextSpan(
-                text:
-                    '(${Common.extractYYYYMMDD2(from)} - ${Common.extractYYYYMMDD2(to)})',
+                text: '(${Common.extractYYYYMMDD2(from)} - ${Common.extractYYYYMMDD2(to)})',
               ),
             ],
           ),
@@ -93,29 +92,102 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ],
       ),
       body: ListView.builder(
-          physics: const BouncingScrollPhysics(),
-          itemCount: data?.length ?? 0,
-          itemBuilder: (context, index) {
-            return Card(
-              key: ObjectKey(data[index]),
-              child: ListTile(
-                leading: CircleAvatar(
-                  child: Text(data[index].orderID.toString()),
-                ),
-                title: Text(Common.extractYYYYMMDD3(data[index].checkoutTime)),
-                onTap:
-                    () {}, //TODO: reuse Detais Screen -> allow soft delete a past order
-                trailing: Text(
-                  Money.format(data[index].price),
-                  style: TextStyle(
-                    letterSpacing: 3,
-                    color: Colors.lightGreen,
-                    fontSize: 20,
+        physics: const BouncingScrollPhysics(),
+        itemCount: data?.length ?? 0,
+        itemBuilder: (context, index) => _OrderSnapshot(
+          data[index],
+          storage,
+        ),
+      ),
+    );
+  }
+}
+
+class _OrderSnapshot extends StatelessWidget {
+  final Order order;
+  final DatabaseConnectionInterface storage;
+
+  _OrderSnapshot(this.order, this.storage);
+
+  @override
+  Widget build(BuildContext context) {
+    var isDeleted = order.isDeleted;
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Stack(
+          overflow: Overflow.visible,
+          alignment: Alignment.center,
+          children: [
+            FractionallySizedBox(
+              widthFactor: 0.95,
+              child: Card(
+                key: ObjectKey(order),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    child: Text(order.orderID.toString()),
+                    backgroundColor: isDeleted == true ? Colors.grey[400].withOpacity(0.5) : null,
+                  ),
+                  title: Text(
+                    Common.extractYYYYMMDD3(order.checkoutTime),
+                    style: isDeleted == true
+                        ? TextStyle(
+                            color: Colors.grey[200].withOpacity(0.5),
+                          )
+                        : null,
+                  ),
+                  onLongPress: () async {
+                    var result = await showDialog<bool>(
+                      context: context,
+                      builder: (context) {
+                        final cancelButton = FlatButton(
+                          child: Text('No'),
+                          onPressed: () => Navigator.of(context).pop(false),
+                        );
+                        final continueButton = FlatButton(
+                          child: Text('Yes'),
+                          onPressed: () => Navigator.of(context).pop(true),
+                        );
+
+                        return AlertDialog(
+                          title: Text('Soft delete?'),
+                          actions: [
+                            cancelButton,
+                            continueButton,
+                          ],
+                        );
+                      },
+                    );
+
+                    if (result == true) {
+                      var deletedOrd = await storage.delete(
+                        order.checkoutTime,
+                        order.orderID,
+                      );
+                      setState(() => isDeleted = deletedOrd.isDeleted);
+                    }
+                  },
+                  onTap: () {}, //TODO: reuse Detais Screen -> allow soft delete a past order
+                  trailing: Text(
+                    Money.format(order.price),
+                    style: TextStyle(
+                      letterSpacing: 3,
+                      color:
+                          isDeleted == true ? Colors.grey[200].withOpacity(0.5) : Colors.lightGreen,
+                      fontSize: 20,
+                    ),
                   ),
                 ),
               ),
-            );
-          }),
+            ),
+            if (isDeleted == true) // A "strike-thru" effect for Card widget
+              Divider(
+                color: Colors.black,
+                thickness: 1.0,
+              ),
+          ],
+        );
+      },
     );
   }
 }
