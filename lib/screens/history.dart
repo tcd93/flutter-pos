@@ -9,7 +9,7 @@ import '../storage_engines/connection_interface.dart';
 class _HistoryState {
   DateTime from;
   DateTime to;
-  int summaryPrice;
+  int summaryPrice = 0;
 
   _HistoryState(DateTime start, DateTime end, this.summaryPrice) {
     from = start ?? DateTime.now();
@@ -19,35 +19,39 @@ class _HistoryState {
   }
 }
 
+@immutable
 class HistoryScreen extends StatelessWidget {
   final DatabaseConnectionInterface database;
-  final DateTime from;
-  final DateTime to;
-  final _HistoryState _state;
 
-  HistoryScreen(this.database, [this.from, this.to]) : _state = _HistoryState(from, to, 0);
+  /// Initial [_HistoryState] when the screen is built, should be used only for [ValueNotifier]
+  final _HistoryState _initialState;
+
+  /// Initial list of [Order] when the screen is built, should be used only for [ValueNotifier]
+  final List<Order> _initialOrders;
+
+  // `database` must be passed in or otherwise cause deadlocks during unit test!
+  HistoryScreen(this.database, [DateTime from, DateTime to])
+      : _initialState = _HistoryState(from, to, 0),
+        _initialOrders = database.getRange(from ?? DateTime.now(), to ?? DateTime.now()) {
+    _initialState.summaryPrice = _initialOrders?.fold(
+      0,
+      (previousValue, e) => previousValue + (e.isDeleted == true ? 0 : e.price),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     debugPrint('rebuilding HistoryScreen...');
 
-    // `database` must be passed in or otherwise cause deadlocks during unit test!
-    final storage = database;
-    final data = storage.getRange(from ?? DateTime.now(), to ?? DateTime.now());
-    _state.summaryPrice = data?.fold(
-          0,
-          (previousValue, e) => previousValue + (e.isDeleted == true ? 0 : e.price),
-        ) ??
-        0;
-
-    final notifier = ValueNotifier(_state);
+    // not using `setState` because it will redraw entire screen
+    // we only want to redraw specific sections
+    final appbarNotifier = ValueNotifier(_initialState);
+    final listViewNotifier = ValueNotifier(_initialOrders);
 
     return Scaffold(
       appBar: AppBar(
-        // not using `setState` because it will redraw entire screen
-        // we only want to redraw the AppBar
         title: ValueListenableBuilder<_HistoryState>(
-          valueListenable: notifier,
+          valueListenable: appbarNotifier,
           builder: (_, newState, __) => _LeadingTitle(
             from: newState.from,
             to: newState.to,
@@ -61,39 +65,47 @@ class HistoryScreen extends StatelessWidget {
               final range = await showDateRangePicker(
                 context: context,
                 initialDateRange: DateTimeRange(
-                  start: from,
-                  end: to,
+                  start: appbarNotifier.value.from,
+                  end: appbarNotifier.value.to,
                 ),
-                firstDate: from.add(const Duration(days: -180)),
+                firstDate: _initialState.from.add(const Duration(days: -180)),
                 lastDate: DateTime.now(),
                 helpText: '',
               );
-              if (range != null) {
+
+              // notify for rebuild when user selects different range
+              if (range != null &&
+                  (range.start.difference(appbarNotifier.value.from).inDays != 0 ||
+                      range.end.difference(appbarNotifier.value.to).inDays != 0)) {
                 // get new range
-                // TODO - BUG: redraw screen here
-                notifier.value = _HistoryState(
+                appbarNotifier.value = _HistoryState(
                   range.start,
                   range.end,
-                  _state.summaryPrice,
+                  _initialState.summaryPrice,
                 );
+
+                listViewNotifier.value = database.getRange(range.start, range.end);
               }
             },
           ),
         ],
       ),
-      body: ListView.builder(
-        physics: const BouncingScrollPhysics(),
-        itemCount: data?.length ?? 0,
-        itemBuilder: (context, index) => _OrderSnapshot(
-          data[index],
-          storage,
-          onDeleted: (deletedOrder) {
-            notifier.value = _HistoryState(
-              from,
-              to,
-              _state.summaryPrice - deletedOrder.price, // update price
-            );
-          },
+      body: ValueListenableBuilder<List<Order>>(
+        valueListenable: listViewNotifier,
+        builder: (_, data, __) => ListView.builder(
+          physics: const BouncingScrollPhysics(),
+          itemCount: data?.length ?? 0,
+          itemBuilder: (context, index) => _OrderSnapshot(
+            data[index],
+            database,
+            onDeleted: (deletedOrder) {
+              appbarNotifier.value = _HistoryState(
+                _initialState.from,
+                _initialState.to,
+                _initialState.summaryPrice - deletedOrder.price, // update price
+              );
+            },
+          ),
         ),
       ),
     );
@@ -135,34 +147,36 @@ class _OrderSnapshot extends StatelessWidget {
                           )
                         : null,
                   ),
-                  onLongPress: () async {
-                    var result = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text('Soft delete?'),
-                        actions: [
-                          FlatButton(
-                            child: Text('Cancel'),
-                            onPressed: () => Navigator.of(context).pop(false),
-                          ),
-                          FlatButton(
-                            child: Text('Yes'),
-                            onPressed: () => Navigator.of(context).pop(true),
-                          ),
-                        ],
-                      ),
-                    );
+                  onLongPress: isDeleted == true // allow delete once
+                      ? null
+                      : () async {
+                          var result = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text('Soft delete?'),
+                              actions: [
+                                FlatButton(
+                                  child: Text('Cancel'),
+                                  onPressed: () => Navigator.of(context).pop(false),
+                                ),
+                                FlatButton(
+                                  child: Text('Yes'),
+                                  onPressed: () => Navigator.of(context).pop(true),
+                                ),
+                              ],
+                            ),
+                          );
 
-                    if (result == true) {
-                      var deletedOrd = await storage.delete(
-                        order.checkoutTime,
-                        order.orderID,
-                      );
-                      setInternalState(() => isDeleted = deletedOrd.isDeleted);
+                          if (result == true) {
+                            var deletedOrd = await storage.delete(
+                              order.checkoutTime,
+                              order.orderID,
+                            );
+                            setInternalState(() => isDeleted = deletedOrd.isDeleted);
 
-                      onDeleted?.call(deletedOrd);
-                    }
-                  },
+                            onDeleted?.call(deletedOrd);
+                          }
+                        },
                   onTap: () {}, //TODO: reuse Detais Screen -> allow soft delete a past order
                   trailing: Text(
                     Money.format(order.price),
