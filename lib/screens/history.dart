@@ -6,65 +6,52 @@ import '../common/money_format/money.dart';
 
 import '../storage_engines/connection_interface.dart';
 
-class HistoryScreen extends StatefulWidget {
+class _HistoryState {
+  DateTime from;
+  DateTime to;
+  int summaryPrice;
+
+  _HistoryState(DateTime start, DateTime end, this.summaryPrice) {
+    from = start ?? DateTime.now();
+    to = end ?? DateTime.now();
+
+    assert(to.isAtSameMomentAs(from) || to.isAfter(from));
+  }
+}
+
+class HistoryScreen extends StatelessWidget {
   final DatabaseConnectionInterface database;
   final DateTime from;
   final DateTime to;
+  final _HistoryState _state;
 
-  HistoryScreen(this.database, [this.from, this.to]);
-
-  @override
-  _HistoryScreenState createState() => _HistoryScreenState();
-}
-
-class _HistoryScreenState extends State<HistoryScreen> {
-  DateTime from;
-  DateTime _to;
-
-  DateTime get to => _to;
-
-  set to(DateTime to) {
-    assert(to.isAtSameMomentAs(from) || to.isAfter(from));
-    _to = to;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    from = widget.from ?? DateTime.now();
-    to = widget.to ?? DateTime.now();
-  }
+  HistoryScreen(this.database, [this.from, this.to]) : _state = _HistoryState(from, to, 0);
 
   @override
   Widget build(BuildContext context) {
     debugPrint('rebuilding HistoryScreen...');
 
     // `database` must be passed in or otherwise cause deadlocks during unit test!
-    final storage = widget.database;
-    final data = storage.getRange(from, to);
-    var summaryPrice = data?.fold(
-      0,
-      (previousValue, e) => previousValue + e.price,
-    );
+    final storage = database;
+    final data = storage.getRange(from ?? DateTime.now(), to ?? DateTime.now());
+    _state.summaryPrice = data?.fold(
+          0,
+          (previousValue, e) => previousValue + (e.isDeleted == true ? 0 : e.price),
+        ) ??
+        0;
+
+    final notifier = ValueNotifier(_state);
+
     return Scaffold(
       appBar: AppBar(
-        title: RichText(
-          text: TextSpan(
-            style: Theme.of(context).textTheme.headline6,
-            children: [
-              TextSpan(
-                text: '${Money.format(summaryPrice ?? 0)}',
-                style: TextStyle(
-                  color: Colors.lightGreen,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                ),
-              ),
-              TextSpan(text: ' '),
-              TextSpan(
-                text: '(${Common.extractYYYYMMDD2(from)} - ${Common.extractYYYYMMDD2(to)})',
-              ),
-            ],
+        // not using `setState` because it will redraw entire screen
+        // we only want to redraw the AppBar
+        title: ValueListenableBuilder<_HistoryState>(
+          valueListenable: notifier,
+          builder: (_, newState, __) => _LeadingTitle(
+            from: newState.from,
+            to: newState.to,
+            summaryPrice: newState.summaryPrice,
           ),
         ),
         actions: [
@@ -82,10 +69,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 helpText: '',
               );
               if (range != null) {
-                setState(() {
-                  from = range.start;
-                  to = range.end;
-                });
+                // get new range
+                // TODO - BUG: redraw screen here
+                notifier.value = _HistoryState(
+                  range.start,
+                  range.end,
+                  _state.summaryPrice,
+                );
               }
             },
           ),
@@ -97,6 +87,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
         itemBuilder: (context, index) => _OrderSnapshot(
           data[index],
           storage,
+          onDeleted: (deletedOrder) {
+            notifier.value = _HistoryState(
+              from,
+              to,
+              _state.summaryPrice - deletedOrder.price, // update price
+            );
+          },
         ),
       ),
     );
@@ -106,17 +103,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
 class _OrderSnapshot extends StatelessWidget {
   final Order order;
   final DatabaseConnectionInterface storage;
+  final Function(Order deletedOrder) onDeleted;
 
-  _OrderSnapshot(this.order, this.storage);
+  _OrderSnapshot(this.order, this.storage, {this.onDeleted});
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('rebuilding _OrderSnapshot...');
+
     var isDeleted = order.isDeleted;
 
     return StatefulBuilder(
-      builder: (context, setState) {
+      builder: (context, setInternalState) {
         return Stack(
-          overflow: Overflow.visible,
           alignment: Alignment.center,
           children: [
             FractionallySizedBox(
@@ -139,24 +138,19 @@ class _OrderSnapshot extends StatelessWidget {
                   onLongPress: () async {
                     var result = await showDialog<bool>(
                       context: context,
-                      builder: (context) {
-                        final cancelButton = FlatButton(
-                          child: Text('No'),
-                          onPressed: () => Navigator.of(context).pop(false),
-                        );
-                        final continueButton = FlatButton(
-                          child: Text('Yes'),
-                          onPressed: () => Navigator.of(context).pop(true),
-                        );
-
-                        return AlertDialog(
-                          title: Text('Soft delete?'),
-                          actions: [
-                            cancelButton,
-                            continueButton,
-                          ],
-                        );
-                      },
+                      builder: (context) => AlertDialog(
+                        title: Text('Soft delete?'),
+                        actions: [
+                          FlatButton(
+                            child: Text('Cancel'),
+                            onPressed: () => Navigator.of(context).pop(false),
+                          ),
+                          FlatButton(
+                            child: Text('Yes'),
+                            onPressed: () => Navigator.of(context).pop(true),
+                          ),
+                        ],
+                      ),
                     );
 
                     if (result == true) {
@@ -164,7 +158,9 @@ class _OrderSnapshot extends StatelessWidget {
                         order.checkoutTime,
                         order.orderID,
                       );
-                      setState(() => isDeleted = deletedOrd.isDeleted);
+                      setInternalState(() => isDeleted = deletedOrd.isDeleted);
+
+                      onDeleted?.call(deletedOrd);
                     }
                   },
                   onTap: () {}, //TODO: reuse Detais Screen -> allow soft delete a past order
@@ -188,6 +184,39 @@ class _OrderSnapshot extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _LeadingTitle extends StatelessWidget {
+  final DateTime from;
+  final DateTime to;
+  final int summaryPrice;
+
+  _LeadingTitle({this.from, this.to, this.summaryPrice});
+
+  @override
+  Widget build(BuildContext context) {
+    debugPrint('rebuilding _LeadingTitle...');
+
+    return RichText(
+      text: TextSpan(
+        style: Theme.of(context).textTheme.headline6,
+        children: [
+          TextSpan(
+            text: '${Money.format(summaryPrice ?? 0)}',
+            style: TextStyle(
+              color: Colors.lightGreen,
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+            ),
+          ),
+          TextSpan(text: ' '),
+          TextSpan(
+            text: '(${Common.extractYYYYMMDD2(from)} - ${Common.extractYYYYMMDD2(to)})',
+          ),
+        ],
+      ),
     );
   }
 }
