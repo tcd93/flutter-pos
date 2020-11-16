@@ -39,6 +39,30 @@ extension TableStateJson on TableState {
   }
 }
 
+extension OrderItemJson on OrderItem {
+  String toJson() {
+    return '{"dishID": $dishID, "dishName": "${Dish.getMenu()[dishID].dish}", "quantity": $quantity, "amount": $amount}';
+  }
+}
+
+extension OrderJSON on Order {
+  /// Similar to [toJson] from [TableState], with `isDeleted` field implemented
+  String toJson() {
+    var lineItemList = lineItems
+        .where(
+          (element) => element.quantity > 0,
+        )
+        .map((e) => e.toJson())
+        .toList();
+
+    int totalPrice() => lineItems
+        .where((entry) => entry.quantity > 0)
+        .fold(0, (prev, order) => prev + order.amount);
+
+    return '{"orderID": $orderID, "checkoutTime": "${checkoutTime.toString()}", "totalPrice": ${totalPrice()}, "lineItems": ${lineItemList.toString()}, "isDeleted": $isDeleted}';
+  }
+}
+
 class LocalStorage implements DatabaseConnectionInterface {
   final lib.LocalStorage ls;
 
@@ -60,7 +84,7 @@ class LocalStorage implements DatabaseConnectionInterface {
     if (state == null) throw '`state` is required for localstorage';
     if (state.orderID == null || state.orderID < 0) throw 'Invalid `orderID`';
 
-    var key = '${Common.extractYYYYMMDD(state.checkoutTime)}'; // key by checkout date
+    var key = Common.extractYYYYMMDD(state.checkoutTime); // key by checkout date
     var newOrder = state.toJson(); // new order in json format
 
     // current orders of the day that have been saved
@@ -96,6 +120,7 @@ class LocalStorage implements DatabaseConnectionInterface {
               ),
             )
             .toList(),
+        isDeleted: decoded['isDeleted'],
       );
     })?.toList(growable: false);
   }
@@ -106,6 +131,40 @@ class LocalStorage implements DatabaseConnectionInterface {
       end.difference(start).inDays + 1,
       (i) => get(DateTime(start.year, start.month, start.day + i)) ?? [],
     ).expand((e) => e).toList();
+  }
+
+  @override
+  Future<Order> delete(DateTime day, int orderID) async {
+    var deletedOrder;
+
+    var rebuiltOrders = get(day).map((order) {
+      if (order.orderID == orderID) {
+        deletedOrder = Order(
+          order.orderID,
+          order.checkoutTime,
+          order.price,
+          order.lineItems,
+          isDeleted: true,
+        );
+        return deletedOrder;
+      } else {
+        return order;
+      }
+    }).toList();
+
+    await ls.setItem(
+      Common.extractYYYYMMDD(day),
+      rebuiltOrders,
+      (orders) {
+        return (orders as List)
+            .map(
+              (e) => (e as Order).toJson(),
+            )
+            .toList();
+      },
+    );
+
+    return deletedOrder;
   }
 
   @override
