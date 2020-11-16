@@ -123,7 +123,8 @@ class _OrderSnapshot extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint('rebuilding _OrderSnapshot...');
 
-    var isDeleted = order.isDeleted;
+    // in Dart, default is boolean is "null" !?
+    var isDeleted = order.isDeleted ?? false;
 
     return StatefulBuilder(
       builder: (context, setInternalState) {
