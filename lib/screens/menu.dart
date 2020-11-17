@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tuple/tuple.dart';
 
 import '../common/counter/counter.dart';
 import '../common/money_format/money.dart';
@@ -39,38 +38,33 @@ class MenuScreen extends StatelessWidget {
           itemCount: Dish.getMenu()
               .length, // same count of order line items and items in the `menu` constant in [Dish]
           itemBuilder: (context, index) {
-            return Selector<Supplier, Tuple2<TableModel, LineItem>>(
-              selector: (context, tracker) {
-                return Tuple2(
-                  model, // item1
-                  model.lineItem(index), // item2
-                );
-              },
-              builder: (context, tuple, _) {
+            return Selector<Supplier, LineItem>(
+              selector: (_, __) => model.lineItem(index),
+              builder: (context, lineItem, _) {
                 return Padding(
                   padding: const EdgeInsets.all(5.0),
                   child: Counter(
-                    tuple.item1.lineItem(index)?.quantity ?? 0,
+                    model.lineItem(index)?.quantity ?? 0,
                     onIncrement: (_) {
-                      tuple.item2.quantity++;
+                      lineItem.quantity++;
 
-                      tuple.item1.setTableStatus(TableStatus.incomplete);
+                      model.setTableStatus(TableStatus.incomplete);
                     },
                     onDecrement: (_) {
-                      tuple.item2.quantity--;
+                      lineItem.quantity--;
                       // If there are not a single item in this order left,
                       // Then set status to "empty" to disable the [_ConfirmButton]
-                      if (tuple.item1.lineItem(index).quantity == 0 &&
-                          tuple.item1.totalMenuItemQuantity() == 0) {
-                        tuple.item1.setTableStatus(TableStatus.empty);
+                      if (model.lineItem(index).quantity == 0 &&
+                          model.totalMenuItemQuantity() == 0) {
+                        model.setTableStatus(TableStatus.empty);
                       } else {
-                        tuple.item1.setTableStatus(TableStatus.incomplete);
+                        model.setTableStatus(TableStatus.incomplete);
                       }
                     },
                     imagePath: Dish.getMenu()[index].imagePath,
                     subtitle:
                         '${Dish.getMenu()[index].dish} (${Money.format(Dish.getMenu()[index].price)})',
-                    key: ObjectKey(tuple.item1),
+                    key: ObjectKey(model),
                   ),
                 );
               },
