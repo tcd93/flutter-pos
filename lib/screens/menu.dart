@@ -11,10 +11,10 @@ import '../models/supplier.dart';
 import '../models/table.dart';
 
 class MenuScreen extends StatelessWidget {
-  final int tableID;
+  final TableModel model;
   final String fromHeroTag;
 
-  MenuScreen(this.tableID, {this.fromHeroTag});
+  MenuScreen(this.model, {this.fromHeroTag});
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +25,11 @@ class MenuScreen extends StatelessWidget {
         title: Text('Menu', style: Theme.of(context).textTheme.headline6),
         actions: [
           _UndoButton(
-            tableID,
+            model,
             fromHeroTag: fromHeroTag,
           ),
           _ConfirmButton(
-            tableID,
+            model,
             fromHeroTag: fromHeroTag,
           ),
         ],
@@ -42,8 +42,8 @@ class MenuScreen extends StatelessWidget {
             return Selector<Supplier, Tuple2<TableModel, LineItem>>(
               selector: (context, tracker) {
                 return Tuple2(
-                  tracker.getTable(tableID), // item1
-                  tracker.getTable(tableID).lineItem(index), // item2
+                  model, // item1
+                  model.lineItem(index), // item2
                 );
               },
               builder: (context, tuple, _) {
@@ -81,24 +81,19 @@ class MenuScreen extends StatelessWidget {
 }
 
 class _ConfirmButton extends StatelessWidget {
-  final int tableID;
+  final TableModel model;
   final String fromHeroTag;
 
-  _ConfirmButton(this.tableID, {this.fromHeroTag});
+  _ConfirmButton(this.model, {this.fromHeroTag});
 
   @override
   Widget build(BuildContext context) {
     return Hero(
       tag: fromHeroTag,
       // Use [Selector] here as the table status is deeply embedded
-      // in Provider<Supplier>
-      // We can also use [Tuple2] to select both [TableModel] and [TableStatus]
       child: Selector<Supplier, TableStatus>(
-        selector: (_, tracker) => tracker.getTable(tableID).getTableStatus(),
+        selector: (_, __) => model.getTableStatus(),
         builder: (context, status, _) {
-          final model = context.select<Supplier, TableModel>(
-            (tracker) => tracker.getTable(tableID),
-          );
           return FlatButton(
             child: Icon(Icons.done),
             onPressed: status == TableStatus.incomplete
@@ -116,20 +111,17 @@ class _ConfirmButton extends StatelessWidget {
 }
 
 class _UndoButton extends StatelessWidget {
-  final int tableID;
+  final TableModel model;
   final String fromHeroTag;
 
-  _UndoButton(this.tableID, {this.fromHeroTag});
+  _UndoButton(this.model, {this.fromHeroTag});
 
   @override
   Widget build(BuildContext context) {
     // refer to [_ConfirmButton]
     return Selector<Supplier, TableStatus>(
-      selector: (_, tracker) => tracker.getTable(tableID).getTableStatus(),
+      selector: (_, __) => model.getTableStatus(),
       builder: (context, status, _) {
-        final model = context.select<Supplier, TableModel>(
-          (tracker) => tracker.getTable(tableID),
-        );
         return FlatButton(
           child: Icon(Icons.undo),
           onPressed: status == TableStatus.incomplete ? model.revert : null,

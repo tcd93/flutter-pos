@@ -8,18 +8,15 @@ import '../models/supplier.dart';
 import '../models/table.dart';
 
 class DetailsScreen extends StatelessWidget {
-  final int tableID;
+  final TableModel model;
   final String fromHeroTag;
 
-  DetailsScreen(this.tableID, {this.fromHeroTag});
+  DetailsScreen(this.model, {this.fromHeroTag});
 
   @override
   Widget build(BuildContext context) {
     debugPrint('rebuilding DetailsScreen...');
 
-    final model = context.select<Supplier, TableModel>(
-      (tracker) => tracker.getTable(tableID),
-    );
     final orders = model.lineItems();
     final totalPrice = model.totalPrice();
 
@@ -30,7 +27,7 @@ class DetailsScreen extends StatelessWidget {
           style: Theme.of(context).textTheme.headline6,
         ),
         actions: [
-          _CheckoutButton(model.id, fromHeroTag: fromHeroTag),
+          _CheckoutButton(model, fromHeroTag: fromHeroTag),
         ],
       ),
       body: ListView.builder(
@@ -55,21 +52,18 @@ class DetailsScreen extends StatelessWidget {
 }
 
 class _CheckoutButton extends StatelessWidget {
-  final int tableID;
+  final TableModel model;
   final String fromHeroTag;
 
-  _CheckoutButton(this.tableID, {this.fromHeroTag});
+  _CheckoutButton(this.model, {this.fromHeroTag});
 
   @override
   Widget build(BuildContext context) {
     return Hero(
       tag: fromHeroTag ?? 'CheckoutButtonHeroTag',
       child: Selector<Supplier, TableStatus>(
-        selector: (_, tracker) => tracker.getTable(tableID).getTableStatus(),
+        selector: (_, __) => model.getTableStatus(),
         builder: (context, status, _) {
-          final model = context.select<Supplier, TableModel>(
-            (tracker) => tracker.getTable(tableID),
-          );
           return FlatButton(
             child: Icon(Icons.print),
             onPressed: () {

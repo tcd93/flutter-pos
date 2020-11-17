@@ -5,6 +5,7 @@ import 'common/theme.dart';
 
 import 'database_factory.dart';
 import 'models/supplier.dart';
+import 'models/table.dart';
 
 import 'screens/details.dart';
 import 'screens/history.dart';
@@ -54,13 +55,13 @@ class HemBoApp extends StatelessWidget {
       onGenerateRoute: (settings) {
         final argMap = settings.arguments as Map;
         final String heroTag = argMap != null ? argMap['heroTag'] : null;
-        final int tableID = argMap != null ? argMap['tableID'] : null;
+        final TableModel model = argMap != null ? argMap['model'] : null;
 
         if (settings.name == '/menu') {
           // custom page transition animations
-          return routeBuilder(MenuScreen(tableID, fromHeroTag: heroTag));
+          return routeBuilder(MenuScreen(model, fromHeroTag: heroTag));
         } else if (settings.name == '/order-details') {
-          return routeBuilder(DetailsScreen(tableID, fromHeroTag: heroTag));
+          return routeBuilder(DetailsScreen(model, fromHeroTag: heroTag));
         } else if (settings.name == '/history') {
           return routeBuilder(HistoryScreen(_storage));
         }
