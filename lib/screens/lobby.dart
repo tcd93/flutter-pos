@@ -202,7 +202,7 @@ _sideButtonsBuilder(
         // pass hero tag into new Page to animate the FAB
         Navigator.pushNamed(context, '/menu', arguments: {
           'heroTag': 'menu-subtag-table-${model.id}',
-          'tableID': model.id,
+          'model': model,
         }).then((_) {
           Future.delayed(
             Duration(milliseconds: 600),
@@ -223,7 +223,7 @@ _sideButtonsBuilder(
           ? () {
               Navigator.pushNamed(context, '/order-details', arguments: {
                 'heroTag': 'details-subtag-table-${model.id}',
-                'tableID': model.id,
+                'model': model,
               }).then((_) {
                 Future.delayed(
                   Duration(milliseconds: 600),
