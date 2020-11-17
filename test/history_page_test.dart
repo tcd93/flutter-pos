@@ -243,4 +243,92 @@ void main() {
       expect(order[1].isDeleted, true);
     });
   });
+
+  group('Soft delete order widget test:', () {
+    setUpAll(() async {
+      // create existing checked out data
+      storage = DatabaseFactory().create(
+        'local-storage',
+        'test',
+        {
+          "order_id_highkey": 1,
+          "20201112": [
+            {
+              "orderID": 0,
+              "checkoutTime": "2020-11-12 01:31:32.840",
+              "totalPrice": 10000,
+              "lineItems": [
+                {"dishID": 0, "dishName": "Rice Noodles", "quantity": 1, "amount": 10000},
+              ],
+              "isDeleted": false,
+            },
+            {
+              "orderID": 1,
+              "checkoutTime": "2020-11-12 02:31:32.840",
+              "totalPrice": 40000,
+              "lineItems": [
+                {"dishID": 1, "dishName": "Lime Juice", "quantity": 2, "amount": 40000},
+              ],
+              "isDeleted": true,
+            },
+          ],
+        },
+        'test-group-4',
+      );
+      await storage.open();
+    });
+    tearDownAll(() {
+      storage.close();
+      try {
+        File('test/test-group-4').deleteSync();
+      } on Exception {}
+      ; // delete the newly created storage file
+    });
+
+    setUp(() async {
+      supplier = Supplier(database: storage);
+    });
+
+    test('Confirm data access normal', () async {
+      final nextInt = await storage.nextUID();
+      expect(nextInt, 2);
+    });
+
+    testWidgets(
+      'Should have 2 lines in History page, one has strike-thru',
+      (tester) async {
+        await tester.pumpWidget(MaterialApp(
+          builder: (_, __) => ChangeNotifierProvider(
+            create: (_) => supplier,
+            child: HistoryScreen(storage, checkoutTime, checkoutTime), //view by same day
+          ),
+        ));
+
+        expect(
+          find.byWidgetPredicate(
+            (widget) => widget is Card,
+            description: 'Line item number',
+          ),
+          findsNWidgets(2),
+        );
+
+        expect(
+          find.byWidgetPredicate(
+            (widget) => widget is Divider,
+            description: 'Strike-through line across card widget',
+          ),
+          findsNWidgets(1),
+        );
+
+        expect(
+          find.descendant(
+            of: find.text('10,000'),
+            matching: find.byType(RichText),
+          ),
+          findsOneWidget,
+          reason: 'Summary price is not 10,000',
+        );
+      },
+    );
+  });
 }

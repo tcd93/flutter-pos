@@ -31,13 +31,24 @@ class HistoryScreen extends StatelessWidget {
 
   // `database` must be passed in or otherwise cause deadlocks during unit test!
   HistoryScreen(this.database, [DateTime from, DateTime to])
-      : _initialState = _HistoryState(from, to, 0),
-        _initialOrders = database.getRange(from ?? DateTime.now(), to ?? DateTime.now()) {
-    _initialState.summaryPrice = _initialOrders?.fold(
-      0,
-      (previousValue, e) => previousValue + (e.isDeleted == true ? 0 : e.price),
-    );
-  }
+      : _initialState = _HistoryState(
+            from,
+            to,
+            _calculateTotalPrice(
+              database.getRange(
+                from ?? DateTime.now(),
+                to ?? DateTime.now(),
+              ),
+            )),
+        _initialOrders = database.getRange(
+          from ?? DateTime.now(),
+          to ?? DateTime.now(),
+        );
+
+  static int _calculateTotalPrice(List<Order> orders) => orders.fold(
+        0,
+        (previousValue, e) => previousValue + (e.isDeleted == true ? 0 : e.price),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -73,18 +84,17 @@ class HistoryScreen extends StatelessWidget {
                 helpText: '',
               );
 
-              // notify for rebuild when user selects different range
+              // notify all listeners for rebuild when user selects different range
               if (range != null &&
                   (range.start.difference(appbarNotifier.value.from).inDays != 0 ||
                       range.end.difference(appbarNotifier.value.to).inDays != 0)) {
-                // get new range
+                listViewNotifier.value = database.getRange(range.start, range.end);
+
                 appbarNotifier.value = _HistoryState(
                   range.start,
                   range.end,
-                  _initialState.summaryPrice,
+                  _calculateTotalPrice(listViewNotifier.value),
                 );
-
-                listViewNotifier.value = database.getRange(range.start, range.end);
               }
             },
           ),
@@ -99,10 +109,11 @@ class HistoryScreen extends StatelessWidget {
             data[index],
             database,
             onDeleted: (deletedOrder) {
+              // rebuild appbar (to update price) when an order is marked deleted
               appbarNotifier.value = _HistoryState(
-                _initialState.from,
-                _initialState.to,
-                _initialState.summaryPrice - deletedOrder.price, // update price
+                appbarNotifier.value.from,
+                appbarNotifier.value.to,
+                appbarNotifier.value.summaryPrice - deletedOrder.price,
               );
             },
           ),
