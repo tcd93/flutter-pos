@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../common/radial_menu/radial_button.dart';
 import '../common/radial_menu/radial_menu.dart';
-
+import '../models/state/status.dart';
 import '../models/supplier.dart';
 import '../models/table.dart';
 
@@ -138,7 +138,7 @@ class _MainButton extends StatelessWidget {
     debugPrint("rebuilding _MainButton... ${model.id}");
 
     final status = context.select<Supplier, TableStatus>(
-      (_) => model.getTableStatus(),
+      (_) => model.status,
     );
 
     // display different color when table is occupied
@@ -190,7 +190,7 @@ _sideButtonsBuilder(
   List<double> angles,
 ) {
   final status = context.select<Supplier, TableStatus>(
-    (_) => model.getTableStatus(),
+    (_) => model.status,
   );
   return [
     RadialButton(

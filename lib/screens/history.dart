@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 
 import '../common/common.dart';
 import '../common/money_format/money.dart';
-
+import '../models/immutable/order.dart';
 import '../storage_engines/connection_interface.dart';
 
 class _HistoryState {

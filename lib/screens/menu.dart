@@ -6,6 +6,7 @@ import '../common/money_format/money.dart';
 
 import '../models/dish.dart';
 import '../models/line_item.dart';
+import '../models/state/status.dart';
 import '../models/supplier.dart';
 import '../models/table.dart';
 
@@ -54,8 +55,7 @@ class MenuScreen extends StatelessWidget {
                       lineItem.quantity--;
                       // If there are not a single item in this order left,
                       // Then set status to "empty" to disable the [_ConfirmButton]
-                      if (model.lineItem(index).quantity == 0 &&
-                          model.totalMenuItemQuantity() == 0) {
+                      if (model.lineItem(index).quantity == 0 && model.totalMenuItemQuantity == 0) {
                         model.setTableStatus(TableStatus.empty);
                       } else {
                         model.setTableStatus(TableStatus.incomplete);
@@ -86,7 +86,7 @@ class _ConfirmButton extends StatelessWidget {
       tag: fromHeroTag,
       // Use [Selector] here as the table status is deeply embedded
       child: Selector<Supplier, TableStatus>(
-        selector: (_, __) => model.getTableStatus(),
+        selector: (_, __) => model.status,
         builder: (context, status, _) {
           return FlatButton(
             child: Icon(Icons.done),
@@ -114,7 +114,7 @@ class _UndoButton extends StatelessWidget {
   Widget build(BuildContext context) {
     // refer to [_ConfirmButton]
     return Selector<Supplier, TableStatus>(
-      selector: (_, __) => model.getTableStatus(),
+      selector: (_, __) => model.status,
       builder: (context, status, _) {
         return FlatButton(
           child: Icon(Icons.undo),
