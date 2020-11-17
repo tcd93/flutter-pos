@@ -251,14 +251,15 @@ void main() {
         'local-storage',
         'test',
         {
-          "order_id_highkey": 1,
+          "order_id_highkey": 2,
           "20201112": [
             {
               "orderID": 0,
               "checkoutTime": "2020-11-12 01:31:32.840",
-              "totalPrice": 10000,
+              "totalPrice": 25000,
               "lineItems": [
-                {"dishID": 0, "dishName": "Rice Noodles", "quantity": 1, "amount": 10000},
+                {"dishID": 0, "dishName": "Rice Noodles", "quantity": 2, "amount": 20000},
+                {"dishID": 1, "dishName": "Egg", "quantity": 1, "amount": 5000},
               ],
               "isDeleted": false,
             },
@@ -270,6 +271,17 @@ void main() {
                 {"dishID": 1, "dishName": "Lime Juice", "quantity": 2, "amount": 40000},
               ],
               "isDeleted": true,
+            },
+          ],
+          "20201113": [
+            {
+              "orderID": 2,
+              "checkoutTime": "2020-11-13 01:31:32.840",
+              "totalPrice": 50000,
+              "lineItems": [
+                {"dishID": 0, "dishName": "Rice Noodles", "quantity": 5, "amount": 50000},
+              ],
+              "isDeleted": false,
             },
           ],
         },
@@ -285,23 +297,17 @@ void main() {
       ; // delete the newly created storage file
     });
 
-    setUp(() async {
-      supplier = Supplier(database: storage);
-    });
-
     test('Confirm data access normal', () async {
       final nextInt = await storage.nextUID();
-      expect(nextInt, 2);
+      expect(nextInt, 3);
     });
 
     testWidgets(
       'Should have 2 lines in History page, one has strike-thru',
       (tester) async {
         await tester.pumpWidget(MaterialApp(
-          builder: (_, __) => ChangeNotifierProvider(
-            create: (_) => supplier,
-            child: HistoryScreen(storage, checkoutTime, checkoutTime), //view by same day
-          ),
+          builder: (_, __) =>
+              HistoryScreen(storage, checkoutTime, checkoutTime), //view by same day,
         ));
 
         expect(
@@ -319,14 +325,56 @@ void main() {
           ),
           findsNWidgets(1),
         );
+      },
+    );
+
+    testWidgets(
+      'Exclude deleted item in the summary price (appbar)',
+      (tester) async {
+        final tomorrow = checkoutTime.add(const Duration(days: 1));
+
+        //
+        // same day
+        //
+
+        await tester.pumpWidget(MaterialApp(
+          builder: (_, __) => HistoryScreen(storage, checkoutTime, checkoutTime),
+        ));
 
         expect(
-          find.descendant(
-            of: find.text('10,000'),
-            matching: find.byType(RichText),
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is RichText &&
+                widget.text.toPlainText() == '25,000 (2020/11/12 - 2020/11/12)',
           ),
           findsOneWidget,
-          reason: 'Summary price is not 10,000',
+          reason: 'Summary price is not 25,000',
+        );
+
+        //
+        // cross day
+        //
+        await tester.pumpWidget(MaterialApp(
+          builder: (_, __) => HistoryScreen(storage, checkoutTime, tomorrow),
+        ));
+
+        expect(
+          find.byWidgetPredicate(
+            (widget) => widget is Card,
+          ),
+          findsNWidgets(3),
+          reason: 'Not finding 3 orders in view',
+        );
+        await tester.pump();
+
+        expect(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is RichText &&
+                widget.text.toPlainText() == '75,000 (2020/11/12 - 2020/11/13)',
+          ),
+          findsOneWidget,
+          reason: 'Summary price is not 75,000',
         );
       },
     );
