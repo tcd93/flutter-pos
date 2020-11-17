@@ -4,80 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import '../common/common.dart';
-
-import 'dish.dart';
 import 'line_item.dart';
+import 'state/state_object.dart';
+import 'state/status.dart';
+import 'state/table_state.dart';
 import 'supplier.dart';
-
-enum TableStatus {
-  /// No one is sitting at this table
-  empty,
-
-  /// Dining
-  occupied,
-
-  /// Incomplete lineItem
-  incomplete,
-}
-
-/// The separate "state" of the immutable [TableModel] class
-class TableState {
-  /// The associated table id
-  final int tableID;
-
-  int _orderID;
-
-  TableStatus status;
-
-  TableStatus previousStatus;
-
-  DateTime checkoutTime;
-
-  /// The lineItems associated with a table.
-  /// This is a [Map<int, lineItems>] where the key is the [Dish] item id
-  Map<int, LineItem> lineItems;
-
-  /// Keep track of state history, overwrite snapshot everytime the confirm
-  /// button is clicked
-  Map<int, LineItem> previouslineItems;
-
-  /// The incremental unique ID (for reporting), should be generated when [checkout]
-  int get orderID => _orderID;
-  set orderID(int orderID) {
-    assert(orderID != null, orderID > 0);
-    _orderID = orderID;
-  }
-
-  TableState(this.tableID) {
-    cleanState();
-  }
-
-  /// set all line items to 0
-  void cleanState() {
-    status = TableStatus.empty;
-    previousStatus = TableStatus.empty;
-    lineItems = {
-      for (var dish in Dish.getMenu())
-        dish.id: LineItem(
-          dishID: dish.id,
-          quantity: 0,
-        )
-    };
-    previouslineItems = {
-      for (var dish in Dish.getMenu())
-        dish.id: LineItem(
-          dishID: dish.id,
-          quantity: 0,
-        )
-    };
-  }
-
-  /// Total price of all line items in this order
-  int totalPrice() => lineItems.entries
-      .where((entry) => entry.value.quantity > 0)
-      .map((entry) => entry.value)
-      .fold(0, (prev, order) => prev + order.amount);
-}
 
 @immutable
 class TableModel {
@@ -90,11 +21,11 @@ class TableModel {
   operator ==(other) => other is TableModel && other.id == id;
   int get hashCode => id;
 
-  TableModel(this._tracker, this.id, [TableState mockState])
+  TableModel(this._tracker, this.id, [StateObject mockState])
       : _tableState = mockState ?? TableState(id);
 
   /// Returns current [TableStatus]
-  TableStatus getTableStatus() => _tableState.status;
+  TableStatus get status => _tableState.status;
 
   /// Set [TableStatus], notify listeners to rebuild widget
   void setTableStatus(TableStatus newStatus) {
@@ -106,22 +37,20 @@ class TableModel {
   LineItem lineItem(int index) => _tableState.lineItems[index];
 
   /// Get a list of current [lineItems] (with quantity > 0)
-  UnmodifiableListView<LineItem> lineItems() {
-    return UnmodifiableListView(
-      _tableState.lineItems.entries
-          .where((entry) => entry.value.quantity > 0)
-          .map((entry) => entry.value),
-    );
-  }
+  UnmodifiableListView<LineItem> get lineItems => UnmodifiableListView(
+        _tableState.lineItems.entries
+            .where((entry) => entry.value.quantity > 0)
+            .map((entry) => entry.value),
+      );
 
   /// Returns total items (number of dishes) of current table
-  int totalMenuItemQuantity() => _tableState.lineItems.entries.fold(
+  int get totalMenuItemQuantity => _tableState.lineItems.entries.fold(
         0,
         (previousValue, element) => previousValue + element.value.quantity,
       );
 
   /// Total price of all line items in this order
-  int totalPrice() => _tableState.totalPrice();
+  int get totalPrice => _tableState.totalPrice;
 
   /// Store current state for rollback operation
   void memorizePreviousState() {

@@ -65,7 +65,7 @@ void main() {
     testWidgets(
       'Should have 1 line in History page, price = 120,000',
       (tester) async {
-        expect(checkedOutTable.totalMenuItemQuantity(), 0); // confirm checked out
+        expect(checkedOutTable.totalMenuItemQuantity, 0); // confirm checked out
 
         await tester.pumpWidget(MaterialApp(
           builder: (_, __) => ChangeNotifierProvider(

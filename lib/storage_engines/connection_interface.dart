@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
-
-import '../models/table.dart';
+import '../models/immutable/order.dart';
+import '../models/state/state_object.dart';
+import '../models/state/table_state.dart';
 
 class DatabaseConnectionInterface {
   /// Used in [FutureBuilder]
@@ -10,7 +10,7 @@ class DatabaseConnectionInterface {
   Future<int> nextUID() => Future.value(-1);
 
   /// Insert stringified version of [TableState] into database
-  Future<void> insert(TableState state) => Future.microtask(() => null);
+  Future<void> insert(StateObject state) => Future.microtask(() => null);
 
   List<Order> get(DateTime day) => null;
 
@@ -24,41 +24,4 @@ class DatabaseConnectionInterface {
 
   /// Close connection
   void close() => null;
-}
-
-@immutable
-class Order {
-  final int orderID;
-  final DateTime checkoutTime;
-  final int price;
-  final List<OrderItem> lineItems;
-  final bool isDeleted;
-
-  const Order(
-    this.orderID,
-    this.checkoutTime,
-    this.price,
-    this.lineItems, {
-    this.isDeleted = false,
-  });
-
-  @override
-  String toString() {
-    return '$orderID: {$price, ${checkoutTime.toString()}, $lineItems, isDeleted: $isDeleted}';
-  }
-}
-
-@immutable
-class OrderItem {
-  final int dishID;
-  final String dishName;
-  final int quantity;
-  final int amount;
-
-  const OrderItem(this.dishID, this.dishName, this.quantity, this.amount);
-
-  @override
-  String toString() {
-    return '[$dishID, $dishName, $quantity, $amount]';
-  }
 }

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../common/money_format/money.dart';
 
 import '../models/dish.dart';
+import '../models/state/status.dart';
 import '../models/supplier.dart';
 import '../models/table.dart';
 
@@ -17,8 +18,8 @@ class DetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint('rebuilding DetailsScreen...');
 
-    final orders = model.lineItems();
-    final totalPrice = model.totalPrice();
+    final orders = model.lineItems;
+    final totalPrice = model.totalPrice;
 
     return Scaffold(
       appBar: AppBar(
@@ -62,7 +63,7 @@ class _CheckoutButton extends StatelessWidget {
     return Hero(
       tag: fromHeroTag ?? 'CheckoutButtonHeroTag',
       child: Selector<Supplier, TableStatus>(
-        selector: (_, __) => model.getTableStatus(),
+        selector: (_, __) => model.status,
         builder: (context, status, _) {
           return FlatButton(
             child: Icon(Icons.print),

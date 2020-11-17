@@ -1,21 +1,22 @@
 import 'dart:convert';
+
 import 'package:localstorage/localstorage.dart' as lib;
 
 import '../common/common.dart';
-
 import '../models/dish.dart';
+import '../models/immutable/order.dart';
 import '../models/line_item.dart';
-import '../models/table.dart';
-
+import '../models/state/state_object.dart';
+import '../models/state/table_state.dart';
 import 'connection_interface.dart';
 
-extension LineItemJson on LineItem {
+extension on LineItem {
   String toJson() {
     return '{"dishID": $dishID, "dishName": "${Dish.getMenu()[dishID].dish}", "quantity": $quantity, "amount": $amount}';
   }
 }
 
-extension TableStateJson on TableState {
+extension on StateObject {
   /// Convert to JSON string object, line items with quantity > 0 are filtered
   ///
   /// @example:
@@ -35,7 +36,7 @@ extension TableStateJson on TableState {
         .map((e) => e.toJson())
         .toList();
 
-    return '{"orderID": $orderID, "checkoutTime": "${checkoutTime.toString()}", "totalPrice": ${totalPrice()}, "lineItems": ${lineItemList.toString()}}';
+    return '{"orderID": $orderID, "checkoutTime": "${checkoutTime.toString()}", "totalPrice": $totalPrice, "lineItems": ${lineItemList.toString()}}';
   }
 }
 
@@ -80,7 +81,7 @@ class LocalStorage implements DatabaseConnectionInterface {
   }
 
   @override
-  Future<void> insert(TableState state) {
+  Future<void> insert(StateObject state) {
     if (state == null) throw '`state` is required for localstorage';
     if (state.orderID == null || state.orderID < 0) throw 'Invalid `orderID`';
 

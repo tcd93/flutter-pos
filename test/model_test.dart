@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hembo/database_factory.dart';
+import 'package:hembo/models/state/status.dart';
 
 import 'package:hembo/models/supplier.dart';
 import 'package:hembo/models/table.dart';
@@ -47,13 +48,13 @@ void main() {
   });
 
   test('mockTable total quantity should be 30', () {
-    expect(mockTable.totalMenuItemQuantity(), 30);
+    expect(mockTable.totalMenuItemQuantity, 30);
   });
 
   test('Table should go back to blank state after checkout', () async {
     await mockTable.checkout();
-    expect(mockTable.totalMenuItemQuantity(), 0);
-    expect(mockTable.getTableStatus(), TableStatus.empty);
+    expect(mockTable.totalMenuItemQuantity, 0);
+    expect(mockTable.status, TableStatus.empty);
   });
 
   test('Order should persist to local storage after checkout', () async {
