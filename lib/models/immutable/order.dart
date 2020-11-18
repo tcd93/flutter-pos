@@ -30,11 +30,6 @@ class Order implements StateObject {
   set orderID(int orderID) => throw 'Can not change orderID';
 
   @override
-  String toString() {
-    return '$orderID: {$price, ${checkoutTime.toString()}, $lineItems, isDeleted: $isDeleted}';
-  }
-
-  @override
   set lineItems(List<LineItem> _lineItems) => throw 'Can not set LineItem from an Order instance';
 
   @override
@@ -43,6 +38,11 @@ class Order implements StateObject {
         (entry) => entry.quantity > 0,
       )
       .fold(0, (prev, order) => prev + order.amount);
+
+  @override
+  String toString() {
+    return '$orderID: {$price, ${checkoutTime.toString()}, $lineItems, isDeleted: $isDeleted}';
+  }
 }
 
 /// Menu items that have been persisted on disk, used in [History screen]
