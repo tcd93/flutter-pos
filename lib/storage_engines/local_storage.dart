@@ -28,7 +28,7 @@ extension on StateObject {
   /// }
   /// ```
   String toJson() {
-    var lineItemList = lineItems.values
+    var lineItemList = lineItems
         .where(
           (element) => element.quantity > 0,
         )

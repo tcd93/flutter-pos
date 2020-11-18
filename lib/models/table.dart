@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import '../common/common.dart';
 import 'dish.dart';
 import 'line_item.dart';
 import 'state/state_object.dart';
@@ -21,7 +20,7 @@ class _TableState extends StateObject {
 
   /// Keep track of state history, overwrite snapshot everytime the confirm
   /// button is clicked
-  Map<int, LineItem> previouslineItems;
+  List<LineItem> previouslineItems;
 
   _TableState(this.tableID) {
     cleanState();
@@ -31,20 +30,22 @@ class _TableState extends StateObject {
   void cleanState() {
     status = TableStatus.empty;
     previousStatus = TableStatus.empty;
-    lineItems = {
-      for (var dish in Dish.getMenu())
-        dish.id: LineItem(
-          dishID: dish.id,
-          quantity: 0,
+    lineItems = Dish.getMenu()
+        .map(
+          (dish) => LineItem(
+            dishID: dish.id,
+            quantity: 0,
+          ),
         )
-    };
-    previouslineItems = {
-      for (var dish in Dish.getMenu())
-        dish.id: LineItem(
-          dishID: dish.id,
-          quantity: 0,
+        .toList();
+    previouslineItems = Dish.getMenu()
+        .map(
+          (dish) => LineItem(
+            dishID: dish.id,
+            quantity: 0,
+          ),
         )
-    };
+        .toList();
   }
 }
 
@@ -68,7 +69,7 @@ class TableModel {
   /// Set [TableStatus], notify listeners to rebuild widget
   void setTableStatus(TableStatus newStatus) {
     _tableState.status = newStatus;
-    _tracker.notifyListeners();
+    _tracker?.notifyListeners();
   }
 
   /// Get [lineItems] from menu list
@@ -76,15 +77,13 @@ class TableModel {
 
   /// Get a list of current [lineItems] (with quantity > 0)
   UnmodifiableListView<LineItem> get lineItems => UnmodifiableListView(
-        _tableState.lineItems.entries
-            .where((entry) => entry.value.quantity > 0)
-            .map((entry) => entry.value),
+        _tableState.lineItems.where((entry) => entry.quantity > 0),
       );
 
   /// Returns total items (number of dishes) of current table
-  int get totalMenuItemQuantity => _tableState.lineItems.entries.fold(
+  int get totalMenuItemQuantity => _tableState.lineItems.fold(
         0,
-        (previousValue, element) => previousValue + element.value.quantity,
+        (previousValue, element) => previousValue + element.quantity,
       );
 
   /// Total price of all line items in this order
@@ -93,13 +92,14 @@ class TableModel {
   /// Store current state for rollback operation
   void memorizePreviousState() {
     _tableState.previousStatus = _tableState.status;
-    _tableState.previouslineItems = Common.cloneMap<int, LineItem>(
-      _tableState.lineItems,
-      (key, value) => LineItem(
-        dishID: key,
-        quantity: value.quantity,
-      ),
-    );
+    _tableState.previouslineItems = _tableState.lineItems
+        .map(
+          (e) => LineItem(
+            dishID: e.dishID,
+            quantity: e.quantity,
+          ),
+        )
+        .toList(); // clone
   }
 
   /// Restore to last "commit"
@@ -107,21 +107,22 @@ class TableModel {
     _tableState.status = _tableState.previousStatus;
     // overwrite current `lineItems` state.
     // has to do cloning here to not bind the reference of previous [lineItems]s to current state
-    _tableState.lineItems = Common.cloneMap<int, LineItem>(
-      _tableState.previouslineItems,
-      (key, value) => LineItem(
-        dishID: key,
-        quantity: value.quantity,
-      ),
-    );
-    _tracker.notifyListeners();
+    _tableState.lineItems = _tableState.previouslineItems
+        .map(
+          (e) => LineItem(
+            dishID: e.dishID,
+            quantity: e.quantity,
+          ),
+        )
+        .toList();
+    _tracker?.notifyListeners();
   }
 
   Future<void> checkout([DateTime atTime]) async {
-    _tableState.orderID = await _tracker.database.nextUID();
+    _tableState.orderID = await _tracker?.database?.nextUID();
     _tableState.checkoutTime = atTime ?? DateTime.now();
-    await _tracker.database.insert(_tableState);
+    await _tracker?.database?.insert(_tableState);
     _tableState.cleanState(); // clear state
-    _tracker.notifyListeners();
+    _tracker?.notifyListeners();
   }
 }
