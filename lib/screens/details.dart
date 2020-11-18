@@ -8,12 +8,13 @@ import '../models/table.dart';
 class DetailsScreen extends StatelessWidget {
   final TableModel model;
   final String fromHeroTag;
+  final String fromScreen;
 
-  DetailsScreen(this.model, {this.fromHeroTag});
+  DetailsScreen(this.model, {this.fromHeroTag, this.fromScreen});
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('rebuilding DetailsScreen...');
+    debugPrint('rebuilding DetailsScreen... (from $fromScreen)');
 
     final orders = model.lineItems;
     final totalPrice = model.totalPrice;
@@ -25,7 +26,11 @@ class DetailsScreen extends StatelessWidget {
           style: Theme.of(context).textTheme.headline6,
         ),
         actions: [
-          _CheckoutButton(model, fromHeroTag: fromHeroTag),
+          _CheckoutButton(
+            model,
+            fromHeroTag: fromHeroTag,
+            fromScreen: fromScreen,
+          ),
         ],
       ),
       body: ListView.builder(
@@ -52,8 +57,9 @@ class DetailsScreen extends StatelessWidget {
 class _CheckoutButton extends StatelessWidget {
   final TableModel model;
   final String fromHeroTag;
+  final String fromScreen;
 
-  _CheckoutButton(this.model, {this.fromHeroTag});
+  _CheckoutButton(this.model, {this.fromHeroTag, @required this.fromScreen});
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +68,9 @@ class _CheckoutButton extends StatelessWidget {
       child: FlatButton(
         child: Icon(Icons.print),
         onPressed: () {
-          model.checkout();
+          fromScreen == 'history'
+              ? model.printReceipt()
+              : model.checkout().then((_) => model.printReceipt());
           Navigator.pop(context); // Go back to Lobby Screen
         },
       ),
