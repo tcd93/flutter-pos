@@ -14,9 +14,9 @@ class _TableState extends StateObject {
   /// The associated table id
   final int tableID;
 
-  TableStatus status;
+  TableStatus status = TableStatus.empty;
 
-  TableStatus previousStatus;
+  TableStatus previousStatus = TableStatus.empty;
 
   /// Keep track of state history, overwrite snapshot everytime the confirm
   /// button is clicked
@@ -27,8 +27,6 @@ class _TableState extends StateObject {
   }
 
   _TableState.from(StateObject base) : tableID = -1 {
-    status = TableStatus.empty;
-    previousStatus = TableStatus.empty;
     lineItems = base.lineItems;
   }
 
@@ -130,5 +128,11 @@ class TableModel {
     await _tracker?.database?.insert(_tableState);
     _tableState.cleanState(); // clear state
     _tracker?.notifyListeners();
+  }
+
+  // TODO: implement `printReceipt`
+  Future<void> printReceipt() async {
+    print('----- PRINT -----');
+    await Future.delayed(const Duration(seconds: 1));
   }
 }

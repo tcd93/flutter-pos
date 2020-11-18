@@ -199,6 +199,7 @@ class _OrderSnapshot extends StatelessWidget {
                         -1,
                         StateObject.createFrom(order),
                       ),
+                      'from': 'history',
                     });
                   },
                   trailing: Text(

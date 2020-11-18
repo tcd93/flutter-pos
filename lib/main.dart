@@ -56,12 +56,17 @@ class HemBoApp extends StatelessWidget {
         final argMap = settings.arguments as Map;
         final String heroTag = argMap != null ? argMap['heroTag'] : null;
         final TableModel model = argMap != null ? argMap['model'] : null;
+        final String fromScreen = argMap != null ? argMap['from'] : null;
 
         if (settings.name == '/menu') {
           // custom page transition animations
           return routeBuilder(MenuScreen(model, fromHeroTag: heroTag));
         } else if (settings.name == '/order-details') {
-          return routeBuilder(DetailsScreen(model, fromHeroTag: heroTag));
+          return routeBuilder(DetailsScreen(
+            model,
+            fromHeroTag: heroTag,
+            fromScreen: fromScreen,
+          ));
         } else if (settings.name == '/history') {
           return routeBuilder(HistoryScreen(_storage));
         }
@@ -74,5 +79,5 @@ class HemBoApp extends StatelessWidget {
 
 MaterialPageRoute routeBuilder(Widget screen) => MaterialPageRoute(
       builder: (_) => screen,
-      maintainState: false,
+      maintainState: true,
     );
