@@ -1,4 +1,5 @@
 import '../dish.dart';
+import '../immutable/order.dart';
 import '../line_item.dart';
 
 /// State object base class
@@ -33,4 +34,10 @@ class StateObject {
               ),
             )
             .toList();
+
+  StateObject.createFrom(Order order) {
+    _orderID = order.orderID;
+    checkoutTime = order.checkoutTime;
+    lineItems = order.lineItems;
+  }
 }

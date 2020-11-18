@@ -4,6 +4,8 @@ import 'package:flutter/widgets.dart';
 import '../common/common.dart';
 import '../common/money_format/money.dart';
 import '../models/immutable/order.dart';
+import '../models/state/state_object.dart';
+import '../models/table.dart';
 import '../storage_engines/connection_interface.dart';
 
 class _HistoryState {
@@ -189,7 +191,16 @@ class _OrderSnapshot extends StatelessWidget {
                             onDeleted?.call(deletedOrd);
                           }
                         },
-                  onTap: () {}, //TODO: reuse Detais Screen -> allow soft delete a past order
+                  onTap: () {
+                    //TODO: disable print button on this context
+                    Navigator.pushNamed(context, '/order-details', arguments: {
+                      'model': TableModel(
+                        null, //empty supplier, no persistency needs to be done here
+                        -1,
+                        StateObject.createFrom(order),
+                      ),
+                    });
+                  },
                   trailing: Text(
                     Money.format(order.price),
                     style: TextStyle(

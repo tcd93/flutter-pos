@@ -26,6 +26,12 @@ class _TableState extends StateObject {
     cleanState();
   }
 
+  _TableState.from(StateObject base) : tableID = -1 {
+    status = TableStatus.empty;
+    previousStatus = TableStatus.empty;
+    lineItems = base.lineItems;
+  }
+
   /// set all line items to 0
   void cleanState() {
     status = TableStatus.empty;
@@ -61,7 +67,7 @@ class TableModel {
   int get hashCode => id;
 
   TableModel(this._tracker, this.id, [StateObject mockState])
-      : _tableState = mockState ?? _TableState(id);
+      : _tableState = mockState != null ? _TableState.from(mockState) : _TableState(id);
 
   /// Returns current [TableStatus]
   TableStatus get status => _tableState.status;
