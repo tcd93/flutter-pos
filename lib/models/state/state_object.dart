@@ -1,3 +1,4 @@
+import '../dish.dart';
 import '../line_item.dart';
 
 /// State object base class
@@ -6,9 +7,8 @@ class StateObject {
 
   DateTime checkoutTime;
 
-  /// The lineItems associated with a table.
-  /// This is a [Map<int, lineItems>] where the key is the [Dish] item id
-  Map<int, LineItem> lineItems;
+  /// The lineItems associated with a table
+  List<LineItem> lineItems;
 
   /// The incremental unique ID (for reporting), should be generated when [checkout]
   int get orderID => _orderID;
@@ -18,8 +18,19 @@ class StateObject {
   }
 
   /// Total price of all line items in this order
-  int get totalPrice => lineItems.entries
-      .where((entry) => entry.value.quantity > 0)
-      .map((entry) => entry.value)
+  int get totalPrice => lineItems
+      .where(
+        (entry) => entry.quantity > 0,
+      )
       .fold(0, (prev, order) => prev + order.amount);
+
+  StateObject()
+      : lineItems = Dish.getMenu()
+            .map(
+              (dish) => LineItem(
+                dishID: dish.id,
+                quantity: 0,
+              ),
+            )
+            .toList();
 }
