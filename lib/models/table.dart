@@ -4,25 +4,63 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import '../common/common.dart';
+import 'dish.dart';
 import 'line_item.dart';
 import 'state/state_object.dart';
 import 'state/status.dart';
-import 'state/table_state.dart';
 import 'supplier.dart';
+
+/// The separate current "state" of the immutable [TableModel] class
+class _TableState extends StateObject {
+  /// The associated table id
+  final int tableID;
+
+  TableStatus status;
+
+  TableStatus previousStatus;
+
+  /// Keep track of state history, overwrite snapshot everytime the confirm
+  /// button is clicked
+  Map<int, LineItem> previouslineItems;
+
+  _TableState(this.tableID) {
+    cleanState();
+  }
+
+  /// set all line items to 0
+  void cleanState() {
+    status = TableStatus.empty;
+    previousStatus = TableStatus.empty;
+    lineItems = {
+      for (var dish in Dish.getMenu())
+        dish.id: LineItem(
+          dishID: dish.id,
+          quantity: 0,
+        )
+    };
+    previouslineItems = {
+      for (var dish in Dish.getMenu())
+        dish.id: LineItem(
+          dishID: dish.id,
+          quantity: 0,
+        )
+    };
+  }
+}
 
 @immutable
 class TableModel {
   final Supplier _tracker;
   final int id;
 
-  final TableState _tableState;
+  final _TableState _tableState;
 
   // ignore: type_annotate_public_apis
   operator ==(other) => other is TableModel && other.id == id;
   int get hashCode => id;
 
   TableModel(this._tracker, this.id, [StateObject mockState])
-      : _tableState = mockState ?? TableState(id);
+      : _tableState = mockState ?? _TableState(id);
 
   /// Returns current [TableStatus]
   TableStatus get status => _tableState.status;

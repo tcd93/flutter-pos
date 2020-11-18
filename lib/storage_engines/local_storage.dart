@@ -7,7 +7,6 @@ import '../models/dish.dart';
 import '../models/immutable/order.dart';
 import '../models/line_item.dart';
 import '../models/state/state_object.dart';
-import '../models/state/table_state.dart';
 import 'connection_interface.dart';
 
 extension on LineItem {

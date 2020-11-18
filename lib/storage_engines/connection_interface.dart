@@ -1,6 +1,5 @@
 import '../models/immutable/order.dart';
 import '../models/state/state_object.dart';
-import '../models/state/table_state.dart';
 
 class DatabaseConnectionInterface {
   /// Used in [FutureBuilder]
