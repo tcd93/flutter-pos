@@ -55,11 +55,7 @@ extension OrderJSON on Order {
         .map((e) => e.toJson())
         .toList();
 
-    int totalPrice() => lineItems
-        .where((entry) => entry.quantity > 0)
-        .fold(0, (prev, order) => prev + order.amount);
-
-    return '{"orderID": $orderID, "checkoutTime": "${checkoutTime.toString()}", "totalPrice": ${totalPrice()}, "lineItems": ${lineItemList.toString()}, "isDeleted": $isDeleted}';
+    return '{"orderID": $orderID, "checkoutTime": "${checkoutTime.toString()}", "totalPrice": $totalPrice, "lineItems": ${lineItemList.toString()}, "isDeleted": $isDeleted}';
   }
 }
 
