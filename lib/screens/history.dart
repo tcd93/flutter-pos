@@ -62,8 +62,7 @@ class HistoryScreen extends StatelessWidget {
 
               // notify all listeners for rebuild when user selects different range
               if (selectedRange != null &&
-                  (selectedRange.start.difference(listenableRange.value.start).inDays != 0 ||
-                      selectedRange.end.difference(listenableRange.value.end).inDays != 0)) {
+                  selectedRange.duration.compareTo(listenableRange.value.duration) != 0) {
                 listenableRange.value = selectedRange;
               }
             },
