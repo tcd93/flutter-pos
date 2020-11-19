@@ -137,13 +137,9 @@ class _MainButton extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint("rebuilding _MainButton... ${model.id}");
 
-    final status = context.select<Supplier, TableStatus>(
-      (_) => model.status,
-    );
-
     // display different color when table is occupied
     final _colorTween = ColorTween(
-      begin: status == TableStatus.occupied
+      begin: model.status == TableStatus.occupied
           ? Colors.yellow[300]
           : Theme.of(context).floatingActionButtonTheme.backgroundColor,
       end: Theme.of(context).floatingActionButtonTheme.focusColor,
@@ -189,9 +185,6 @@ _sideButtonsBuilder(
   AnimationController radialAnimationController,
   List<double> angles,
 ) {
-  final status = context.select<Supplier, TableStatus>(
-    (_) => model.status,
-  );
   return [
     RadialButton(
       heroTag: "menu-subtag-table-${model.id}",
@@ -219,7 +212,7 @@ _sideButtonsBuilder(
       heroTag: "details-subtag-table-${model.id}",
       controller: radialAnimationController,
       angle: angles[1],
-      onPressed: status == TableStatus.occupied
+      onPressed: model.status == TableStatus.occupied
           ? () {
               Navigator.pushNamed(context, '/order-details', arguments: {
                 'heroTag': 'details-subtag-table-${model.id}',
