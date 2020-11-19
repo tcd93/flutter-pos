@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -8,44 +9,25 @@ import '../models/state/state_object.dart';
 import '../models/table.dart';
 import '../storage_engines/connection_interface.dart';
 
-class _HistoryState {
-  DateTime from;
-  DateTime to;
-  int summaryPrice = 0;
-
-  _HistoryState(DateTime start, DateTime end, this.summaryPrice) {
-    from = start ?? DateTime.now();
-    to = end ?? DateTime.now();
-
-    assert(to.isAtSameMomentAs(from) || to.isAfter(from));
-  }
-}
-
 @immutable
 class HistoryScreen extends StatelessWidget {
   final DatabaseConnectionInterface database;
 
-  /// Initial [_HistoryState] when the screen is built, should be used only for [ValueNotifier]
-  final _HistoryState _initialState;
+  /// The "base" listenable, updating this value will rebuild ListView & update the `totalPrice`
+  final ValueNotifier<DateTimeRange> listenableRange;
 
-  /// Initial list of [Order] when the screen is built, should be used only for [ValueNotifier]
-  final List<Order> _initialOrders;
+  /// The `totalPrice` that displays on AppBar
+  final ValueNotifier<int> listenablePrice;
 
   // `database` must be passed in or otherwise cause deadlocks during unit test!
   HistoryScreen(this.database, [DateTime from, DateTime to])
-      : _initialState = _HistoryState(
-            from,
-            to,
-            _calculateTotalPrice(
-              database.getRange(
-                from ?? DateTime.now(),
-                to ?? DateTime.now(),
-              ),
-            )),
-        _initialOrders = database.getRange(
-          from ?? DateTime.now(),
-          to ?? DateTime.now(),
-        );
+      : listenableRange = ValueNotifier(
+          DateTimeRange(
+            start: from ?? DateTime.now(),
+            end: to ?? DateTime.now(),
+          ),
+        ),
+        listenablePrice = ValueNotifier(0);
 
   static int _calculateTotalPrice(List<Order> orders) => orders.fold(
         0,
@@ -56,71 +38,60 @@ class HistoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint('rebuilding HistoryScreen...');
 
-    // not using `setState` because it will redraw entire screen
-    // we only want to redraw specific sections
-    final appbarNotifier = ValueNotifier(_initialState);
-    final listViewNotifier = ValueNotifier(_initialOrders);
-
     return Scaffold(
       appBar: AppBar(
-        title: ValueListenableBuilder<_HistoryState>(
-          valueListenable: appbarNotifier,
-          builder: (_, newState, __) => _LeadingTitle(
-            from: newState.from,
-            to: newState.to,
-            summaryPrice: newState.summaryPrice,
-          ),
+        title: _LeadingTitle(
+          displayRange: listenableRange,
+          summaryPrice: listenablePrice,
         ),
         bottomOpacity: 0.5,
         actions: [
           FlatButton(
             child: Icon(Icons.date_range),
             onPressed: () async {
-              final range = await showDateRangePicker(
+              final selectedRange = await showDateRangePicker(
                 context: context,
                 initialDateRange: DateTimeRange(
-                  start: appbarNotifier.value.from,
-                  end: appbarNotifier.value.to,
+                  start: listenableRange.value.start,
+                  end: listenableRange.value.end,
                 ),
-                firstDate: _initialState.from.add(const Duration(days: -180)),
+                firstDate: DateTime.now().add(const Duration(days: -30)),
                 lastDate: DateTime.now(),
                 helpText: 'Select range',
               );
 
               // notify all listeners for rebuild when user selects different range
-              if (range != null &&
-                  (range.start.difference(appbarNotifier.value.from).inDays != 0 ||
-                      range.end.difference(appbarNotifier.value.to).inDays != 0)) {
-                listViewNotifier.value = database.getRange(range.start, range.end);
-
-                appbarNotifier.value = _HistoryState(
-                  range.start,
-                  range.end,
-                  _calculateTotalPrice(listViewNotifier.value),
-                );
+              if (selectedRange != null &&
+                  (selectedRange.start.difference(listenableRange.value.start).inDays != 0 ||
+                      selectedRange.end.difference(listenableRange.value.end).inDays != 0)) {
+                listenableRange.value = selectedRange;
               }
             },
           ),
         ],
       ),
-      body: ValueListenableBuilder<List<Order>>(
-        valueListenable: listViewNotifier,
-        builder: (_, data, __) => ListView.builder(
-          physics: const BouncingScrollPhysics(),
-          itemCount: data?.length ?? 0,
-          itemBuilder: (context, index) => _OrderSnapshot(
-            data[index],
-            database,
-            onDeleted: (deletedOrder) {
-              // rebuild appbar (to update price) when an order is marked deleted
-              appbarNotifier.value = _HistoryState(
-                appbarNotifier.value.from,
-                appbarNotifier.value.to,
-                appbarNotifier.value.summaryPrice - deletedOrder.price,
-              );
-            },
-          ),
-        ),
+      body: ValueListenableBuilder<DateTimeRange>(
+        valueListenable: listenableRange, // rebuild list when selected range changes
+        builder: (_, range, __) {
+          final data = database.getRange(range.start, range.end);
+          // update price (notify rebuild on AppBar) when list building is done
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            listenablePrice.value = _calculateTotalPrice(data);
+          });
+
+          return ListView.builder(
+            physics: const BouncingScrollPhysics(),
+            itemCount: data?.length ?? 0,
+            itemBuilder: (context, index) => _OrderSnapshot(
+              data[index],
+              database,
+              onDeleted: (deletedOrder) {
+                // rebuild appbar (to update price) when an order is marked deleted
+                listenablePrice.value -= deletedOrder.price;
+              },
+            ),
+          );
+        },
       ),
     );
   }
@@ -227,34 +198,39 @@ class _OrderSnapshot extends StatelessWidget {
 }
 
 class _LeadingTitle extends StatelessWidget {
-  final DateTime from;
-  final DateTime to;
-  final int summaryPrice;
+  final ValueListenable<DateTimeRange> displayRange;
+  final ValueListenable<int> summaryPrice;
 
-  _LeadingTitle({this.from, this.to, this.summaryPrice});
+  _LeadingTitle({this.displayRange, this.summaryPrice});
 
   @override
   Widget build(BuildContext context) {
     debugPrint('rebuilding _LeadingTitle...');
 
-    return RichText(
-      text: TextSpan(
-        children: [
-          TextSpan(
-            text: '${Money.format(summaryPrice ?? 0)}',
-            style: TextStyle(
-              color: Colors.lightGreen,
-              fontWeight: FontWeight.bold,
-              fontSize: 22,
-            ),
-          ),
-          TextSpan(text: '\n'),
-          TextSpan(
-            text: '(${Common.extractYYYYMMDD2(from)} - ${Common.extractYYYYMMDD2(to)})',
+    return Wrap(
+      direction: Axis.vertical,
+      children: [
+        ValueListenableBuilder<int>(
+          valueListenable: summaryPrice,
+          builder: (_, price, __) {
+            return Text(
+              '${Money.format(price ?? 0)}',
+              style: TextStyle(
+                color: Colors.lightGreen,
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+              ),
+            );
+          },
+        ),
+        ValueListenableBuilder<DateTimeRange>(
+          valueListenable: displayRange,
+          builder: (_, range, __) => Text(
+            '(${Common.extractYYYYMMDD2(range.start)} - ${Common.extractYYYYMMDD2(range.end)})',
             style: Theme.of(context).textTheme.caption,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
