@@ -5,6 +5,9 @@ import 'package:vector_math/vector_math.dart' show radians;
 import 'radial_button.dart';
 
 class RadialMenu extends StatefulWidget {
+  final double width;
+  final double height;
+
   /// Builder for surrounding sub-buttons
   final List<RadialButton> Function(BuildContext, AnimationController) radialButtonsBuilder;
 
@@ -14,9 +17,14 @@ class RadialMenu extends StatefulWidget {
   /// Builder for center button (expanded state)
   final Widget Function(AnimationController, BuildContext) secondaryButtonBuilder;
 
-  RadialMenu(
-      {this.mainButtonBuilder, this.radialButtonsBuilder, this.secondaryButtonBuilder, Key key})
-      : super(key: key);
+  RadialMenu({
+    this.mainButtonBuilder,
+    this.radialButtonsBuilder,
+    this.secondaryButtonBuilder,
+    this.width = 130.0,
+    this.height = 130.0,
+    Key key,
+  }) : super(key: key);
 
   _RadialMenuState createState() => _RadialMenuState();
 }
@@ -63,24 +71,29 @@ class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateM
   @override
   // rotates by rotation value, also scales down in the process
   Widget build(BuildContext context) => Container(
-      width: 175,
-      height: 175,
+      width: widget.width,
+      height: widget.height,
       child: AnimatedBuilder(
-          animation: controller,
-          builder: (context, _) => Transform.rotate(
-              angle: radians(rotation.value),
-              child: Stack(alignment: Alignment.center, children: <Widget>[
-                if (widget.radialButtonsBuilder != null)
-                  ...widget.radialButtonsBuilder(context, controller),
-                if (widget.secondaryButtonBuilder != null)
-                  Transform.scale(
-                    scale: scale.value - 1.0,
-                    child: widget.secondaryButtonBuilder(controller, context),
-                  ),
-                if (widget.mainButtonBuilder != null)
-                  Transform.scale(
-                    scale: scale.value,
-                    child: widget.mainButtonBuilder(controller, context),
-                  ),
-              ]))));
+        animation: controller,
+        builder: (context, _) => Transform.rotate(
+          angle: radians(rotation.value),
+          child: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              if (widget.radialButtonsBuilder != null)
+                ...widget.radialButtonsBuilder(context, controller),
+              if (widget.secondaryButtonBuilder != null)
+                Transform.scale(
+                  scale: scale.value - 1.0,
+                  child: widget.secondaryButtonBuilder(controller, context),
+                ),
+              if (widget.mainButtonBuilder != null)
+                Transform.scale(
+                  scale: scale.value,
+                  child: widget.mainButtonBuilder(controller, context),
+                ),
+            ],
+          ),
+        ),
+      ));
 }

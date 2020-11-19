@@ -71,6 +71,7 @@ class HistoryScreen extends StatelessWidget {
             summaryPrice: newState.summaryPrice,
           ),
         ),
+        bottomOpacity: 0.5,
         actions: [
           FlatButton(
             child: Icon(Icons.date_range),
@@ -83,7 +84,7 @@ class HistoryScreen extends StatelessWidget {
                 ),
                 firstDate: _initialState.from.add(const Duration(days: -180)),
                 lastDate: DateTime.now(),
-                helpText: '',
+                helpText: 'Select range',
               );
 
               // notify all listeners for rebuild when user selects different range
@@ -239,7 +240,6 @@ class _LeadingTitle extends StatelessWidget {
 
     return RichText(
       text: TextSpan(
-        style: Theme.of(context).textTheme.headline6,
         children: [
           TextSpan(
             text: '${Money.format(summaryPrice ?? 0)}',
@@ -249,9 +249,10 @@ class _LeadingTitle extends StatelessWidget {
               fontSize: 22,
             ),
           ),
-          TextSpan(text: ' '),
+          TextSpan(text: '\n'),
           TextSpan(
             text: '(${Common.extractYYYYMMDD2(from)} - ${Common.extractYYYYMMDD2(to)})',
+            style: Theme.of(context).textTheme.caption,
           ),
         ],
       ),
