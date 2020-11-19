@@ -58,20 +58,29 @@ class HemBoApp extends StatelessWidget {
         final TableModel model = argMap != null ? argMap['model'] : null;
         final String fromScreen = argMap != null ? argMap['from'] : null;
 
-        if (settings.name == '/menu') {
-          // custom page transition animations
-          return routeBuilder(MenuScreen(model, fromHeroTag: heroTag));
-        } else if (settings.name == '/order-details') {
-          return routeBuilder(DetailsScreen(
-            model,
-            fromHeroTag: heroTag,
-            fromScreen: fromScreen,
-          ));
-        } else if (settings.name == '/history') {
-          return routeBuilder(HistoryScreen(_storage));
+        switch (settings.name) {
+          case '/menu':
+            return routeBuilder(MenuScreen(model, fromHeroTag: heroTag));
+            break;
+          case '/order-details':
+            return routeBuilder(
+              DetailsScreen(
+                model,
+                fromHeroTag: heroTag,
+                fromScreen: fromScreen,
+              ),
+            );
+            break;
+          case '/history':
+            return routeBuilder(HistoryScreen(_storage));
+            break;
+          case '/edit-menu':
+            return routeBuilder(HistoryScreen(
+                _storage)); // TODO - create an editable list view here: https://www.coderzheaven.com/2019/05/29/filtering-a-listview-in-flutter-using-a-onchange-on-textfield-with-delay-in-flutter/
+            break;
+          default:
+            return MaterialPageRoute(builder: (context) => Center(child: Text('404')));
         }
-        // unknown route
-        return MaterialPageRoute(builder: (context) => Center(child: Text('404')));
       },
     );
   }

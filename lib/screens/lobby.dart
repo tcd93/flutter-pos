@@ -37,6 +37,12 @@ class LobbyScreen extends StatelessWidget {
                 Navigator.pushNamed(context, '/history');
               },
             ),
+            ListTile(
+              title: Text('Menu Editor'),
+              onTap: () {
+                Navigator.pushNamed(context, '/edit-menu');
+              },
+            ),
           ],
         ),
       ),
