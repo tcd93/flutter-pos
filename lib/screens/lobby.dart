@@ -152,8 +152,8 @@ class _MainButton extends StatelessWidget {
     return RadialMenu(
       mainButtonBuilder: (radialAnimationController, context) {
         return SizedBox(
-          width: 85,
-          height: 85,
+          width: 75,
+          height: 75,
           child: FittedBox(
             child: FloatingActionButton(
               heroTag: null,
