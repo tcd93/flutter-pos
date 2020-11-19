@@ -342,13 +342,14 @@ void main() {
         ));
 
         expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is RichText &&
-                widget.text.toPlainText() == '25,000\n(2020/11/12 - 2020/11/12)',
-          ),
+          find.text('25,000'),
           findsOneWidget,
           reason: 'Summary price is not 25,000',
+        );
+        expect(
+          find.text('(2020/11/12 - 2020/11/12)'),
+          findsOneWidget,
+          reason: 'Selected range is not 11/12',
         );
 
         //
@@ -368,13 +369,14 @@ void main() {
         await tester.pump();
 
         expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is RichText &&
-                widget.text.toPlainText() == '75,000\n(2020/11/12 - 2020/11/13)',
-          ),
+          find.text('75,000'),
           findsOneWidget,
           reason: 'Summary price is not 75,000',
+        );
+        expect(
+          find.text('(2020/11/12 - 2020/11/13)'),
+          findsOneWidget,
+          reason: 'Selected range is not 11/12',
         );
       },
     );
