@@ -47,12 +47,12 @@ class MenuScreen extends StatelessWidget {
                   child: Counter(
                     model.lineItem(index)?.quantity ?? 0,
                     onIncrement: (_) {
-                      lineItem.quantity++;
+                      lineItem.addOne();
 
                       model.setTableStatus(TableStatus.incomplete);
                     },
                     onDecrement: (_) {
-                      lineItem.quantity--;
+                      lineItem.substractOne();
                       // If there are not a single item in this order left,
                       // Then set status to "empty" to disable the [_ConfirmButton]
                       if (model.lineItem(index).quantity == 0 && model.totalMenuItemQuantity == 0) {

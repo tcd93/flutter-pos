@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:tuple/tuple.dart';
 
+// TODO - store menu in storage
 const Map<int, Tuple3<String, String, int>> menu = {
   0: Tuple3(
     'Rice Noodles',

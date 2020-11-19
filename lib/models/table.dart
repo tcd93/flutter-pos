@@ -81,7 +81,7 @@ class TableModel {
 
   /// Get a list of current [lineItems] (with quantity > 0)
   UnmodifiableListView<LineItem> get lineItems => UnmodifiableListView(
-        _tableState.lineItems.where((entry) => entry.quantity > 0),
+        _tableState.lineItems.where((entry) => entry.isBeingOrdered()),
       );
 
   /// Returns total items (number of dishes) of current table

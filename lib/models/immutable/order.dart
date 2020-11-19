@@ -34,10 +34,11 @@ class Order implements StateObject {
 
   @override
   int get totalPrice => lineItems
-      .where(
-        (entry) => entry.quantity > 0,
-      )
+      .where((entry) => entry.isBeingOrdered())
       .fold(0, (prev, order) => prev + order.amount);
+
+  @override
+  int get totalQuantity => lineItems.fold(0, (prevValue, item) => prevValue + item.quantity);
 
   @override
   String toString() {
@@ -57,9 +58,19 @@ class OrderItem implements LineItem {
 
   final int quantity;
 
-  const OrderItem(this.dishID, this.dishName, this.quantity, this.amount);
+  OrderItem(this.dishID, this.dishName, this.quantity, this.amount);
 
-  set quantity(int quantity) => throw 'Can not set quantity from an OrderItem instance';
+  @override
+  set quantity(int v) => throw 'Can not modify history item';
+
+  @override
+  int addOne() => throw 'Can not modify history item';
+
+  @override
+  int substractOne() => throw 'Can not modify history item';
+
+  @override
+  bool isBeingOrdered() => quantity > 0;
 
   @override
   String toString() {
