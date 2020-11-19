@@ -193,7 +193,6 @@ class _OrderSnapshot extends StatelessWidget {
                           }
                         },
                   onTap: () {
-                    //TODO: disable print button on this context
                     Navigator.pushNamed(context, '/order-details', arguments: {
                       'model': TableModel(
                         null, //empty supplier, no persistency needs to be done here

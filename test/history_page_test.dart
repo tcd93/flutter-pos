@@ -345,7 +345,7 @@ void main() {
           find.byWidgetPredicate(
             (widget) =>
                 widget is RichText &&
-                widget.text.toPlainText() == '25,000 (2020/11/12 - 2020/11/12)',
+                widget.text.toPlainText() == '25,000\n(2020/11/12 - 2020/11/12)',
           ),
           findsOneWidget,
           reason: 'Summary price is not 25,000',
@@ -371,7 +371,7 @@ void main() {
           find.byWidgetPredicate(
             (widget) =>
                 widget is RichText &&
-                widget.text.toPlainText() == '75,000 (2020/11/12 - 2020/11/13)',
+                widget.text.toPlainText() == '75,000\n(2020/11/12 - 2020/11/13)',
           ),
           findsOneWidget,
           reason: 'Summary price is not 75,000',

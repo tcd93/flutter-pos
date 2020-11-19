@@ -20,10 +20,10 @@ class StateObject {
 
   /// Total price of all line items in this order
   int get totalPrice => lineItems
-      .where(
-        (entry) => entry.quantity > 0,
-      )
+      .where((entry) => entry.isBeingOrdered())
       .fold(0, (prev, order) => prev + order.amount);
+
+  int get totalQuantity => lineItems.fold(0, (prevValue, item) => prevValue + item.quantity);
 
   StateObject()
       : lineItems = Dish.getMenu()

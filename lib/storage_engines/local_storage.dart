@@ -29,10 +29,10 @@ extension on StateObject {
   /// ```
   String toJson() {
     var lineItemList = lineItems
-        .where(
-          (element) => element.quantity > 0,
+        .where((element) => element.isBeingOrdered())
+        .map(
+          (e) => e.toJson(),
         )
-        .map((e) => e.toJson())
         .toList();
 
     return '{"orderID": $orderID, "checkoutTime": "${checkoutTime.toString()}", "totalPrice": $totalPrice, "lineItems": ${lineItemList.toString()}}';
@@ -49,10 +49,10 @@ extension OrderJSON on Order {
   /// Similar to [toJson] from [TableState], with `isDeleted` field implemented
   String toJson() {
     var lineItemList = lineItems
-        .where(
-          (element) => element.quantity > 0,
+        .where((element) => element.isBeingOrdered())
+        .map(
+          (e) => e.toJson(),
         )
-        .map((e) => e.toJson())
         .toList();
 
     return '{"orderID": $orderID, "checkoutTime": "${checkoutTime.toString()}", "totalPrice": $totalPrice, "lineItems": ${lineItemList.toString()}, "isDeleted": $isDeleted}';
