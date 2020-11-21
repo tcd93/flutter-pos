@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'common/theme.dart';
-
 import 'database_factory.dart';
 import 'models/supplier.dart';
 import 'models/table.dart';
-
 import 'screens/details.dart';
+import 'screens/edit_menu.dart';
 import 'screens/history.dart';
 import 'screens/lobby.dart';
 import 'screens/menu.dart';
@@ -75,8 +74,7 @@ class HemBoApp extends StatelessWidget {
             return routeBuilder(HistoryScreen(_storage));
             break;
           case '/edit-menu':
-            return routeBuilder(HistoryScreen(
-                _storage)); // TODO - create an editable list view here: https://www.coderzheaven.com/2019/05/29/filtering-a-listview-in-flutter-using-a-onchange-on-textfield-with-delay-in-flutter/
+            return routeBuilder(EditMenuScreen()); // TODO: persist changes to menu price, discount
             break;
           default:
             return MaterialPageRoute(builder: (context) => Center(child: Text('404')));
