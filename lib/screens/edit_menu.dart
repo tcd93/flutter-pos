@@ -69,7 +69,13 @@ class EditMenuScreenState extends State<EditMenuScreen> {
               itemBuilder: (_, index) {
                 return Card(
                   child: InkWell(
-                    onTap: () {},
+                    onTap: () async {
+                      final newPrice = await _popUpForm(
+                        context,
+                        filteredDishes[index],
+                      );
+                      print('setting new price: $newPrice');
+                    },
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Row(
@@ -93,3 +99,62 @@ class EditMenuScreenState extends State<EditMenuScreen> {
     );
   }
 }
+
+Future<int> _popUpForm(BuildContext context, Dish dish) => showDialog<int>(
+      context: context,
+      builder: (context) {
+        final controller = TextEditingController(text: dish.price.toString());
+
+        return AlertDialog(
+          contentPadding: const EdgeInsets.all(0.0),
+          content: Card(
+            borderOnForeground: false,
+            elevation: 0.0,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(dish.dish),
+                TextFormField(
+                  controller: controller,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.all(2.0),
+                    isDense: true,
+                  ),
+                ),
+                ButtonBar(
+                  alignment: MainAxisAlignment.center,
+                  buttonMinWidth: 128.0,
+                  children: [
+                    RaisedButton(
+                      child: Icon(Icons.check),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      onPressed: () {
+                        if (controller.text.length > 0) {
+                          Navigator.pop(context, int.parse(controller.text));
+                        }
+                      },
+                    ),
+                    RaisedButton(
+                      child: Icon(Icons.cancel),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    )
+                  ],
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
