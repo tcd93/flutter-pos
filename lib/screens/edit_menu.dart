@@ -75,8 +75,8 @@ class EditMenuScreenState extends State<EditMenuScreen> {
                         filteredDishes[index],
                       );
                       if (editedDish != null) {
-                        // TODO: harden to storage
                         print('setting new object: ${editedDish.dish}, ${editedDish.price}');
+                        Dish.setMenu(editedDish);
                       }
                     },
                     child: Padding(

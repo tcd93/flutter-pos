@@ -130,6 +130,31 @@ class LocalStorage implements DatabaseConnectionInterface {
   }
 
   @override
+  Map<String, Dish> getMenu() {
+    var raw = ls.getItem('menu');
+    if (raw == null) return null;
+    print('raw item: ${raw.runtimeType}');
+    var decoded = json.decode(raw);
+
+    print('got item: ${decoded.runtimeType}');
+    // var e = raw.map((key, value) {
+    //   var decoded = json.decode(value);
+    //   return MapEntry(
+    //     key,
+    //     Dish(decoded['id'], decoded['dish'], decoded['imagePath'], decoded['price']),
+    //   );
+    // });
+    print('encoded item: $raw');
+
+    return decoded;
+  }
+
+  @override
+  Future<void> setMenu(Map<String, Dish> newMenu) {
+    return ls.setItem('menu', newMenu);
+  }
+
+  @override
   Future<Order> delete(DateTime day, int orderID) async {
     var deletedOrder;
 

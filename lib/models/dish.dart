@@ -1,46 +1,61 @@
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
-import 'package:tuple/tuple.dart';
 
-// TODO - store menu in storage
-const Map<int, Tuple3<String, String, int>> menu = {
-  0: Tuple3(
-    'Rice Noodles',
-    'assets/rice_noodles.png',
-    10000,
-  ),
-  1: Tuple3(
-    'Lime Juice',
-    'assets/lime_juice.png',
-    20000,
-  ),
-  2: Tuple3(
-    'Vegan Noodle',
-    'assets/vegan_noodles.png',
-    30000,
-  ),
-  3: Tuple3(
-    'Oatmeal with Berries and Coconut',
-    'assets/oatmeal_with_berries_and_coconut.png',
-    40000,
-  ),
-  4: Tuple3(
-    'Fried Chicken with Egg',
-    'assets/fried_chicken-with_with_wit_egg.png',
-    50000,
-  ),
-  5: Tuple3(
-    'Kimchi',
-    'assets/kimchi.png',
-    60000,
-  ),
-  6: Tuple3(
-    'Coffee',
-    'assets/coffee.png',
-    70000,
-  ),
-};
+import '../database_factory.dart';
+
+class _Menu {
+  final storage = DatabaseFactory().create('local-storage');
+  Map<String, Dish> list;
+
+  _Menu() {
+    list = storage.getMenu() ??
+        {
+          '0': Dish(
+            0,
+            'Rice Noodles',
+            'assets/rice_noodles.png',
+            10000,
+          ),
+          '1': Dish(
+            1,
+            'Lime Juice',
+            'assets/lime_juice.png',
+            20000,
+          ),
+          '2': Dish(
+            2,
+            'Vegan Noodle',
+            'assets/vegan_noodles.png',
+            30000,
+          ),
+          '3': Dish(
+            3,
+            'Oatmeal with Berries and Coconut',
+            'assets/oatmeal_with_berries_and_coconut.png',
+            40000,
+          ),
+          '4': Dish(
+            4,
+            'Fried Chicken with Egg',
+            'assets/fried_chicken-with_with_wit_egg.png',
+            50000,
+          ),
+          '5': Dish(
+            5,
+            'Kimchi',
+            'assets/kimchi.png',
+            60000,
+          ),
+          '6': Dish(
+            6,
+            'Coffee',
+            'assets/coffee.png',
+            70000,
+          ),
+        };
+  }
+}
 
 @immutable
 class Dish {
@@ -61,17 +76,44 @@ class Dish {
 
   const Dish(this.id, this.dish, [this.imagePath, this.price]);
 
+  static _Menu menu;
+
   /// Index of menu is the unique ID of associated [Dish]
-  static UnmodifiableListView<Dish> getMenu() => UnmodifiableListView(
-        List.generate(
-          menu.length,
-          (index) => Dish(
-            index,
-            menu[index].item1,
-            menu[index].item2,
-            menu[index].item3,
-          ),
-          growable: false,
+  static UnmodifiableListView<Dish> getMenu() {
+    if (menu == null) {
+      menu = _Menu();
+    }
+
+    return UnmodifiableListView(
+      List.generate(
+        menu.list.length,
+        (index) => Dish(
+          index,
+          menu.list[index.toString()].dish,
+          menu.list[index.toString()].imagePath,
+          menu.list[index.toString()].price,
         ),
-      );
+        growable: false,
+      ),
+    );
+  }
+
+  static void setMenu(Dish dish) async {
+    // update the single menu item, then overwrite the entire menu to dish
+    menu.list.update(
+      dish.id.toString(),
+      (value) => Dish(dish.id, dish.dish, dish.imagePath, dish.price),
+    );
+    await menu.storage.setMenu(menu.list);
+  }
+
+  // create toJson methods to implicitly work with `encode` (local-storage)
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'dish': dish,
+      'imagePath': imagePath,
+      'price': price,
+    };
+  }
 }

@@ -74,7 +74,7 @@ class HemBoApp extends StatelessWidget {
             return routeBuilder(HistoryScreen(_storage));
             break;
           case '/edit-menu':
-            return routeBuilder(EditMenuScreen()); // TODO: persist changes to menu price, discount
+            return routeBuilder(EditMenuScreen());
             break;
           default:
             return MaterialPageRoute(builder: (context) => Center(child: Text('404')));

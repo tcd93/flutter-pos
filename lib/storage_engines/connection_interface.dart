@@ -1,3 +1,5 @@
+import '../models/dish.dart';
+
 import '../models/immutable/order.dart';
 import '../models/state/state_object.dart';
 
@@ -14,6 +16,12 @@ class DatabaseConnectionInterface {
   List<Order> get(DateTime day) => null;
 
   List<Order> getRange(DateTime from, DateTime to) => null;
+
+  /// Get menu from storage
+  Map<String, Dish> getMenu() => null;
+
+  /// Overrides current menu in storage with new menu object
+  Future<void> setMenu(Map<String, Dish> newMenu) => null;
 
   /// Soft deletes an order in specified date
   Future<Order> delete(DateTime day, int orderID) => Future.microtask(() => null);
