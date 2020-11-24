@@ -70,11 +70,14 @@ class EditMenuScreenState extends State<EditMenuScreen> {
                 return Card(
                   child: InkWell(
                     onTap: () async {
-                      final newPrice = await _popUpForm(
+                      final editedDish = await _popUpForm(
                         context,
                         filteredDishes[index],
                       );
-                      print('setting new price: $newPrice');
+                      if (editedDish != null) {
+                        // TODO: harden to storage
+                        print('setting new object: ${editedDish.dish}, ${editedDish.price}');
+                      }
                     },
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
@@ -100,30 +103,37 @@ class EditMenuScreenState extends State<EditMenuScreen> {
   }
 }
 
-Future<int> _popUpForm(BuildContext context, Dish dish) => showDialog<int>(
+// TODO: add "discount" feature (individual / all)
+Future<Dish> _popUpForm(BuildContext context, Dish dish) => showDialog<Dish>(
+      barrierDismissible: false,
       context: context,
       builder: (context) {
-        final controller = TextEditingController(text: dish.price.toString());
+        final priceController = TextEditingController(text: dish.price.toString());
+        final dishNameController = TextEditingController(text: dish.dish);
 
         return AlertDialog(
-          contentPadding: const EdgeInsets.all(0.0),
+          contentPadding: const EdgeInsets.all(12.0),
           content: Card(
-            borderOnForeground: false,
             elevation: 0.0,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(dish.dish),
-                TextFormField(
-                  controller: controller,
+                TextField(
+                  controller: dishNameController,
+                  keyboardType: TextInputType.text,
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    labelText: 'Dish',
+                  ),
+                ),
+                TextField(
+                  controller: priceController,
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    contentPadding: const EdgeInsets.all(2.0),
-                    isDense: true,
+                    labelText: 'Price',
                   ),
                 ),
                 ButtonBar(
@@ -136,8 +146,16 @@ Future<int> _popUpForm(BuildContext context, Dish dish) => showDialog<int>(
                         borderRadius: BorderRadius.circular(12.0),
                       ),
                       onPressed: () {
-                        if (controller.text.length > 0) {
-                          Navigator.pop(context, int.parse(controller.text));
+                        if (priceController.text.isNotEmpty || dishNameController.text.isNotEmpty) {
+                          Navigator.pop<Dish>(
+                            context,
+                            Dish(
+                              dish.id,
+                              dishNameController.text ?? dish.dish,
+                              dish.imagePath,
+                              int.tryParse(priceController.text) ?? dish.price,
+                            ),
+                          );
                         }
                       },
                     ),
