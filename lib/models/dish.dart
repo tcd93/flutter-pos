@@ -5,7 +5,11 @@ import 'package:flutter/foundation.dart';
 import '../database_factory.dart';
 
 class _Menu {
+  // just simply use local-storage for this
   final storage = DatabaseFactory().create('local-storage');
+
+  /// A `Map<String, Dish>`, where the String key is the dishID.
+  /// Note that the key must be a string for `encode/decode` to work
   Map<String, Dish> list;
 
   _Menu() {
@@ -105,15 +109,5 @@ class Dish {
       (value) => Dish(dish.id, dish.dish, dish.imagePath, dish.price),
     );
     await menu.storage.setMenu(menu.list);
-  }
-
-  // create toJson methods to implicitly work with `encode` (local-storage)
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'dish': dish,
-      'imagePath': imagePath,
-      'price': price,
-    };
   }
 }

@@ -39,13 +39,13 @@ extension on StateObject {
   }
 }
 
-extension OrderItemJson on OrderItem {
+extension on OrderItem {
   String toJson() {
     return '{"dishID": $dishID, "dishName": "${Dish.getMenu()[dishID].dish}", "quantity": $quantity, "amount": $amount}';
   }
 }
 
-extension OrderJSON on Order {
+extension on Order {
   /// Similar to [toJson] from [TableState], with `isDeleted` field implemented
   String toJson() {
     var lineItemList = lineItems
@@ -56,6 +56,18 @@ extension OrderJSON on Order {
         .toList();
 
     return '{"orderID": $orderID, "checkoutTime": "${checkoutTime.toString()}", "totalPrice": $totalPrice, "lineItems": ${lineItemList.toString()}, "isDeleted": $isDeleted}';
+  }
+}
+
+extension on Dish {
+  // create toJson methods to implicitly work with `encode` (local-storage)
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'dish': dish,
+      'imagePath': imagePath,
+      'price': price,
+    };
   }
 }
 
@@ -131,27 +143,30 @@ class LocalStorage implements DatabaseConnectionInterface {
 
   @override
   Map<String, Dish> getMenu() {
-    var raw = ls.getItem('menu');
-    if (raw == null) return null;
-    print('raw item: ${raw.runtimeType}');
-    var decoded = json.decode(raw);
+    var storageData = ls.getItem('menu');
+    if (storageData == null) return null;
+    var cache = storageData is Map ? storageData : json.decode(storageData) as Map<String, dynamic>;
 
-    print('got item: ${decoded.runtimeType}');
-    // var e = raw.map((key, value) {
-    //   var decoded = json.decode(value);
-    //   return MapEntry(
-    //     key,
-    //     Dish(decoded['id'], decoded['dish'], decoded['imagePath'], decoded['price']),
-    //   );
-    // });
-    print('encoded item: $raw');
-
-    return decoded;
+    return cache.map((key, v) {
+      var decoded = v is Map<String, dynamic> ? v : json.decode(v) as Map<String, dynamic>;
+      return MapEntry(
+        key.toString(),
+        Dish(decoded['id'], decoded['dish'], decoded['imagePath'], decoded['price']),
+      );
+    });
   }
 
   @override
   Future<void> setMenu(Map<String, Dish> newMenu) {
-    return ls.setItem('menu', newMenu);
+    // to set items to local storage, they must be Map<String, dynamic>
+    return ls.setItem('menu', newMenu, (menu) {
+      return (menu as Map<String, Dish>).map((key, value) {
+        return MapEntry(
+          key.toString(),
+          value.toJson(),
+        );
+      });
+    });
   }
 
   @override
