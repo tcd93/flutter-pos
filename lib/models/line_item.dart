@@ -8,6 +8,9 @@ class LineItem {
   /// The unique id from [Dish]
   final int dishID;
 
+  // name of dish, only defined here to allow implicit casting from [OrderItem] without losing this info
+  final String dishName;
+
   int _quantity = 0;
 
   int get quantity => _quantity;
@@ -35,5 +38,6 @@ class LineItem {
 
   LineItem({@required this.dishID, int quantity = 0})
       : assert(dishID != null, dishID >= 0 && dishID < Dish.getMenu().length),
-        _quantity = quantity;
+        _quantity = quantity,
+        dishName = Dish.getMenu()[dishID].dish;
 }
