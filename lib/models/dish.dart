@@ -13,6 +13,7 @@ class _Menu {
   Map<String, Dish> list;
 
   _Menu() {
+    // return from local storage or return a basic menu set
     list = storage.getMenu() ??
         {
           '0': Dish(

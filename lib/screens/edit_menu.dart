@@ -29,15 +29,19 @@ class EditMenuScreen extends StatefulWidget {
 
 class EditMenuScreenState extends State<EditMenuScreen> {
   final _debouncer = Debouncer(milliseconds: 300);
-  List<Dish> dishes;
+
+  /// The entire menu (all dishes)
+  final dishes = Dish.getMenu();
+
+  /// The filtered list of dishes if user use the filter input,
+  /// should be the central state object
   List<Dish> filteredDishes;
 
   @override
   void initState() {
     super.initState();
     setState(() {
-      dishes = Dish.getMenu();
-      filteredDishes = dishes;
+      filteredDishes = dishes.toList(growable: true);
     });
   }
 
@@ -70,13 +74,17 @@ class EditMenuScreenState extends State<EditMenuScreen> {
                 return Card(
                   child: InkWell(
                     onTap: () async {
+                      // `_popUpForm` returns a new instance of editted Dish
                       final editedDish = await _popUpForm(
                         context,
                         filteredDishes[index],
                       );
                       if (editedDish != null) {
                         print('setting new object: ${editedDish.dish}, ${editedDish.price}');
-                        Dish.setMenu(editedDish);
+                        Dish.setMenu(editedDish); // update data based on dishID
+                        setState(() {
+                          filteredDishes[index] = editedDish;
+                        });
                       }
                     },
                     child: Padding(
