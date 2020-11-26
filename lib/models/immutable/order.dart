@@ -35,7 +35,7 @@ class Order implements StateObject {
   @override
   int get totalPrice => lineItems
       .where((entry) => entry.isBeingOrdered())
-      .fold(0, (prev, order) => prev + order.amount);
+      .fold(0, (prev, order) => prev + (order.price * order.quantity));
 
   @override
   int get totalQuantity => lineItems.fold(0, (prevValue, item) => prevValue + item.quantity);
@@ -68,12 +68,12 @@ class OrderItem implements LineItem {
 
   final String dishName;
 
-  /// The recorded price (amount * quantity) at the time of checkout
-  final int amount;
+  /// The recorded price
+  final int price;
 
   final int quantity;
 
-  OrderItem(this.dishID, this.dishName, this.quantity, this.amount);
+  OrderItem(this.dishID, this.dishName, this.quantity, this.price);
 
   @override
   set quantity(int v) => throw 'Can not modify history item';
@@ -89,6 +89,6 @@ class OrderItem implements LineItem {
 
   @override
   String toString() {
-    return '[$dishID, $dishName, $quantity, $amount]';
+    return '[$dishID, $dishName, $quantity, ${price * quantity}]';
   }
 }

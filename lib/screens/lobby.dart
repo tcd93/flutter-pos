@@ -233,7 +233,7 @@ _sideButtonsBuilder(
                           e.dishID,
                           e.dishName,
                           e.quantity,
-                          e.amount,
+                          e.price,
                         ),
                       )
                       .toList(),

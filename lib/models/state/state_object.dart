@@ -27,7 +27,7 @@ class StateObject {
   /// Total price of all line items in this order
   int get totalPrice => lineItems
       .where((entry) => entry.isBeingOrdered())
-      .fold(0, (prev, order) => prev + order.amount);
+      .fold(0, (prev, order) => prev + (order.price * order.quantity));
 
   int get totalQuantity => lineItems.fold(0, (prevValue, item) => prevValue + item.quantity);
 }

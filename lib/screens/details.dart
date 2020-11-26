@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../common/money_format/money.dart';
-import '../models/dish.dart';
 import '../models/immutable/order.dart';
 
 class DetailsScreen extends StatelessWidget {
@@ -42,14 +41,8 @@ class DetailsScreen extends StatelessWidget {
                 leading: CircleAvatar(
                   child: Text(orders[index].quantity.toString()),
                 ),
-                title: Text(
-                  fromScreen == 'history'
-                      // if this is from "History" screen
-                      // then we view by the order's older state (not current name, current price...)
-                      ? orders[index].dishName
-                      : Dish.getMenu()[orders[index].dishID].dish,
-                ),
-                trailing: Text(Money.format(orders[index].amount)),
+                title: Text(orders[index].dishName),
+                trailing: Text(Money.format(orders[index].price * orders[index].quantity)),
               ),
             );
           }),

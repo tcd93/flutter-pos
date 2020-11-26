@@ -11,7 +11,7 @@ import 'connection_interface.dart';
 
 extension on LineItem {
   String toJson() {
-    return '{"dishID": $dishID, "dishName": "${Dish.getMenu()[dishID].dish}", "quantity": $quantity, "amount": $amount}';
+    return '{"dishID": $dishID, "dishName": "${Dish.getMenu()[dishID].dish}", "quantity": $quantity, "price": $price}';
   }
 }
 
@@ -24,7 +24,7 @@ extension on StateObject {
   ///   "orderID": 1,
   ///   "checkoutTime": "2020-02-01 00:00:00.000",
   ///   "totalPrice": 100000,
-  ///   "lineItems": [{"dishID": 1, "quantity": 5, "amount": 100000}]
+  ///   "lineItems": [{"dishID": 1, "quantity": 5, "price": 100000}]
   /// }
   /// ```
   String toJson() {
@@ -41,7 +41,7 @@ extension on StateObject {
 
 extension on OrderItem {
   String toJson() {
-    return '{"dishID": $dishID, "dishName": "${Dish.getMenu()[dishID].dish}", "quantity": $quantity, "amount": $amount}';
+    return '{"dishID": $dishID, "dishName": "${Dish.getMenu()[dishID].dish}", "quantity": $quantity, "price": $price}';
   }
 }
 
@@ -125,7 +125,7 @@ class LocalStorage implements DatabaseConnectionInterface {
                 e['dishID'],
                 e['dishName'],
                 e['quantity'],
-                e['amount'],
+                e['price'],
               ),
             )
             .toList(),

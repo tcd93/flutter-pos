@@ -11,6 +11,9 @@ class LineItem {
   // name of dish, only defined here to allow implicit casting from [OrderItem] without losing this info
   final String dishName;
 
+  /// The price of this dish
+  final int price;
+
   int _quantity = 0;
 
   int get quantity => _quantity;
@@ -24,9 +27,6 @@ class LineItem {
     }
   }
 
-  /// The amount of current line item (price * quantity)
-  int get amount => Dish.getMenu()[dishID].price * _quantity;
-
   /// Increase quantity by 1
   int addOne() => ++_quantity;
 
@@ -39,5 +39,6 @@ class LineItem {
   LineItem({@required this.dishID, int quantity = 0})
       : assert(dishID != null, dishID >= 0 && dishID < Dish.getMenu().length),
         _quantity = quantity,
-        dishName = Dish.getMenu()[dishID].dish;
+        dishName = Dish.getMenu()[dishID].dish,
+        price = Dish.getMenu()[dishID].price;
 }
