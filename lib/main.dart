@@ -62,9 +62,10 @@ class HemBoApp extends StatelessWidget {
             return routeBuilder(MenuScreen(model, fromHeroTag: heroTag));
             break;
           case '/order-details':
+            final order = argMap != null ? argMap['state'] : null;
             return routeBuilder(
               DetailsScreen(
-                model,
+                order,
                 fromHeroTag: heroTag,
                 fromScreen: fromScreen,
               ),

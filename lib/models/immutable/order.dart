@@ -1,14 +1,18 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
 import '../line_item.dart';
 import '../state/state_object.dart';
+import '../supplier.dart';
 
-/// The order that has been persisted on disk, used in [History screen]
-@immutable
+/// The order snapshot, can not be affected by changes from menu editor
 class Order implements StateObject {
-  @override
-  final int orderID;
+  final int tableID;
 
-  final DateTime checkoutTime;
+  @override
+  int orderID;
+
+  DateTime checkoutTime;
 
   final int price;
 
@@ -16,18 +20,14 @@ class Order implements StateObject {
 
   final bool isDeleted;
 
-  const Order(
+  Order(
+    this.tableID,
     this.orderID,
     this.checkoutTime,
     this.price,
     this.lineItems, {
     this.isDeleted = false,
   });
-
-  set checkoutTime(DateTime _checkoutTime) =>
-      throw 'Can not set checkoutTime from an Order instance';
-
-  set orderID(int orderID) => throw 'Can not change orderID';
 
   @override
   set lineItems(List<LineItem> _lineItems) => throw 'Can not set LineItem from an Order instance';
@@ -40,13 +40,28 @@ class Order implements StateObject {
   @override
   int get totalQuantity => lineItems.fold(0, (prevValue, item) => prevValue + item.quantity);
 
+  Future<void> checkout({DateTime atTime, BuildContext context}) async {
+    final _tracker = context?.read<Supplier>();
+    orderID = await _tracker?.database?.nextUID();
+    checkoutTime = atTime ?? DateTime.now();
+    await _tracker?.database?.insert(this);
+    _tracker?.getTable(tableID)?.cleanState(); // clear state
+    _tracker?.notifyListeners();
+  }
+
+  // TODO: implement `printReceipt`
+  Future<void> printReceipt() async {
+    print('----- PRINT -----');
+    await Future.delayed(const Duration(seconds: 1));
+  }
+
   @override
   String toString() {
     return '$orderID: {$price, ${checkoutTime.toString()}, $lineItems, isDeleted: $isDeleted}';
   }
 }
 
-/// Menu items that have been persisted on disk, used in [History screen]
+/// Menu items snapshot, goes hand-to-hand with [Order]
 @immutable
 class OrderItem implements LineItem {
   final int dishID;

@@ -13,7 +13,8 @@ class _Menu {
   Map<String, Dish> list;
 
   _Menu() {
-    // return from local storage or return a basic menu set
+    // list is refered from other places too such as [DetailsScreen],
+    // so updating the list will update screens
     list = storage.getMenu() ??
         {
           '0': Dish(
@@ -83,7 +84,8 @@ class Dish {
 
   static _Menu menu;
 
-  /// Index of menu is the unique ID of associated [Dish]
+  /// Index of menu is the unique ID of associated [Dish].
+  /// Return from local storage or return a basic menu set
   static UnmodifiableListView<Dish> getMenu() {
     if (menu == null) {
       menu = _Menu();

@@ -55,7 +55,7 @@ extension on Order {
         )
         .toList();
 
-    return '{"orderID": $orderID, "checkoutTime": "${checkoutTime.toString()}", "totalPrice": $totalPrice, "lineItems": ${lineItemList.toString()}, "isDeleted": $isDeleted}';
+    return '{"tableID": $tableID, "orderID": $orderID, "checkoutTime": "${checkoutTime.toString()}", "totalPrice": $totalPrice, "lineItems": ${lineItemList.toString()}, "isDeleted": $isDeleted}';
   }
 }
 
@@ -115,6 +115,7 @@ class LocalStorage implements DatabaseConnectionInterface {
       var decoded = e is Map<String, dynamic> ? e : json.decode(e) as Map<String, dynamic>;
       List<dynamic> lines = decoded['lineItems'];
       return Order(
+        decoded['tableID'],
         decoded['orderID'],
         DateTime.parse(decoded['checkoutTime']),
         decoded['totalPrice'],
@@ -176,6 +177,7 @@ class LocalStorage implements DatabaseConnectionInterface {
     var rebuiltOrders = get(day).map((order) {
       if (order.orderID == orderID) {
         deletedOrder = Order(
+          order.tableID,
           order.orderID,
           order.checkoutTime,
           order.price,

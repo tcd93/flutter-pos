@@ -1,5 +1,4 @@
 import '../dish.dart';
-import '../immutable/order.dart';
 import '../line_item.dart';
 
 /// State object base class
@@ -9,7 +8,14 @@ class StateObject {
   DateTime checkoutTime;
 
   /// The lineItems associated with a table
-  List<LineItem> lineItems;
+  List<LineItem> lineItems = Dish.getMenu()
+      .map(
+        (dish) => LineItem(
+          dishID: dish.id,
+          quantity: 0,
+        ),
+      )
+      .toList();
 
   /// The incremental unique ID (for reporting), should be generated when [checkout]
   int get orderID => _orderID;
@@ -24,20 +30,4 @@ class StateObject {
       .fold(0, (prev, order) => prev + order.amount);
 
   int get totalQuantity => lineItems.fold(0, (prevValue, item) => prevValue + item.quantity);
-
-  StateObject()
-      : lineItems = Dish.getMenu()
-            .map(
-              (dish) => LineItem(
-                dishID: dish.id,
-                quantity: 0,
-              ),
-            )
-            .toList();
-
-  StateObject.createFrom(Order order) {
-    _orderID = order.orderID;
-    checkoutTime = order.checkoutTime;
-    lineItems = order.lineItems;
-  }
 }

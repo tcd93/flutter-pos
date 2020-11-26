@@ -5,8 +5,6 @@ import 'package:flutter/widgets.dart';
 import '../common/common.dart';
 import '../common/money_format/money.dart';
 import '../models/immutable/order.dart';
-import '../models/state/state_object.dart';
-import '../models/table.dart';
 import '../storage_engines/connection_interface.dart';
 
 @immutable
@@ -164,11 +162,7 @@ class _OrderSnapshot extends StatelessWidget {
                         },
                   onTap: () {
                     Navigator.pushNamed(context, '/order-details', arguments: {
-                      'model': TableModel(
-                        null, //empty supplier, no persistency needs to be done here
-                        -1,
-                        StateObject.createFrom(order),
-                      ),
+                      'state': order,
                       'from': 'history',
                     });
                   },

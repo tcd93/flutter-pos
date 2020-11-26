@@ -22,34 +22,10 @@ class _TableState extends StateObject {
   /// button is clicked
   List<LineItem> previouslineItems;
 
-  _TableState(this.tableID) {
-    cleanState();
-  }
+  _TableState(this.tableID);
 
   _TableState.from(StateObject base) : tableID = -1 {
     lineItems = base.lineItems;
-  }
-
-  /// set all line items to 0
-  void cleanState() {
-    status = TableStatus.empty;
-    previousStatus = TableStatus.empty;
-    lineItems = Dish.getMenu()
-        .map(
-          (dish) => LineItem(
-            dishID: dish.id,
-            quantity: 0,
-          ),
-        )
-        .toList();
-    previouslineItems = Dish.getMenu()
-        .map(
-          (dish) => LineItem(
-            dishID: dish.id,
-            quantity: 0,
-          ),
-        )
-        .toList();
   }
 }
 
@@ -80,7 +56,7 @@ class TableModel {
   LineItem lineItem(int index) => _tableState.lineItems[index];
 
   /// Get a list of current [lineItems] (with quantity > 0)
-  UnmodifiableListView<LineItem> get lineItems => UnmodifiableListView(
+  List<LineItem> get lineItems => UnmodifiableListView(
         _tableState.lineItems.where((entry) => entry.isBeingOrdered()),
       );
 
@@ -122,17 +98,25 @@ class TableModel {
     _tracker?.notifyListeners();
   }
 
-  Future<void> checkout([DateTime atTime]) async {
-    _tableState.orderID = await _tracker?.database?.nextUID();
-    _tableState.checkoutTime = atTime ?? DateTime.now();
-    await _tracker?.database?.insert(_tableState);
-    _tableState.cleanState(); // clear state
-    _tracker?.notifyListeners();
-  }
-
-  // TODO: implement `printReceipt`
-  Future<void> printReceipt() async {
-    print('----- PRINT -----');
-    await Future.delayed(const Duration(seconds: 1));
+  /// set all line items to 0
+  void cleanState() {
+    _tableState.status = TableStatus.empty;
+    _tableState.previousStatus = TableStatus.empty;
+    _tableState.lineItems = Dish.getMenu()
+        .map(
+          (dish) => LineItem(
+            dishID: dish.id,
+            quantity: 0,
+          ),
+        )
+        .toList();
+    _tableState.previouslineItems = Dish.getMenu()
+        .map(
+          (dish) => LineItem(
+            dishID: dish.id,
+            quantity: 0,
+          ),
+        )
+        .toList();
   }
 }

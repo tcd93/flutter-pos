@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
 
 import '../common/radial_menu/radial_button.dart';
 import '../common/radial_menu/radial_menu.dart';
+import '../models/immutable/order.dart';
 import '../models/state/status.dart';
 import '../models/supplier.dart';
 import '../models/table.dart';
@@ -222,7 +222,23 @@ _sideButtonsBuilder(
           ? () {
               Navigator.pushNamed(context, '/order-details', arguments: {
                 'heroTag': 'details-subtag-table-${model.id}',
-                'model': model,
+                'state': Order(
+                  model.id,
+                  null,
+                  null,
+                  model.totalPrice,
+                  model.lineItems
+                      .map(
+                        (e) => OrderItem(
+                          e.dishID,
+                          e.dishName,
+                          e.quantity,
+                          e.amount,
+                        ),
+                      )
+                      .toList(),
+                  isDeleted: false,
+                ),
               }).then((_) {
                 Future.delayed(
                   Duration(milliseconds: 600),

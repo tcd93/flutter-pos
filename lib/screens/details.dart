@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 
 import '../common/money_format/money.dart';
 import '../models/dish.dart';
-import '../models/table.dart';
+import '../models/immutable/order.dart';
 
 class DetailsScreen extends StatelessWidget {
-  final TableModel model;
+  final Order order;
   final String fromHeroTag;
   final String fromScreen;
 
-  DetailsScreen(this.model, {this.fromHeroTag, this.fromScreen});
+  DetailsScreen(this.order, {this.fromHeroTag, this.fromScreen});
 
   @override
   Widget build(BuildContext context) {
     debugPrint('rebuilding DetailsScreen... (from $fromScreen)');
 
-    final orders = model.lineItems;
-    final totalPrice = model.totalPrice;
+    final orders = order.lineItems;
+    final totalPrice = order.totalPrice;
 
     return Scaffold(
       appBar: AppBar(
@@ -26,7 +26,7 @@ class DetailsScreen extends StatelessWidget {
         ),
         actions: [
           _CheckoutButton(
-            model,
+            order,
             fromHeroTag: fromHeroTag,
             fromScreen: fromScreen,
           ),
@@ -58,11 +58,11 @@ class DetailsScreen extends StatelessWidget {
 }
 
 class _CheckoutButton extends StatelessWidget {
-  final TableModel model;
+  final Order order;
   final String fromHeroTag;
   final String fromScreen;
 
-  _CheckoutButton(this.model, {this.fromHeroTag, @required this.fromScreen});
+  _CheckoutButton(this.order, {this.fromHeroTag, @required this.fromScreen});
 
   @override
   Widget build(BuildContext context) {
@@ -72,8 +72,8 @@ class _CheckoutButton extends StatelessWidget {
         child: Icon(Icons.print),
         onPressed: () {
           fromScreen == 'history'
-              ? model.printReceipt()
-              : model.checkout().then((_) => model.printReceipt());
+              ? order.printReceipt()
+              : order.checkout(context: context).then((_) => order.printReceipt());
           Navigator.pop(context); // Go back to Lobby Screen
         },
       ),
