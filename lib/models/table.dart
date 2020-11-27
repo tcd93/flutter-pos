@@ -20,9 +20,19 @@ class _TableState extends StateObject {
 
   /// Keep track of state history, overwrite snapshot everytime the confirm
   /// button is clicked
-  List<LineItem> previouslineItems;
+  List<LineItem> previouslineItems; // clone;
 
-  _TableState(this.tableID);
+  _TableState(this.tableID) {
+    // clone
+    previouslineItems = lineItems
+        .map(
+          (e) => LineItem(
+            dishID: e.dishID,
+            quantity: e.quantity,
+          ),
+        )
+        .toList();
+  }
 
   _TableState.from(StateObject base) : tableID = -1 {
     lineItems = base.lineItems;

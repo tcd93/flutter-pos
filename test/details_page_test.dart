@@ -1,30 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hembo/models/immutable/order.dart';
 
-import 'package:hembo/models/supplier.dart';
-import 'package:hembo/models/table.dart';
 import 'package:hembo/screens/details.dart';
-import 'package:provider/provider.dart';
 
 void main() {
-  final _supplier = Supplier(
-    modelBuilder: (tracker) => [
-      TableModel(tracker, 1)..lineItem(5).quantity = 1,
-      TableModel(tracker, 1)
-        ..lineItem(1).quantity = 5
-        ..lineItem(2).quantity = 0
-        ..lineItem(5).quantity = 55
-        ..lineItem(3).quantity = 10,
-    ],
-  );
-
-  final _testModel = _supplier.getTable(1);
-
   Widget skeletonWidget() => MaterialApp(
-        builder: (_, __) => ChangeNotifierProvider(
-          create: (_) => _supplier,
-          child: DetailsScreen(_testModel),
-        ),
+        builder: (_, __) {
+          return DetailsScreen(
+            Order(
+              1,
+              null,
+              null,
+              10000,
+              List.generate(3, (index) => OrderItem(index, 'Test Dish $index', index * 2, 3333)),
+            ),
+          );
+        },
       );
   testWidgets(
     'Should have 3 line in details page for order that have 3 line items',

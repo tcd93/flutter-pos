@@ -5,7 +5,6 @@ import 'package:hembo/models/table.dart';
 void main() {
   TableModel _testModel;
 
-  // TODO: make MENU injectable
   setUp(() {
     _testModel = TableModel(null, 0)
       ..lineItem(1).quantity = 5

@@ -29,13 +29,13 @@ extension on StateObject {
   /// ```
   String toJson() {
     var lineItemList = lineItems
-        .where((element) => element.isBeingOrdered())
-        .map(
+        ?.where((element) => element.isBeingOrdered())
+        ?.map(
           (e) => e.toJson(),
         )
-        .toList();
+        ?.toList();
 
-    return '{"orderID": $orderID, "checkoutTime": "${checkoutTime.toString()}", "totalPrice": $totalPrice, "lineItems": ${lineItemList.toString()}}';
+    return '{"orderID": $orderID, "checkoutTime": "${checkoutTime.toString()}", "totalPrice": $totalPrice, "lineItems": ${lineItemList?.toString()}}';
   }
 }
 
@@ -120,7 +120,7 @@ class LocalStorage implements DatabaseConnectionInterface {
         DateTime.parse(decoded['checkoutTime']),
         decoded['totalPrice'],
         lines
-            .map(
+            ?.map(
               (e) => OrderItem(
                 e['dishID'],
                 e['dishName'],
@@ -128,7 +128,7 @@ class LocalStorage implements DatabaseConnectionInterface {
                 e['price'],
               ),
             )
-            .toList(),
+            ?.toList(),
         isDeleted: decoded['isDeleted'],
       );
     })?.toList(growable: false);

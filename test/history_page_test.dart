@@ -3,18 +3,19 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hembo/database_factory.dart';
+import 'package:hembo/models/immutable/order.dart';
 
 import 'package:hembo/models/supplier.dart';
 import 'package:hembo/models/table.dart';
 import 'package:hembo/screens/history.dart';
 import 'package:hembo/storage_engines/connection_interface.dart';
-import 'package:provider/provider.dart';
 
 final DateTime checkoutTime = DateTime.parse('20201112 13:00:00');
 
 void main() {
   Supplier supplier;
   TableModel checkedOutTable;
+  Order order;
   DatabaseConnectionInterface storage;
 
   group('Same day report:', () {
@@ -45,21 +46,19 @@ void main() {
     });
 
     setUp(() async {
-      supplier = Supplier(
-        database: storage,
-        modelBuilder: (tracker) => [
-          TableModel(tracker, 0)..lineItem(5).quantity = 1,
-          TableModel(tracker, 1)
-            ..lineItem(1).quantity = 1
-            ..lineItem(2).quantity = 0
-            ..lineItem(5).quantity = 1
-            ..lineItem(3).quantity = 1,
-        ],
+      final testTableID = 1;
+      supplier = Supplier(database: storage);
+      checkedOutTable = supplier.getTable(testTableID);
+      order = Order(
+        testTableID,
+        null,
+        null,
+        120000,
+        List.generate(1, (index) => OrderItem(index, 'Test Dish $index', 1, 120000)),
       );
 
       // FOR SOME REASON "CHECK OUT" CAN'T BE DONE INSIDE `testWidgets`
-      checkedOutTable = supplier.getTable(1);
-      await checkedOutTable.checkout(checkoutTime);
+      await order.checkout(atTime: checkoutTime, supplier: supplier);
     });
 
     testWidgets(
@@ -68,10 +67,7 @@ void main() {
         expect(checkedOutTable.totalMenuItemQuantity, 0); // confirm checked out
 
         await tester.pumpWidget(MaterialApp(
-          builder: (_, __) => ChangeNotifierProvider(
-            create: (_) => supplier,
-            child: HistoryScreen(storage, checkoutTime, checkoutTime), //view by same day
-          ),
+          builder: (_, __) => HistoryScreen(storage, checkoutTime, checkoutTime),
         ));
 
         expect(
@@ -79,7 +75,7 @@ void main() {
             (widget) => widget is Card,
             description: 'Line item number',
           ),
-          findsNWidgets(1),
+          findsOneWidget,
         );
 
         expect(
@@ -105,9 +101,9 @@ void main() {
               "checkoutTime": "2020-11-12 01:31:32.840",
               "totalPrice": 60000,
               "lineItems": [
-                {"dishID": 0, "dishName": "Rice Noodles", "quantity": 1, "amount": 10000},
-                {"dishID": 1, "dishName": "Lime Juice", "quantity": 1, "amount": 20000},
-                {"dishID": 2, "dishName": "Vegan Noodle", "quantity": 1, "amount": 30000}
+                {"dishID": 0, "dishName": "Rice Noodles", "quantity": 1, "price": 10000},
+                {"dishID": 1, "dishName": "Lime Juice", "quantity": 1, "price": 20000},
+                {"dishID": 2, "dishName": "Vegan Noodle", "quantity": 1, "price": 30000}
               ]
             },
           ],
@@ -117,9 +113,9 @@ void main() {
               "checkoutTime": "2020-11-13 01:31:47.658",
               "totalPrice": 120000,
               "lineItems": [
-                {"dishID": 0, "dishName": "Rice Noodles", "quantity": 1, "amount": 10000},
-                {"dishID": 4, "dishName": "Fried Chicken with Egg", "quantity": 1, "amount": 50000},
-                {"dishID": 5, "dishName": "Kimchi", "quantity": 1, "amount": 60000}
+                {"dishID": 0, "dishName": "Rice Noodles", "quantity": 1, "price": 10000},
+                {"dishID": 4, "dishName": "Fried Chicken with Egg", "quantity": 1, "price": 50000},
+                {"dishID": 5, "dishName": "Kimchi", "quantity": 1, "price": 60000}
               ]
             },
           ],
@@ -129,7 +125,7 @@ void main() {
               "checkoutTime": "2020-11-14 01:31:59.936",
               "totalPrice": 70000,
               "lineItems": [
-                {"dishID": 6, "dishName": "Coffee", "quantity": 1, "amount": 70000}
+                {"dishID": 6, "dishName": "Coffee", "quantity": 1, "price": 70000}
               ]
             },
           ],
@@ -200,8 +196,8 @@ void main() {
               "checkoutTime": "2020-11-12 01:31:32.840",
               "totalPrice": 30000,
               "lineItems": [
-                {"dishID": 0, "dishName": "Rice Noodles", "quantity": 1, "amount": 10000},
-                {"dishID": 1, "dishName": "Lime Juice", "quantity": 1, "amount": 20000},
+                {"dishID": 0, "dishName": "Rice Noodles", "quantity": 1, "price": 10000},
+                {"dishID": 1, "dishName": "Lime Juice", "quantity": 1, "price": 20000},
               ],
               "isDeleted": false,
             },
@@ -210,8 +206,8 @@ void main() {
               "checkoutTime": "2020-11-12 02:31:32.840",
               "totalPrice": 70000,
               "lineItems": [
-                {"dishID": 1, "dishName": "Lime Juice", "quantity": 2, "amount": 40000},
-                {"dishID": 2, "dishName": "Vegan Noodle", "quantity": 1, "amount": 30000}
+                {"dishID": 1, "dishName": "Lime Juice", "quantity": 2, "price": 40000},
+                {"dishID": 2, "dishName": "Vegan Noodle", "quantity": 1, "price": 30000}
               ],
               "isDeleted": false,
             },

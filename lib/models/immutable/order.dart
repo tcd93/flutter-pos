@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
+
+import '../../storage_engines/connection_interface.dart';
 import '../line_item.dart';
 import '../state/state_object.dart';
 import '../supplier.dart';
+import '../table.dart';
 
 /// The order snapshot, can not be affected by changes from menu editor
 class Order implements StateObject {
@@ -34,18 +37,33 @@ class Order implements StateObject {
 
   @override
   int get totalPrice => lineItems
-      .where((entry) => entry.isBeingOrdered())
-      .fold(0, (prev, order) => prev + (order.price * order.quantity));
+      ?.where((entry) => entry.isBeingOrdered())
+      ?.fold(0, (prev, order) => prev + (order.price * order.quantity));
 
   @override
   int get totalQuantity => lineItems.fold(0, (prevValue, item) => prevValue + item.quantity);
 
-  Future<void> checkout({DateTime atTime, BuildContext context}) async {
-    final _tracker = context?.read<Supplier>();
-    orderID = await _tracker?.database?.nextUID();
+  /// One of `context`, `supplier`, `database`, `model` parameter is required
+  /// Someone should probably refactor this
+  Future<void> checkout({
+    DateTime atTime,
+    TableModel model,
+    BuildContext context,
+    Supplier supplier,
+    DatabaseConnectionInterface database,
+  }) async {
+    final _tracker = context?.read<Supplier>() ?? supplier;
+
+    final _model = _tracker?.getTable(tableID) ?? model;
+    assert(_model != null);
+
+    orderID = await _tracker?.database?.nextUID() ?? await database?.nextUID();
     checkoutTime = atTime ?? DateTime.now();
-    await _tracker?.database?.insert(this);
-    _tracker?.getTable(tableID)?.cleanState(); // clear state
+
+    final db = _tracker?.database ?? database;
+    await db?.insert(this);
+
+    _model?.cleanState(); // clear state
     _tracker?.notifyListeners();
   }
 
