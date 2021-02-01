@@ -22,9 +22,9 @@ const RESOURCES = {
 "assets/google_fonts/Eczar-Regular.ttf": "c7ea37b1332eb3de9f29eaaf48152516",
 "icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
-"main.dart.js": "6fa251c58b6bb109ed276ed32e74a675",
-"index.html": "5fc7870b27dab4c310bceae1dec5b989",
-"/": "5fc7870b27dab4c310bceae1dec5b989",
+"main.dart.js": "9d8cfecbb9a6eb517eefa3f2abd07d03",
+"index.html": "007ed181c508a8e02551fe794b6ed2d2",
+"/": "007ed181c508a8e02551fe794b6ed2d2",
 "manifest.json": "618b9ac624b6bf089537fc775d35fbed"
 };
 
