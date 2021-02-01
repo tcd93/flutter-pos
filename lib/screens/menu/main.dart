@@ -56,7 +56,7 @@ class MenuScreen extends StatelessWidget {
                         model.setTableStatus(TableStatus.incomplete);
                       }
                     },
-                    imagePath: Dish.at(index).imagePath,
+                    imageData: Dish.at(index).imageBytes,
                     subtitle: '${dish.dish} (${Money.format(dish.price)})',
                     key: ObjectKey(model),
                   ),

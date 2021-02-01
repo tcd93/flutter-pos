@@ -14,6 +14,8 @@ import 'screens/menu/main.dart';
 import 'storage_engines/connection_interface.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   final storage = DatabaseFactory().create('local-storage');
 
   runApp(PosApp(storage));
@@ -21,8 +23,13 @@ void main() {
 
 class PosApp extends StatelessWidget {
   final DatabaseConnectionInterface _storage;
+  final Future _init;
 
-  PosApp([this._storage]);
+  PosApp([this._storage])
+      : _init = Future.wait([
+          _storage.open(),
+          Menu().load(),
+        ], eagerError: true);
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +45,7 @@ class PosApp extends StatelessWidget {
       supportedLocales: S.delegate.supportedLocales,
       initialRoute: '/',
       builder: (_, screen) => FutureBuilder<dynamic>(
-        future: _storage.open(),
+        future: _init,
         builder: (_, dbSnapshot) {
           if (dbSnapshot.hasData) {
             return ChangeNotifierProvider(

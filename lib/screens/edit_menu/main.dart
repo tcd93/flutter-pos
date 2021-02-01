@@ -180,7 +180,7 @@ class __ListItemState extends State<_ListItem> {
     assert(dish != null);
     final dishNameController = TextEditingController(text: dish.dish);
     final priceController = TextEditingController(text: Money.format(dish.price));
-    var img = dish.imagePath;
+    var img = dish.imageBytes;
 
     return Padding(
       key: _gk,
@@ -188,7 +188,7 @@ class __ListItemState extends State<_ListItem> {
       child: FormContent(
         inputs: buildInputs(dishNameController, priceController, TextAlign.start),
         avatar: Avatar(
-          path: dish.imagePath,
+          imageData: dish.imageBytes,
           onNew: (image) => img = image,
         ),
         gap: 12.0,

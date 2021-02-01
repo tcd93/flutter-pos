@@ -1,23 +1,38 @@
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'dart:async';
+import 'dart:typed_data';
 
-import '../../common/common.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 const _width = 98.0;
 const _height = 98.0;
 
 /// Image of the dish, edittable
-class Avatar extends StatelessWidget {
-  /// path to image
-  final String path;
-  final void Function(String image) onNew;
+class Avatar extends StatefulWidget {
+  final Uint8List imageData;
+  final void Function(Uint8List image) onNew;
 
-  Avatar({this.path, this.onNew});
+  Avatar({this.imageData, this.onNew});
+
+  @override
+  _AvatarState createState() => _AvatarState();
+}
+
+class _AvatarState extends State<Avatar> {
+  FutureOr<Uint8List> image;
+
+  @override
+  void initState() {
+    image = widget.imageData ??
+        rootBundle.load('assets/coffee.png').then(
+              (data) => data.buffer.asUint8List(),
+            );
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    var imagePath = path ?? 'assets/coffee.png';
-
     return Center(
       child: Stack(
         children: [
@@ -25,28 +40,7 @@ class Avatar extends StatelessWidget {
             child: Container(
               width: _width,
               height: _height,
-              child: StatefulBuilder(
-                builder: (_, setNewAvatar) {
-                  return RaisedButton(
-                    onPressed: () async {
-                      final img = await _getImage();
-                      if (img != null && img != imagePath) {
-                        setNewAvatar(() {
-                          imagePath = img;
-                        });
-                        onNew?.call(img);
-                      }
-                    },
-                    color: Colors.transparent,
-                    padding: EdgeInsets.all(0.0),
-                    shape: const CircleBorder(
-                      side: BorderSide(width: 3.0, color: Colors.black38),
-                    ),
-                    // use SizedBox.expand here to stretch the image (boxfit.fill not work!)
-                    child: SizedBox.expand(child: Common.convertImage(imagePath)),
-                  );
-                },
-              ),
+              child: imageButton(),
             ),
           ),
           Positioned(
@@ -58,16 +52,63 @@ class Avatar extends StatelessWidget {
       ),
     );
   }
+
+  FutureBuilder<Uint8List> imageButton() {
+    return FutureBuilder(
+      future: Future.sync(() => image),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          final img = snapshot.data;
+
+          return RaisedButton(
+            onPressed: () async {
+              final selected = await _getImage();
+              if (selected != null && selected != img) {
+                setState(() {
+                  image = selected;
+                  widget.onNew?.call(selected);
+                });
+              }
+            },
+            color: Colors.transparent,
+            padding: EdgeInsets.all(0.0),
+            shape: const CircleBorder(
+              side: BorderSide(width: 3.0, color: Colors.black38),
+            ),
+            child: Image.memory(
+              img,
+              width: _width,
+              height: _height,
+              fit: BoxFit.fill,
+              frameBuilder: (_, Widget child, int frame, bool wasSynchronouslyLoaded) {
+                if (wasSynchronouslyLoaded) {
+                  return child;
+                }
+                return AnimatedOpacity(
+                  child: child,
+                  opacity: frame == null ? 0 : 1,
+                  duration: const Duration(seconds: 1),
+                  curve: Curves.easeOut,
+                );
+              },
+            ),
+          );
+        } else {
+          return CircularProgressIndicator();
+        }
+      },
+    );
+  }
 }
 
-Future<String> _getImage() async {
+Future<Uint8List> _getImage() async {
   final pickedFile = await ImagePicker().getImage(
     source: ImageSource.gallery,
     maxHeight: _height,
     maxWidth: _width,
   );
   if (pickedFile != null) {
-    return pickedFile.path;
+    return pickedFile.readAsBytes();
   }
   return null;
 }

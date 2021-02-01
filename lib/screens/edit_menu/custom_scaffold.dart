@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -69,7 +71,7 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    var displayImg = 'assets/coffee.png';
+    Uint8List displayImg;
 
     return Scaffold(
       extendBody: true,
@@ -103,7 +105,7 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: _CenterDockedButton(
         expanded,
-        onNewAvatar: (imgPath) => displayImg = imgPath,
+        onNewAvatar: (img) => displayImg = img,
         animation: animController,
       ),
       body: ValueListenableBuilder(
@@ -178,7 +180,7 @@ class _BottomAppBarContainer extends StatelessWidget {
 
 class _CenterDockedButton extends StatelessWidget {
   final ValueNotifier<bool> expanded;
-  final void Function(String imgPath) onNewAvatar;
+  final void Function(Uint8List img) onNewAvatar;
   final AnimationController animation;
 
   const _CenterDockedButton(this.expanded, {@required this.animation, this.onNewAvatar});

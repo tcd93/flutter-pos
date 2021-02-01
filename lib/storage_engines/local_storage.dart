@@ -58,7 +58,7 @@ extension on Dish {
     return {
       'id': id,
       'dish': dish,
-      'imagePath': imagePath,
+      'imageBytes': imageBytes,
       'price': price,
     };
   }
@@ -114,7 +114,7 @@ class LocalStorage implements DatabaseConnectionInterface {
         decoded['discountRate'],
         lines
             .map((e) => LineItem(
-                  associatedDish: Dish(e['dishID'], e['dishName'], e['price'], e['imagePath']),
+                  associatedDish: Dish(e['dishID'], e['dishName'], e['price'], e['imageBytes']),
                   quantity: e['quantity'],
                 ))
             .toList(),
@@ -141,7 +141,7 @@ class LocalStorage implements DatabaseConnectionInterface {
       var decoded = v is Map<String, dynamic> ? v : json.decode(v) as Map<String, dynamic>;
       return MapEntry(
         key.toString(),
-        Dish(decoded['id'], decoded['dish'], decoded['price'], decoded['imagePath']),
+        Dish(decoded['id'], decoded['dish'], decoded['price'], decoded['imageBytes']),
       );
     });
   }

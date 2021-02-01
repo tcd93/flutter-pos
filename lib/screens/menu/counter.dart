@@ -1,7 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
-
-import '../../common/common.dart';
 
 const double height = 85.0;
 
@@ -9,7 +9,7 @@ const double height = 85.0;
 class Counter extends StatefulWidget {
   final _memoizer = AsyncMemoizer();
   final int startingValue;
-  final String imagePath;
+  final Uint8List imageData;
   final String subtitle;
   final TextEditingController textEditingController;
   final void Function(int currentValue) onIncrement;
@@ -19,7 +19,7 @@ class Counter extends StatefulWidget {
     this.startingValue, {
     this.onIncrement,
     this.onDecrement,
-    this.imagePath,
+    this.imageData,
     this.subtitle,
     Key key,
   })  : textEditingController = TextEditingController(
@@ -152,7 +152,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                 child: cardContent,
               ),
             ),
-            if (widget.imagePath != null)
+            if (widget.imageData != null)
               Container(
                 height: height,
                 decoration: ShapeDecoration(
@@ -167,7 +167,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                 ),
                 child: FractionallySizedBox(
                   widthFactor: 0.3,
-                  child: Common.convertImage(widget.imagePath),
+                  child: Image.memory(widget.imageData),
                 ),
                 clipBehavior: Clip.hardEdge, // clip to circle avatar
               ),
