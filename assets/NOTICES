@@ -15167,6 +15167,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 --------------------------------------------------------------------------------
+super_tooltip
+
+MIT
+
+Developed by Thomas Burkhart. 
+Concept and Copyright by Marcelo Glasberg.
+
+
+--------------------------------------------------------------------------------
 tcmalloc
 
 Copyright (c) 2003, Google Inc.

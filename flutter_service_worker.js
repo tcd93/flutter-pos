@@ -8,7 +8,7 @@ const RESOURCES = {
 "assets/FontManifest.json": "7b2a36307916a9721811788013e65289",
 "assets/AssetManifest.json": "fee523e852532cb211da6c8584cf125f",
 "assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
-"assets/NOTICES": "827126beaa5b2f3f4494c4291b986b57",
+"assets/NOTICES": "f244c9a6889048784abda09a284ad904",
 "assets/assets/vegan_noodles.png": "5dbcc623b0932869ba9d239efd5244fd",
 "assets/assets/kimchi.png": "78105c408292d02994c0b3aede0365a7",
 "assets/assets/fried_chicken-with_with_wit_egg.png": "071da3cc59a90669087debcdd762e8be",
@@ -22,9 +22,9 @@ const RESOURCES = {
 "assets/google_fonts/Eczar-Regular.ttf": "c7ea37b1332eb3de9f29eaaf48152516",
 "icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
-"main.dart.js": "3f3447623e03b025aeaf7e2b8e6fee77",
-"index.html": "c4c7762e9102faaec9965f6466486a7a",
-"/": "c4c7762e9102faaec9965f6466486a7a",
+"main.dart.js": "6fa251c58b6bb109ed276ed32e74a675",
+"index.html": "d07b1008c38cfd17bcbae8e737d3ba85",
+"/": "d07b1008c38cfd17bcbae8e737d3ba85",
 "manifest.json": "618b9ac624b6bf089537fc775d35fbed"
 };
 
