@@ -8,6 +8,10 @@ void main() {
   Supplier supplier;
   TableModel table;
 
+  setUpAll(() async {
+    await Menu().load();
+  });
+
   setUp(() async {
     supplier = Supplier(
       database: null,
