@@ -8,7 +8,7 @@ A mobile POS written in _Flutter_, suitable for small cafe/restaurant, fully off
 
 **Support:**
 - Android
-- Web (unable to print, _local-storage_ unable to persist uploaded images)
+- Web (unable to print, yet)
 - English & Vietnamese (auto detect Locale)
 
 ---
