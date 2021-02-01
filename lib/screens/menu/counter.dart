@@ -11,6 +11,7 @@ class Counter extends StatefulWidget {
   final _memoizer = AsyncMemoizer();
   final int startingValue;
   final Uint8List imageData;
+  final String title;
   final String subtitle;
   final TextEditingController textEditingController;
   final void Function(int currentValue) onIncrement;
@@ -21,7 +22,8 @@ class Counter extends StatefulWidget {
     this.onIncrement,
     this.onDecrement,
     this.imageData,
-    this.subtitle,
+    @required this.title,
+    @required this.subtitle,
     Key key,
   })  : textEditingController = TextEditingController(
           text: startingValue.toString(),
@@ -94,37 +96,36 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
             Container(
               height: height - 20.0,
               child: Card(
-                margin: const EdgeInsets.only(left: height - 20),
+                margin: const EdgeInsets.only(left: height - 20.0),
                 color: colorTween.animate(animController).value,
                 child: GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onTap: () => value = add(animController, value),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         const Spacer(),
-                        if (widget.subtitle != null)
-                          Expanded(
-                            flex: 7,
-                            child: Text(
-                              widget.subtitle,
+                        Expanded(
+                          flex: 7,
+                          child: ListTile(
+                            minVerticalPadding: 2.0,
+                            horizontalTitleGap: 2.0,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 2.0),
+                            title: Text(
+                              widget.title,
                               overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.subtitle2,
-                              softWrap: true,
                               maxLines: 2,
                             ),
+                            subtitle: Text(widget.subtitle),
                           ),
+                        ),
                         Expanded(
-                          child: FittedBox(
-                            child: FloatingActionButton(
-                              // decrease
-                              heroTag: null,
-                              child: Icon(Icons.remove),
-                              onPressed: () => value = sub(animController, value),
-                            ),
+                          child: FloatingActionButton(
+                            // decrease
+                            heroTag: null,
+                            child: Icon(Icons.remove),
+                            onPressed: () => value = sub(animController, value),
                           ),
                         ),
                         Expanded(
@@ -137,13 +138,11 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                           ),
                         ),
                         Expanded(
-                          child: FittedBox(
-                            child: FloatingActionButton(
-                              // increase
-                              heroTag: null,
-                              child: Icon(Icons.add),
-                              onPressed: () => value = add(animController, value),
-                            ),
+                          child: FloatingActionButton(
+                            // increase
+                            heroTag: null,
+                            child: Icon(Icons.add),
+                            onPressed: () => value = add(animController, value),
                           ),
                         ),
                         const SizedBox(width: 2.0),
@@ -157,6 +156,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
               Container(
                 height: height,
                 width: height,
+                margin: const EdgeInsets.only(left: 2.0),
                 decoration: ShapeDecoration(
                   shape: CircleBorder(),
                   shadows: [

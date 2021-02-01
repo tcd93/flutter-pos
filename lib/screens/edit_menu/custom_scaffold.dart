@@ -187,6 +187,14 @@ class _CenterDockedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // avoid unneccessary object recreations
+    final _avatar = Avatar(onNew: onNewAvatar);
+    final _fab = FloatingActionButton(
+      child: Icon(Icons.add),
+      backgroundColor: RallyColors.buttonColor,
+      onPressed: () => expanded.value = true,
+    );
+
     return RadialMenu(
       width: 56.0,
       height: 56.0,
@@ -195,14 +203,10 @@ class _CenterDockedButton extends StatelessWidget {
       endScale: 1.8,
       animationController: animation,
       closedBuilder: (_, __) {
-        return FloatingActionButton(
-          child: Icon(Icons.add),
-          backgroundColor: RallyColors.buttonColor,
-          onPressed: () => expanded.value = true,
-        );
+        return _fab;
       },
       openBuilder: (_, __) {
-        return Avatar(onNew: onNewAvatar);
+        return _avatar;
       },
     );
   }

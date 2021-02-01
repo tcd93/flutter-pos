@@ -33,30 +33,27 @@ class _AvatarState extends State<Avatar> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Stack(
-        children: [
-          ClipOval(
-            child: Container(
-              width: _width,
-              height: _height,
-              child: imageButton(),
-            ),
+    return Stack(
+      children: [
+        Container(
+          width: _width,
+          height: _height,
+          child: imageButton(),
+        ),
+        if (widget.onNew != null)
+          Positioned(
+            bottom: 0.0,
+            right: 0.0,
+            child: Icon(Icons.edit, size: 16.0),
           ),
-          if (widget.onNew != null)
-            Positioned(
-              bottom: 0.0,
-              right: 0.0,
-              child: Icon(Icons.edit, size: 16.0),
-            ),
-        ],
-      ),
+      ],
     );
   }
 
   FutureBuilder<Uint8List> imageButton() {
+    final _img = Future.sync(() => image);
     return FutureBuilder(
-      future: Future.sync(() => image),
+      future: _img,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           final img = snapshot.data;
@@ -78,22 +75,9 @@ class _AvatarState extends State<Avatar> {
             shape: const CircleBorder(
               side: BorderSide(width: 3.0, color: Colors.black38),
             ),
-            child: Image.memory(
-              img,
-              width: _width,
-              height: _height,
-              fit: BoxFit.fill,
-              frameBuilder: (_, Widget child, int frame, bool wasSynchronouslyLoaded) {
-                if (wasSynchronouslyLoaded) {
-                  return child;
-                }
-                return AnimatedOpacity(
-                  child: child,
-                  opacity: frame == null ? 0 : 1,
-                  duration: const Duration(seconds: 1),
-                  curve: Curves.easeOut,
-                );
-              },
+            child: CircleAvatar(
+              backgroundImage: MemoryImage(img),
+              radius: _width,
             ),
           );
         } else {

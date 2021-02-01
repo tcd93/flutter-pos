@@ -57,7 +57,8 @@ class MenuScreen extends StatelessWidget {
                       }
                     },
                     imageData: Dish.at(index).imageBytes,
-                    subtitle: '${dish.dish} (${Money.format(dish.price)})',
+                    title: dish.dish,
+                    subtitle: '(${Money.format(dish.price)})',
                     key: ObjectKey(model),
                   ),
                 );
