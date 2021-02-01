@@ -1,0 +1,38 @@
+name: Flutter_Web
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - name: Build 🔧 
+        uses: subosito/flutter-action@v1
+        with:
+          channel: beta
+      - run: |
+            flutter config --enable-web
+            flutter pub get
+            flutter test
+            flutter build web --web-renderer canvaskit
+      # https://github.com/flutter/flutter/issues/69760
+      - name: Post Build 🛸
+        run: |
+            sed -i 's/<base href="\/">/<base href="\/flutter-pos\/">/g' ./build/web/index.html
+            cat ./build/web/index.html
+      - name: Deploy 🚀
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
