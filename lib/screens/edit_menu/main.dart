@@ -8,7 +8,7 @@ import '../../theme/rally.dart';
 import '../../generated/l10n.dart';
 import '../../provider/src.dart';
 import '../popup_del.dart';
-import 'avatar.dart';
+import '../avatar.dart';
 import 'custom_scaffold.dart';
 import 'debouncer.dart';
 

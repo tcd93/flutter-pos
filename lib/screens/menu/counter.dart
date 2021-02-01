@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
+import '../avatar.dart';
 
 const double height = 85.0;
 
@@ -74,62 +75,8 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
 
     return AnimatedBuilder(
       animation: animController,
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () => value = add(animController, value),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              const Spacer(),
-              if (widget.subtitle != null)
-                Expanded(
-                  flex: 7,
-                  child: Text(
-                    widget.subtitle,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.subtitle2,
-                    softWrap: true,
-                    maxLines: 2,
-                  ),
-                ),
-              Expanded(
-                child: FittedBox(
-                  child: FloatingActionButton(
-                    // decrease
-                    heroTag: null,
-                    child: Icon(Icons.remove),
-                    onPressed: () => value = sub(animController, value),
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: TextField(
-                  controller: widget.textEditingController,
-                  enabled: false,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headline5,
-                ),
-              ),
-              Expanded(
-                child: FittedBox(
-                  child: FloatingActionButton(
-                    // increase
-                    heroTag: null,
-                    child: Icon(Icons.add),
-                    onPressed: () => value = add(animController, value),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 2.0),
-            ],
-          ),
-        ),
-      ),
-      builder: (context, cardContent) {
+      child: Avatar(imageData: widget.imageData),
+      builder: (context, child) {
         if (widget.startingValue != 0) {
           widget._memoizer.runOnce(() {
             animController.forward();
@@ -149,12 +96,67 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
               child: Card(
                 margin: const EdgeInsets.only(left: height - 20),
                 color: colorTween.animate(animController).value,
-                child: cardContent,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () => value = add(animController, value),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        const Spacer(),
+                        if (widget.subtitle != null)
+                          Expanded(
+                            flex: 7,
+                            child: Text(
+                              widget.subtitle,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.subtitle2,
+                              softWrap: true,
+                              maxLines: 2,
+                            ),
+                          ),
+                        Expanded(
+                          child: FittedBox(
+                            child: FloatingActionButton(
+                              // decrease
+                              heroTag: null,
+                              child: Icon(Icons.remove),
+                              onPressed: () => value = sub(animController, value),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: TextField(
+                            controller: widget.textEditingController,
+                            enabled: false,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.headline5,
+                          ),
+                        ),
+                        Expanded(
+                          child: FittedBox(
+                            child: FloatingActionButton(
+                              // increase
+                              heroTag: null,
+                              child: Icon(Icons.add),
+                              onPressed: () => value = add(animController, value),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 2.0),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
             if (widget.imageData != null)
               Container(
                 height: height,
+                width: height,
                 decoration: ShapeDecoration(
                   shape: CircleBorder(),
                   shadows: [
@@ -165,11 +167,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                     ),
                   ],
                 ),
-                child: FractionallySizedBox(
-                  widthFactor: 0.3,
-                  child: Image.memory(widget.imageData),
-                ),
-                clipBehavior: Clip.hardEdge, // clip to circle avatar
+                child: child,
               ),
           ],
         );

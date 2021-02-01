@@ -43,11 +43,12 @@ class _AvatarState extends State<Avatar> {
               child: imageButton(),
             ),
           ),
-          Positioned(
-            bottom: 0.0,
-            right: 0.0,
-            child: Icon(Icons.edit, size: 16.0),
-          ),
+          if (widget.onNew != null)
+            Positioned(
+              bottom: 0.0,
+              right: 0.0,
+              child: Icon(Icons.edit, size: 16.0),
+            ),
         ],
       ),
     );
@@ -61,15 +62,17 @@ class _AvatarState extends State<Avatar> {
           final img = snapshot.data;
 
           return RaisedButton(
-            onPressed: () async {
-              final selected = await _getImage();
-              if (selected != null && selected != img) {
-                setState(() {
-                  image = selected;
-                  widget.onNew?.call(selected);
-                });
-              }
-            },
+            onPressed: widget.onNew != null
+                ? () async {
+                    final selected = await _getImage();
+                    if (selected != null && selected != img) {
+                      setState(() {
+                        image = selected;
+                        widget.onNew(selected);
+                      });
+                    }
+                  }
+                : null,
             color: Colors.transparent,
             padding: EdgeInsets.all(0.0),
             shape: const CircleBorder(
@@ -106,6 +109,7 @@ Future<Uint8List> _getImage() async {
     source: ImageSource.gallery,
     maxHeight: _height,
     maxWidth: _width,
+    imageQuality: 1,
   );
   if (pickedFile != null) {
     return pickedFile.readAsBytes();

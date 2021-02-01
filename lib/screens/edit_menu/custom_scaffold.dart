@@ -7,7 +7,7 @@ import 'package:flutter/rendering.dart';
 import '../../common/common.dart';
 import '../../theme/rally.dart';
 import '../../provider/src.dart';
-import 'avatar.dart';
+import '../avatar.dart';
 import 'menu_form.dart';
 
 const Duration _animDuration = Duration(milliseconds: 600);
