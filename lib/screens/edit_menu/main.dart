@@ -78,6 +78,7 @@ class EditMenuScreenState extends State<EditMenuScreen> {
                   return _ListItem(
                     filteredDishes[index],
                     onEdit: (editedDish) async {
+                      Dish.setMenu(editedDish);
                       setState(() {
                         filteredDishes[index] = editedDish;
                         dishes[index] = editedDish;
@@ -98,6 +99,7 @@ class EditMenuScreenState extends State<EditMenuScreen> {
                       });
                     },
                     onDelete: () {
+                      Dish.deleteMenu(filteredDishes[index]);
                       setState(() {
                         filteredDishes.removeAt(index);
                         dishes.removeAt(index);
