@@ -35,7 +35,10 @@ dependencies:
       url: git://github.com/tcd93/blue_thermal_printer
       ref: master
   google_fonts: ^1.1.1
-  date_range_picker: ^1.0.5
+  date_range_picker:
+    git:
+      url: git://github.com/tcd93/date_range_picker
+      ref: master
   super_tooltip: ^0.9.6
 
   # The following adds the Cupertino Icons font to your application.
