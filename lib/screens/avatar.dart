@@ -58,7 +58,7 @@ class _AvatarState extends State<Avatar> {
         if (snapshot.connectionState == ConnectionState.done) {
           final img = snapshot.data;
 
-          return RaisedButton(
+          return MaterialButton(
             onPressed: widget.onNew != null
                 ? () async {
                     final selected = await _getImage();
