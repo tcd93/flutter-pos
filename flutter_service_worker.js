@@ -3,29 +3,29 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
-  "favicon.png": "5dcef449791fa27946b3d35ad8803796",
-"version.json": "7d471c710d1d7146ea0ceeb149a89dc0",
-"assets/FontManifest.json": "7b2a36307916a9721811788013e65289",
-"assets/AssetManifest.json": "fee523e852532cb211da6c8584cf125f",
-"assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
-"assets/NOTICES": "f244c9a6889048784abda09a284ad904",
+  "assets/assets/coffee.png": "29a0688d03b19eea14993c1bd3423dda",
+"assets/assets/lime_juice.png": "523c70243ffbb8cac2071ef53e724602",
+"assets/assets/rice_noodles.png": "ffbb2e87d2bf0dfa92bb26103a1cf67c",
 "assets/assets/vegan_noodles.png": "5dbcc623b0932869ba9d239efd5244fd",
 "assets/assets/kimchi.png": "78105c408292d02994c0b3aede0365a7",
 "assets/assets/fried_chicken-with_with_wit_egg.png": "071da3cc59a90669087debcdd762e8be",
-"assets/assets/coffee.png": "29a0688d03b19eea14993c1bd3423dda",
-"assets/assets/lime_juice.png": "523c70243ffbb8cac2071ef53e724602",
-"assets/assets/rice_noodles.png": "ffbb2e87d2bf0dfa92bb26103a1cf67c",
 "assets/assets/oatmeal_with_berries_and_coconut.png": "61fe779e9661d90c58ea2aece4e1713f",
+"assets/NOTICES": "d7fec8fefd9f46743a27be842f6eb19b",
+"assets/AssetManifest.json": "fee523e852532cb211da6c8584cf125f",
+"assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
 "assets/google_fonts/RobotoCondensed-Regular.ttf": "52ee8b598488b1ffbaa93e50cbd6a2f4",
-"assets/google_fonts/Eczar-SemiBold.ttf": "7d2b9b43ddc45f11f9cfddd5a17dcbd2",
 "assets/google_fonts/RobotoCondensed-Bold.ttf": "cbd4e701269338259ee0b39a0b768167",
+"assets/google_fonts/Eczar-SemiBold.ttf": "7d2b9b43ddc45f11f9cfddd5a17dcbd2",
 "assets/google_fonts/Eczar-Regular.ttf": "c7ea37b1332eb3de9f29eaaf48152516",
-"icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
+"assets/FontManifest.json": "7b2a36307916a9721811788013e65289",
+"version.json": "7d471c710d1d7146ea0ceeb149a89dc0",
+"manifest.json": "618b9ac624b6bf089537fc775d35fbed",
+"index.html": "17fb93f29d8e569438f0a7f945c4904c",
+"/": "17fb93f29d8e569438f0a7f945c4904c",
+"favicon.png": "5dcef449791fa27946b3d35ad8803796",
+"main.dart.js": "db797fb58c78fa5e8ccb92a16f105b45",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
-"main.dart.js": "9d8cfecbb9a6eb517eefa3f2abd07d03",
-"index.html": "007ed181c508a8e02551fe794b6ed2d2",
-"/": "007ed181c508a8e02551fe794b6ed2d2",
-"manifest.json": "618b9ac624b6bf089537fc775d35fbed"
+"icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1"
 };
 
 // The application shell files that are downloaded before a service worker can
@@ -169,7 +169,7 @@ async function downloadOffline() {
     }
     currentContent[key] = true;
   }
-  for (var resourceKey in Object.keys(RESOURCES)) {
+  for (var resourceKey of Object.keys(RESOURCES)) {
     if (!currentContent[resourceKey]) {
       resources.push(resourceKey);
     }
