@@ -8,17 +8,18 @@ import '../provider/src.dart';
 class Printer {
   Printer._();
 
-  static List<BluetoothDevice> _bondedDevices;
+  static List<BluetoothDevice>? _bondedDevices;
 
-  static BluetoothDevice _device;
+  static late BluetoothDevice _device;
 
   static BlueThermalPrinter get instance => BlueThermalPrinter.instance;
 
-  static Future<void> print(BuildContext context, StateObject o, [double customerPayAmount]) async {
-    if (_bondedDevices == null) {
+  static Future<void> print(BuildContext context, StateObject o,
+      [double? customerPayAmount]) async {
+    if (_bondedDevices == null || _bondedDevices!.isEmpty) {
       try {
         _bondedDevices = await instance.getBondedDevices();
-        if (_bondedDevices.isEmpty) {
+        if (_bondedDevices!.isEmpty) {
           final snackbar = SnackBar(content: Text('No bluetooth devices!'));
           ScaffoldMessenger.of(context).showSnackBar(snackbar);
           return;
@@ -32,7 +33,7 @@ class Printer {
 
     var isConnected = await instance.isConnected;
     if (!isConnected) {
-      _device = _bondedDevices[0];
+      _device = _bondedDevices![0];
       try {
         await instance.connect(_device);
       } on PlatformException catch (e) {
@@ -40,10 +41,6 @@ class Printer {
         ScaffoldMessenger.of(context).showSnackBar(snackbar);
         return;
       }
-    }
-    if (o.checkoutTime == null) {
-      debugPrint('checkoutTime is null, something is wrong');
-      return;
     }
     var list = o.lineItems.where((i) => i.isBeingOrdered());
     if (list.isEmpty) {
@@ -71,7 +68,7 @@ class Printer {
       );
     }
     await instance.printLeftRight('', '---------', 0);
-    if (o.discountRate != null && o.discountRate < 1.0) {
+    if (o.discountRate < 1.0) {
       await instance.printLeftRight('', Money.format(o.totalPrice), 1);
       await instance.printLeftRight('Discount:', '${((1.0 - o.discountRate) * 100).round()} %', 0);
     }

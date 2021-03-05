@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import './table_icon.dart';
 import '../../common/common.dart';
 import '../../theme/rally.dart';
-import '../../generated/l10n.dart';
 import '../../provider/src.dart';
 import 'anim_longclick_fab.dart';
 
@@ -18,7 +18,7 @@ class LobbyScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Tooltip(
-              message: S.current.lobby_report,
+              message: AppLocalizations.of(context)!.lobby_report,
               child: MaterialButton(
                 onPressed: () => Navigator.pushNamed(context, '/history'),
                 minWidth: MediaQuery.of(context).size.width / 2,
@@ -28,7 +28,7 @@ class LobbyScreen extends StatelessWidget {
             ),
             Text(''),
             Tooltip(
-              message: S.current.lobby_menuEdit,
+              message: AppLocalizations.of(context)!.lobby_menuEdit,
               child: MaterialButton(
                 onPressed: () => Navigator.pushNamed(context, '/edit-menu'),
                 minWidth: MediaQuery.of(context).size.width / 2,
@@ -67,11 +67,11 @@ class _InteractiveBody extends StatelessWidget {
           for (var model in supplier.tables)
             DraggableWidget(
               child: TableIcon(table: model),
-              x: model.offset.x,
-              y: model.offset.y,
+              x: model.getOffset().x,
+              y: model.getOffset().y,
               containerKey: bgKey,
               onDragEnd: (x, y) {
-                model.offset = Coordinate(x, y);
+                model.setOffset(Coordinate(x, y), supplier);
               },
               key: ObjectKey(model),
             ),
@@ -86,5 +86,4 @@ class _InteractiveBody extends StatelessWidget {
 void _addTable(BuildContext context) {
   var supplier = Provider.of<Supplier>(context, listen: false);
   supplier.addTable();
-  supplier.notifyListeners();
 }

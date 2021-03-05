@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../common/common.dart';
-import '../../generated/l10n.dart';
 import '../../provider/src.dart';
 import 'counter.dart';
 
 class MenuScreen extends StatelessWidget {
   final TableModel model;
-  final String fromHeroTag;
+  final String? fromHeroTag;
 
   MenuScreen(this.model, {this.fromHeroTag});
 
@@ -19,7 +19,7 @@ class MenuScreen extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _UndoButton(model, fromHeroTag: fromHeroTag),
+            _UndoButton(model),
             _ConfirmButton(model, fromHeroTag: fromHeroTag),
           ],
         ),
@@ -34,16 +34,18 @@ class MenuScreen extends StatelessWidget {
             return Selector<Supplier, LineItem>(
               // in case new menu dish is created from Edit Menu screen
               // `putIfAbsent` will put new line item to the lineItems object
-              selector: (_, __) => model.putIfAbsent(dish),
+              selector: (_, supplier) => model.putIfAbsent(dish),
               builder: (context, lineItem, _) {
+                final supplier = Provider.of<Supplier>(context);
+
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: Counter(
-                    model.putIfAbsent(dish)?.quantity ?? 0,
+                    model.putIfAbsent(dish).quantity,
                     onIncrement: (_) {
                       lineItem.addOne();
 
-                      model.setTableStatus(TableStatus.incomplete);
+                      model.setTableStatus(TableStatus.incomplete, supplier);
                     },
                     onDecrement: (_) {
                       lineItem.substractOne();
@@ -51,9 +53,9 @@ class MenuScreen extends StatelessWidget {
                       // Then set status to "empty" to disable the [_ConfirmButton]
                       if (model.putIfAbsent(dish).quantity == 0 &&
                           model.totalMenuItemQuantity == 0) {
-                        model.setTableStatus(TableStatus.empty);
+                        model.setTableStatus(TableStatus.empty, supplier);
                       } else {
-                        model.setTableStatus(TableStatus.incomplete);
+                        model.setTableStatus(TableStatus.incomplete, supplier);
                       }
                     },
                     imageData: Dish.at(index).imageBytes,
@@ -71,25 +73,26 @@ class MenuScreen extends StatelessWidget {
 
 class _ConfirmButton extends StatelessWidget {
   final TableModel model;
-  final String fromHeroTag;
+  final String? fromHeroTag;
 
   _ConfirmButton(this.model, {this.fromHeroTag});
 
   @override
   Widget build(BuildContext context) {
     return Hero(
-      tag: fromHeroTag,
+      tag: fromHeroTag ?? UniqueKey(),
       child: Selector<Supplier, TableStatus>(
         selector: (_, __) => model.status,
         builder: (context, status, _) {
           return Tooltip(
-            message: S.current.menu_confirm,
+            message: AppLocalizations.of(context)!.menu_confirm,
             child: MaterialButton(
               minWidth: MediaQuery.of(context).size.width / 2,
               child: Icon(Icons.done),
               onPressed: status == TableStatus.incomplete
                   ? () {
-                      model.setTableStatus(TableStatus.occupied);
+                      final supplier = context.read<Supplier>();
+                      model.setTableStatus(TableStatus.occupied, supplier);
                       model.memorizePreviousState();
                       Navigator.pop(context); // Go back to Lobby Screen
                     }
@@ -104,9 +107,8 @@ class _ConfirmButton extends StatelessWidget {
 
 class _UndoButton extends StatelessWidget {
   final TableModel model;
-  final String fromHeroTag;
 
-  _UndoButton(this.model, {this.fromHeroTag});
+  _UndoButton(this.model);
 
   @override
   Widget build(BuildContext context) {
@@ -115,11 +117,16 @@ class _UndoButton extends StatelessWidget {
       selector: (_, __) => model.status,
       builder: (context, status, _) {
         return Tooltip(
-          message: S.current.menu_undo,
+          message: AppLocalizations.of(context)!.menu_undo,
           child: MaterialButton(
             minWidth: MediaQuery.of(context).size.width / 2,
             child: Icon(Icons.undo),
-            onPressed: status == TableStatus.incomplete ? model.revert : null,
+            onPressed: status == TableStatus.incomplete
+                ? () {
+                    final supplier = context.read<Supplier>();
+                    model.revert(supplier);
+                  }
+                : null,
           ),
         );
       },

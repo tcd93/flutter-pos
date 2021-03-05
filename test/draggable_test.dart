@@ -18,7 +18,7 @@ void main() {
       await tester.drag(find.byWidget(fab), Offset(300.0, 300.0));
       await tester.pumpAndSettle(Duration(seconds: 1));
 
-      RenderBox rb = btnKey.currentState.context.findRenderObject();
+      final rb = btnKey.currentState!.context.findRenderObject()! as RenderBox;
       var globalOffset = rb.localToGlobal(Offset.zero);
       expect(globalOffset, equals(Offset(300, 300)));
     },

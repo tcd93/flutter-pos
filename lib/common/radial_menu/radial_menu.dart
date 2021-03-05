@@ -7,18 +7,18 @@ class RadialMenu extends StatefulWidget {
   final double height;
 
   /// Builder for surrounding sub-buttons
-  final List<Widget> Function(BuildContext, AnimationController) drawerBuilder;
+  final List<Widget> Function(BuildContext, AnimationController)? drawerBuilder;
 
   /// Builder for center button (normal state)
-  final Widget Function(AnimationController, BuildContext) closedBuilder;
+  final Widget Function(AnimationController, BuildContext)? closedBuilder;
 
   /// Builder for center button (expanded state)
-  final Widget Function(AnimationController, BuildContext) openBuilder;
+  final Widget Function(AnimationController, BuildContext)? openBuilder;
 
   final double beginScale, endScale;
 
   /// An animation controller would be create by default, but user can use their own too
-  final Animation animationController;
+  final Animation? animationController;
 
   /// Duration of animation, default 500ms; if [animationController] is passed, then this is ignored
   final Duration duration;
@@ -33,7 +33,7 @@ class RadialMenu extends StatefulWidget {
     this.endScale = 1.0,
     this.animationController,
     this.duration = const Duration(milliseconds: 500),
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -41,16 +41,16 @@ class RadialMenu extends StatefulWidget {
 }
 
 class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateMixin {
-  AnimationController controller;
-  Animation<double> rotation;
-  Animation<double> downScale, upScale;
+  late final AnimationController controller;
+  late final Animation<double> rotation;
+  late final Animation<double> downScale, upScale;
 
   @override
   void initState() {
     super.initState();
 
-    controller =
-        widget.animationController ?? AnimationController(duration: widget.duration, vsync: this);
+    controller = (widget.animationController ??
+        AnimationController(duration: widget.duration, vsync: this)) as AnimationController;
 
     downScale = Tween<double>(begin: widget.beginScale, end: 0.0).animate(
       CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn),
@@ -83,24 +83,31 @@ class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateM
       height: widget.height,
       child: AnimatedBuilder(
         animation: controller,
-        builder: (context, _) => Transform.rotate(
-          angle: radians(rotation.value),
-          child: Stack(
-            alignment: Alignment.center,
-            children: <Widget>[
-              if (widget.drawerBuilder != null) ...widget.drawerBuilder(context, controller),
-              if (widget.openBuilder != null)
-                Transform.scale(
-                  scale: upScale.value,
-                  child: widget.openBuilder(controller, context),
-                ),
-              if (widget.closedBuilder != null)
-                Transform.scale(
-                  scale: downScale.value,
-                  child: widget.closedBuilder(controller, context),
-                ),
-            ],
-          ),
-        ),
+        builder: (context, _) {
+          // copy to local var to enable type promotion
+          final drawerBuilder = widget.drawerBuilder;
+          final openBuilder = widget.openBuilder;
+          final closedBuilder = widget.closedBuilder;
+
+          return Transform.rotate(
+            angle: radians(rotation.value),
+            child: Stack(
+              alignment: Alignment.center,
+              children: <Widget>[
+                if (drawerBuilder != null) ...drawerBuilder(context, controller),
+                if (openBuilder != null)
+                  Transform.scale(
+                    scale: upScale.value,
+                    child: openBuilder(controller, context),
+                  ),
+                if (closedBuilder != null)
+                  Transform.scale(
+                    scale: downScale.value,
+                    child: closedBuilder(controller, context),
+                  ),
+              ],
+            ),
+          );
+        },
       ));
 }

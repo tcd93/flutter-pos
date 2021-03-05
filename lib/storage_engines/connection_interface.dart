@@ -10,24 +10,24 @@ class DatabaseConnectionInterface {
   /// Insert stringified version of [TableState] into database
   Future<void> insert(StateObject state) => Future.microtask(() => null);
 
-  List<Order> get(DateTime day) => null;
+  List<Order> get(DateTime day) => [];
 
-  List<Order> getRange(DateTime from, DateTime to) => null;
+  List<Order> getRange(DateTime from, DateTime to) => [];
 
   /// Get menu from storage
-  Map<String, Dish> getMenu() => null;
+  Map<String, Dish>? getMenu() => null;
 
   /// Overrides current menu in storage with new menu object
-  Future<void> setMenu(Map<String, Dish> newMenu) => null;
+  Future<void> setMenu(Map<String, Dish> newMenu) => Future.value();
 
   /// Soft deletes an order in specified date
-  Future<Order> delete(DateTime day, int orderID) => Future.microtask(() => null);
+  Future<Order> delete(DateTime day, int orderID) => Future.value();
 
   /// Removes all items from database, should be wrapped in try/catch block
   Future<void> destroy() => Future.microtask(() => null);
 
   /// Saves the table node's position on lobby screen to storage
-  Future<void> setCoordinate(int tableID, double x, double y) => null;
+  Future<void> setCoordinate(int tableID, double x, double y) => Future.value();
 
   /// Get position X of table node on screen
   double getX(int tableID) => 0;
@@ -37,9 +37,9 @@ class DatabaseConnectionInterface {
 
   List<int> tableIDs() => [];
 
-  Future<List<int>> addTable(int tableID) => null;
+  Future<List<int>> addTable(int tableID) => Future.value();
 
-  Future<List<int>> removeTable(int tableID) => null;
+  Future<List<int>> removeTable(int tableID) => Future.value();
 
   /// Close connection
   void close() => null;

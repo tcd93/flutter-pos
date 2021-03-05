@@ -9,17 +9,14 @@ class Menu {
 
   /// A `Map<String, Dish>`, where the String key is the dishID.
   /// Note that the key must be a string for `encode/decode` to work
-  Map<String, Dish> list;
+  late Map<String, Dish> list;
 
-  factory Menu() {
-    return _instance;
-  }
+  factory Menu() => _instance;
 
   Menu._internal() {
     load();
   }
 
-  /// load up the "menu" singleton object, should be called early
   Future<void> load() async {
     list = storage.getMenu() ??
         {

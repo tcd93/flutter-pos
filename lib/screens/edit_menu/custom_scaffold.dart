@@ -23,7 +23,7 @@ class CustomScaffold extends StatefulWidget {
   /// called when user press the central FAB in bottom appbar
   final void Function(Dish newDish) onAddDish;
 
-  CustomScaffold({this.body, @required this.onAddDish});
+  CustomScaffold({required this.body, required this.onAddDish});
 
   @override
   _CustomScaffoldState createState() => _CustomScaffoldState();
@@ -33,7 +33,7 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
   final expanded = ValueNotifier(false);
   final dishNameController = TextEditingController();
   final priceController = TextEditingController();
-  AnimationController animController;
+  late AnimationController animController;
 
   @override
   void initState() {
@@ -71,7 +71,7 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    Uint8List displayImg;
+    Uint8List? displayImg;
 
     return Scaffold(
       extendBody: true,
@@ -84,13 +84,13 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
             child: WillPopScope(
               onWillPop: _preventNavPop,
               child: FormContent(
-                inputs: buildInputs(dishNameController, priceController),
+                inputs: buildInputs(context, dishNameController, priceController),
                 onSubmit: () {
                   if (priceController.text.isNotEmpty && dishNameController.text.isNotEmpty) {
                     final newDish = Dish(
                       Dish.newID(),
                       dishNameController.text,
-                      Money.unformat(priceController.text),
+                      Money.unformat(priceController.text).toDouble(),
                       displayImg,
                     );
                     widget.onAddDish(newDish);
@@ -110,7 +110,7 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
       ),
       body: ValueListenableBuilder(
         valueListenable: expanded,
-        builder: (BuildContext context, bool value, Widget body) {
+        builder: (BuildContext context, bool value, Widget? body) {
           return GestureDetector(
             // hides the bottom bar on outside tap
             onTap: () {
@@ -118,7 +118,7 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
             },
             child: _ColoredBarrierLayer(
               expanded,
-              child: body,
+              child: body!,
               animation: animController,
             ),
           );
@@ -137,7 +137,7 @@ class _ColoredBarrierLayer extends StatelessWidget {
   final AnimationController animation;
   final colorTween = ColorTween(begin: Colors.transparent, end: Colors.black54);
 
-  _ColoredBarrierLayer(this.activated, {@required this.animation, @required this.child});
+  _ColoredBarrierLayer(this.activated, {required this.animation, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -157,10 +157,10 @@ class _ColoredBarrierLayer extends StatelessWidget {
 
 class _BottomAppBarContainer extends StatelessWidget {
   final ValueListenable<bool> expanded;
-  final Widget _child;
+  final Widget child;
   final double height;
 
-  const _BottomAppBarContainer(this.expanded, {Widget child, this.height = 500.0}) : _child = child;
+  const _BottomAppBarContainer(this.expanded, {required this.child, this.height = 500.0});
 
   @override
   Widget build(BuildContext context) {
@@ -171,7 +171,7 @@ class _BottomAppBarContainer extends StatelessWidget {
           curve: Curves.easeOutCirc,
           duration: _animDuration,
           height: expanded.value ? height : 48.0,
-          child: expanded.value ? _child : null,
+          child: expanded.value ? child : null,
         );
       },
     );
@@ -183,7 +183,7 @@ class _CenterDockedButton extends StatelessWidget {
   final void Function(Uint8List img) onNewAvatar;
   final AnimationController animation;
 
-  const _CenterDockedButton(this.expanded, {@required this.animation, this.onNewAvatar});
+  const _CenterDockedButton(this.expanded, {required this.animation, required this.onNewAvatar});
 
   @override
   Widget build(BuildContext context) {

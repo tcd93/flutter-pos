@@ -138,10 +138,10 @@ class CustomShape extends ShapeBorder {
   EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
 
   @override
-  Path getInnerPath(Rect rect, {TextDirection textDirection}) => _getPath(rect);
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) => _getPath(rect);
 
   @override
-  Path getOuterPath(Rect rect, {TextDirection textDirection}) => _getPath(rect);
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) => _getPath(rect);
 
   Path _getPath(Rect rect) {
     var baseX = 0.0, baseY = 0.0;
@@ -192,7 +192,7 @@ class CustomShape extends ShapeBorder {
   }
 
   @override
-  void paint(Canvas canvas, Rect rect, {TextDirection textDirection}) {}
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
 
   @override
   ShapeBorder scale(double t) => CustomShape();

@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import './menu_form.dart';
 import '../../common/common.dart';
 import '../../theme/rally.dart';
-import '../../generated/l10n.dart';
 import '../../provider/src.dart';
 import '../popup_del.dart';
 import '../avatar.dart';
@@ -27,7 +27,7 @@ class EditMenuScreenState extends State<EditMenuScreen> {
 
   /// The filtered list of dishes if user use the filter input,
   /// should be the central state object
-  List<Dish> filteredDishes;
+  late List<Dish> filteredDishes;
 
   // New code
   final ScrollController _scrollController = ScrollController();
@@ -56,7 +56,7 @@ class EditMenuScreenState extends State<EditMenuScreen> {
             TextField(
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.all(15.0),
-                hintText: S.current.edit_menu_filterHint,
+                hintText: AppLocalizations.of(context)!.edit_menu_filterHint,
               ),
               onChanged: (string) {
                 _debouncer.run(() {
@@ -85,13 +85,13 @@ class EditMenuScreenState extends State<EditMenuScreen> {
                       });
                     },
                     onShow: (keyOfExpandedWidget) {
-                      final ctx = keyOfExpandedWidget.currentContext;
+                      final ctx = keyOfExpandedWidget.currentContext!;
                       // ensure visibility of this widget after expanded (so it is not obscured by the appbar),
                       // but only call after animation from the `AnimatedCrossFade` is completed so the `ctx.findRenderObject`
                       // find the render object at full height to work with
                       Timer(_animDuration, () {
                         _scrollController.position.ensureVisible(
-                          ctx.findRenderObject(),
+                          ctx.findRenderObject()!,
                           duration: _animDuration,
                           curve: Curves.easeOut,
                           alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
@@ -122,7 +122,7 @@ class _ListItem extends StatefulWidget {
   final VoidCallback onDelete;
   final Dish dish;
 
-  _ListItem(this.dish, {@required this.onEdit, this.onDelete, this.onShow});
+  _ListItem(this.dish, {required this.onEdit, required this.onDelete, required this.onShow});
 
   @override
   __ListItemState createState() => __ListItemState();
@@ -152,13 +152,13 @@ class __ListItemState extends State<_ListItem> {
         setState(() {
           currentState = CrossFadeState.showSecond;
         });
-        widget.onShow?.call(_gk);
+        widget.onShow.call(_gk);
       },
       onLongPress: () async {
         var delete = await popUpDelete(context);
-        if (delete) {
+        if (delete != null && delete) {
           Dish.deleteMenu(widget.dish);
-          widget.onDelete?.call();
+          widget.onDelete.call();
         }
       },
       child: Padding(
@@ -179,7 +179,6 @@ class __ListItemState extends State<_ListItem> {
   }
 
   Widget expanded(BuildContext context, Dish dish, Function(Dish) onEdit) {
-    assert(dish != null);
     final dishNameController = TextEditingController(text: dish.dish);
     final priceController = TextEditingController(text: Money.format(dish.price));
     var img = dish.imageBytes;
@@ -188,7 +187,7 @@ class __ListItemState extends State<_ListItem> {
       key: _gk,
       padding: EdgeInsets.all(8.0),
       child: FormContent(
-        inputs: buildInputs(dishNameController, priceController, TextAlign.start),
+        inputs: buildInputs(context, dishNameController, priceController, TextAlign.start),
         avatar: Avatar(
           imageData: dish.imageBytes,
           onNew: (image) => img = image,
@@ -200,7 +199,7 @@ class __ListItemState extends State<_ListItem> {
             final edittedDish = Dish(
               dish.id,
               dishNameController.text,
-              Money.unformat(priceController.text),
+              Money.unformat(priceController.text).toDouble(),
               img,
             );
             setState(() {

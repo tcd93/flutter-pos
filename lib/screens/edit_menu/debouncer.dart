@@ -4,9 +4,9 @@ import 'package:flutter/foundation.dart';
 /// Throttle the input action
 class Debouncer {
   final int milliseconds;
-  Timer _timer;
+  Timer? _timer;
 
-  Debouncer({this.milliseconds});
+  Debouncer({required this.milliseconds});
 
   void run(VoidCallback action) {
     _timer?.cancel();

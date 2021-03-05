@@ -5,27 +5,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/database_factory.dart';
 import 'package:posapp/provider/src.dart';
 import 'package:posapp/screens/history/main.dart';
-import 'package:posapp/storage_engines/connection_interface.dart';
 
 final DateTime checkoutTime = DateTime.parse('20201112 13:00:00');
 
 void main() {
   Supplier supplier;
-  TableModel checkedOutTable;
-  DatabaseConnectionInterface storage;
+  var checkedOutTable = TableModel(-1);
+  var storage = DatabaseFactory().create('local-storage');
 
   group('Same day report:', () {
     setUpAll(() async {
-      // must set up like this to "overwrite" existing data
-      // also dbName must be different in each test group
-      // as we can't destroy the singleton instance...
-      // (it'll use the same singleton state in every test set ups)
-      storage = DatabaseFactory().create(
-        'local-storage',
-        'test',
-        {},
-        'test-group-1',
-      );
+      storage = DatabaseFactory().create('local-storage', 'test', {}, 'test-group-1');
       await storage.open();
     });
     tearDownAll(() async {
@@ -45,12 +35,12 @@ void main() {
       final testTableID = 1;
       supplier = Supplier(
         database: storage,
-        modelBuilder: (tracker) => [
-          TableModel(tracker, 0),
+        mockModels: [
+          TableModel(0),
           TableModel(
-            tracker,
             1,
-            StateObject.mock(
+            TableState.mock(
+              1,
               List.generate(
                 1,
                 (index) => LineItem(
@@ -65,7 +55,7 @@ void main() {
       checkedOutTable = supplier.getTable(testTableID);
 
       // FOR SOME REASON "CHECK OUT" CAN'T BE DONE INSIDE `testWidgets`
-      await checkedOutTable.checkout(atTime: checkoutTime);
+      await checkedOutTable.checkout(supplier: supplier, atTime: checkoutTime);
     });
 
     testWidgets(

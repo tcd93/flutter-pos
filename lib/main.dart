@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'theme/theme.dart';
 import 'database_factory.dart';
-import 'generated/l10n.dart';
 import 'provider/src.dart';
 import 'screens/order_details/main.dart';
 import 'screens/edit_menu/main.dart';
@@ -25,7 +25,7 @@ class PosApp extends StatelessWidget {
   final DatabaseConnectionInterface _storage;
   final Future _init;
 
-  PosApp([this._storage])
+  PosApp(this._storage)
       : _init = Future.wait([
           _storage.open(),
           Menu().load(),
@@ -37,12 +37,12 @@ class PosApp extends StatelessWidget {
       // title: '',
       theme: appTheme,
       localizationsDelegates: [
-        S.delegate,
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: S.delegate.supportedLocales,
+      supportedLocales: AppLocalizations.supportedLocales,
       initialRoute: '/',
       builder: (_, screen) => FutureBuilder<dynamic>(
         future: _init,
@@ -67,17 +67,17 @@ class PosApp extends StatelessWidget {
       ),
       home: LobbyScreen(),
       onGenerateRoute: (settings) {
-        final argMap = settings.arguments as Map;
-        final String heroTag = argMap != null ? argMap['heroTag'] : null;
-        final TableModel model = argMap != null ? argMap['model'] : null;
-        final String fromScreen = argMap != null ? argMap['from'] : null;
+        final argMap = settings.arguments as Map?;
+        final String heroTag = argMap != null ? argMap['heroTag'] ?? '' : '';
 
         switch (settings.name) {
           case '/menu':
+            final TableModel model = argMap!['model'];
             return routeBuilder(MenuScreen(model, fromHeroTag: heroTag));
-            break;
           case '/order-details':
-            final TableModel order = argMap != null ? argMap['state'] : null;
+            final TableModel order = argMap!['state'];
+            final String fromScreen = argMap['from'] ?? '';
+
             return routeBuilder(
               DetailsScreen(
                 order,
@@ -85,13 +85,10 @@ class PosApp extends StatelessWidget {
                 fromScreen: fromScreen,
               ),
             );
-            break;
           case '/history':
             return routeBuilder(HistoryScreen(_storage));
-            break;
           case '/edit-menu':
             return routeBuilder(EditMenuScreen());
-            break;
           default:
             return MaterialPageRoute(builder: (context) => Center(child: Text('404')));
         }

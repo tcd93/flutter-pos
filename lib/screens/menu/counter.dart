@@ -10,7 +10,7 @@ const double height = 85.0;
 class Counter extends StatefulWidget {
   final _memoizer = AsyncMemoizer();
   final int startingValue;
-  final Uint8List imageData;
+  final Uint8List? imageData;
   final String title;
   final String subtitle;
   final TextEditingController textEditingController;
@@ -19,12 +19,12 @@ class Counter extends StatefulWidget {
 
   Counter(
     this.startingValue, {
-    this.onIncrement,
-    this.onDecrement,
+    required this.onIncrement,
+    required this.onDecrement,
     this.imageData,
-    @required this.title,
-    @required this.subtitle,
-    Key key,
+    required this.title,
+    required this.subtitle,
+    Key? key,
   })  : textEditingController = TextEditingController(
           text: startingValue.toString(),
         ),
@@ -35,7 +35,7 @@ class Counter extends StatefulWidget {
 }
 
 class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
-  AnimationController animController;
+  late AnimationController animController;
 
   _CounterState() {
     animController = AnimationController(
@@ -55,7 +55,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
 
     value++;
     widget.textEditingController.text = (value).toString();
-    widget.onIncrement?.call(value);
+    widget.onIncrement.call(value);
     return value;
   }
 
@@ -63,17 +63,17 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
     // animate to "start" color when back to 0
     if (value == 1) animController.reverse();
 
-    if (value == null || value <= 0) return 0;
+    if (value <= 0) return 0;
 
     value--;
     widget.textEditingController.text = (value).toString();
-    widget.onDecrement?.call(value);
+    widget.onDecrement.call(value);
     return value;
   }
 
   @override
   Widget build(BuildContext context) {
-    var value = int.tryParse(widget.textEditingController.text);
+    var value = int.parse(widget.textEditingController.text);
 
     return AnimatedBuilder(
       animation: animController,
@@ -152,23 +152,22 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                 ),
               ),
             ),
-            if (widget.imageData != null)
-              Container(
-                height: height,
-                width: height,
-                margin: const EdgeInsets.only(left: 2.0),
-                decoration: ShapeDecoration(
-                  shape: CircleBorder(),
-                  shadows: [
-                    BoxShadow(
-                      color: Theme.of(context).primaryColorLight,
-                      blurRadius: animController.value * 6,
-                      spreadRadius: animController.value * 9,
-                    ),
-                  ],
-                ),
-                child: child,
+            Container(
+              height: height,
+              width: height,
+              margin: const EdgeInsets.only(left: 2.0),
+              decoration: ShapeDecoration(
+                shape: CircleBorder(),
+                shadows: [
+                  BoxShadow(
+                    color: Theme.of(context).primaryColorLight,
+                    blurRadius: animController.value * 6,
+                    spreadRadius: animController.value * 9,
+                  ),
+                ],
               ),
+              child: child,
+            ),
           ],
         );
       },

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import '../src.dart';
 
 class LineItem {
@@ -30,7 +29,5 @@ class LineItem {
 
   int substractOne() => _quantity > 0 ? --_quantity : 0;
 
-  LineItem({@required this.associatedDish, int quantity = 0})
-      : assert(associatedDish != null),
-        _quantity = quantity;
+  LineItem({required this.associatedDish, int quantity = 0}) : _quantity = quantity;
 }

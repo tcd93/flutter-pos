@@ -17,15 +17,15 @@ class DraggableWidget extends StatefulWidget {
   final double y;
 
   /// the relative left, top to background container on drag end
-  final void Function(double x, double y) onDragEnd;
+  final void Function(double x, double y)? onDragEnd;
 
   DraggableWidget(
-      {@required this.child,
+      {required this.child,
       this.x = 0,
       this.y = 0,
-      @required this.containerKey,
+      required this.containerKey,
       this.onDragEnd,
-      Key key})
+      Key? key})
       : super(key: key);
 
   @override
@@ -33,7 +33,7 @@ class DraggableWidget extends StatefulWidget {
 }
 
 class DraggableWidgetState extends State<DraggableWidget> {
-  double top, left;
+  late double top, left;
 
   @override
   void initState() {
@@ -44,7 +44,8 @@ class DraggableWidgetState extends State<DraggableWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final RenderBox backgroundRenderBox = widget.containerKey.currentContext.findRenderObject();
+    final backgroundRenderBox =
+        widget.containerKey.currentContext!.findRenderObject()! as RenderBox;
     return Positioned(
       top: top,
       left: left,

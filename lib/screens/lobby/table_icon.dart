@@ -9,7 +9,7 @@ import '../popup_del.dart';
 class TableIcon extends StatelessWidget {
   final TableModel table;
 
-  TableIcon({this.table});
+  TableIcon({required this.table});
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +64,7 @@ class TableIcon extends StatelessWidget {
                   Navigator.pushNamed(context, '/order-details', arguments: {
                     'heroTag': 'details-subtag-table-${table.id}',
                     'state': table,
+                    'from': 'lobby',
                   }).then((_) {
                     Future.delayed(
                       Duration(milliseconds: 600),
@@ -105,9 +106,9 @@ class _RadialButton extends StatelessWidget {
 
   _RadialButton(
     this.model, {
-    @required this.surroundingButtonsBuilder,
-    @required this.displayAngles,
-    Key key,
+    required this.surroundingButtonsBuilder,
+    required this.displayAngles,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -155,6 +156,5 @@ void _removeTable(BuildContext context, int id) async {
   var delete = await popUpDelete(context);
   if (delete != null && delete) {
     supplier.removeTable(id);
-    supplier.notifyListeners();
   }
 }

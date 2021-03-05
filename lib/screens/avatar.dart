@@ -10,8 +10,8 @@ const _height = 98.0;
 
 /// Image of the dish, edittable
 class Avatar extends StatefulWidget {
-  final Uint8List imageData;
-  final void Function(Uint8List image) onNew;
+  final Uint8List? imageData;
+  final void Function(Uint8List image)? onNew;
 
   Avatar({this.imageData, this.onNew});
 
@@ -20,14 +20,11 @@ class Avatar extends StatefulWidget {
 }
 
 class _AvatarState extends State<Avatar> {
-  FutureOr<Uint8List> image;
+  late Uint8List image;
 
   @override
   void initState() {
-    image = widget.imageData ??
-        rootBundle.load('assets/coffee.png').then(
-              (data) => data.buffer.asUint8List(),
-            );
+    image = widget.imageData ?? Uint8List.fromList([]);
     super.initState();
   }
 
@@ -40,23 +37,28 @@ class _AvatarState extends State<Avatar> {
           height: _height,
           child: imageButton(),
         ),
-        if (widget.onNew != null)
-          Positioned(
-            bottom: 0.0,
-            right: 0.0,
-            child: Icon(Icons.edit, size: 16.0),
-          ),
+        Positioned(
+          bottom: 0.0,
+          right: 0.0,
+          child: Icon(Icons.edit, size: 16.0),
+        ),
       ],
     );
   }
 
   FutureBuilder<Uint8List> imageButton() {
-    final _img = Future.sync(() => image);
+    final _img = Future.sync(() async {
+      if (image.isNotEmpty) {
+        return image;
+      }
+      final defautImg = await rootBundle.load('assets/coffee.png');
+      return defautImg.buffer.asUint8List();
+    });
     return FutureBuilder(
       future: _img,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          final img = snapshot.data;
+          final img = snapshot.data!;
 
           return MaterialButton(
             onPressed: widget.onNew != null
@@ -65,7 +67,7 @@ class _AvatarState extends State<Avatar> {
                     if (selected != null && selected != img) {
                       setState(() {
                         image = selected;
-                        widget.onNew(selected);
+                        widget.onNew!.call(selected);
                       });
                     }
                   }
@@ -88,7 +90,7 @@ class _AvatarState extends State<Avatar> {
   }
 }
 
-Future<Uint8List> _getImage() async {
+Future<Uint8List?> _getImage() async {
   final pickedFile = await ImagePicker().getImage(
     source: ImageSource.gallery,
     maxHeight: _height,

@@ -1,31 +1,38 @@
 {
-    "main_title": "POS app",
-
-    "generic_deleteQuestion": "Delete?",
-    "generic_yes": "Yes",
-    "generic_no": "No",
-    "generic_confirm": "Confirm",
-    "generic_cancel": "Cancel",
-
-    "lobby": "Lobby",
-    "lobby_drawerHeader": "Simple POS",
-    "lobby_report": "Report",
-    "lobby_menuEdit": "Edit menu",
-    "lobby_tooltip": "Long tap to add table",
-
-    "details_discount": "Discount",
-    "details_discountTxt": "Total: {total}, discounted: {discountPct}%",
-    "details_liDeleted": "(deleted)",
-    "details_customerPay": "Customer pay",
-    "details_notEnough": "Not enough",
-
-    "menu_confirm": "Confirm Order",
-    "menu_undo": "Undo",
-
-    "edit_menu_filterHint": "Filter by dish name..",
-    "edit_menu_formLabel": "Dish",
-    "edit_menu_formPrice": "Price",
-
-    "history_delPopUpTitle": "Ignore this order?",
-    "history_rangePickerHelpTxt": "Select range"
+  "main_title": "POS app",
+  "generic_deleteQuestion": "Delete?",
+  "generic_yes": "Yes",
+  "generic_no": "No",
+  "generic_confirm": "Confirm",
+  "generic_cancel": "Cancel",
+  "lobby": "Lobby",
+  "lobby_drawerHeader": "Simple POS",
+  "lobby_report": "Report",
+  "lobby_menuEdit": "Edit menu",
+  "lobby_tooltip": "Long tap to add table",
+  "details_discount": "Discount",
+  "details_discountTxt": "Total: {total}, discounted: {discountPct}%",
+  "@details_discountTxt": {
+    "placeholders": {
+      "total": {
+        "type": "String",
+        "format": "currency",
+        "description": "amount before discount"
+      },
+      "discountPct": {
+        "type": "String",
+        "format": "decimalPercentPattern"
+      }
+    }
+  },
+  "details_liDeleted": "(deleted)",
+  "details_customerPay": "Customer pay",
+  "details_notEnough": "Not enough",
+  "menu_confirm": "Confirm Order",
+  "menu_undo": "Undo",
+  "edit_menu_filterHint": "Filter by dish name..",
+  "edit_menu_formLabel": "Dish",
+  "edit_menu_formPrice": "Price",
+  "history_delPopUpTitle": "Ignore this order?",
+  "history_rangePickerHelpTxt": "Select range"
 }

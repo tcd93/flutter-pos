@@ -26,10 +26,10 @@ class Order implements StateObject {
     this.tableID,
     this.orderID,
     this.checkoutTime,
-    double discountRate,
     this.lineItems, {
+    this.discountRate = 1.0,
     this.isDeleted = false,
-  }) : discountRate = discountRate ?? 1.0;
+  });
 
   @override
   set lineItems(List<LineItem> _lineItems) => throw 'Can not set LineItem from an Order instance';
@@ -48,7 +48,7 @@ class Order implements StateObject {
   }
 
   @override
-  set checkoutTime(DateTime _checkoutTime) => 'Can not set checkoutTime from an Order instance';
+  set checkoutTime(_) => 'Can not set checkoutTime from an Order instance';
 
   @override
   set orderID(int orderID) => 'Can not set orderID from an Order instance';

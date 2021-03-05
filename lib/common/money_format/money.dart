@@ -15,7 +15,7 @@ class Money {
   }
 
   static num unformat(String money) {
-    if (money == '' || money == null) {
+    if (money == '') {
       return 0;
     }
     return _fc.parse(money.replaceAll(RegExp(r'[^0-9]'), '')); // extract numbers only

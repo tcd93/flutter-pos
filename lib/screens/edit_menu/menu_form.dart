@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../common/common.dart';
-import '../../generated/l10n.dart';
-import '../../provider/src.dart';
 
 class FormContent extends StatelessWidget {
-  final Dish dish;
-  final Widget avatar;
+  final Widget? avatar;
   final List<TextField> inputs;
   final VoidCallback onSubmit;
-  final VoidCallback onCancel;
+  final VoidCallback? onCancel;
 
   /// the gap between inputs
   final double gap;
   final double buttonMinWidth;
 
   FormContent({
-    this.dish,
-    @required this.inputs,
-    @required this.onSubmit,
+    required this.inputs,
+    required this.onSubmit,
     this.onCancel,
     this.avatar,
     this.gap = 25.0,
@@ -38,7 +35,7 @@ class FormContent extends StatelessWidget {
               if (avatar != null)
                 Expanded(
                   flex: 1,
-                  child: Column(children: [avatar]),
+                  child: Column(children: [avatar!]),
                 ),
               Expanded(
                 flex: 2,
@@ -58,11 +55,11 @@ class FormContent extends StatelessWidget {
             children: [
               if (onCancel != null)
                 TextButton(
-                  child: Text(S.current.generic_cancel.toUpperCase()),
+                  child: Text(AppLocalizations.of(context)!.generic_cancel.toUpperCase()),
                   onPressed: onCancel,
                 ),
               ElevatedButton(
-                child: Text(S.current.generic_confirm.toUpperCase()),
+                child: Text(AppLocalizations.of(context)!.generic_confirm.toUpperCase()),
                 onPressed: onSubmit,
               ),
             ],
@@ -74,6 +71,7 @@ class FormContent extends StatelessWidget {
 }
 
 List<TextField> buildInputs(
+  BuildContext context,
   TextEditingController dishNameController,
   TextEditingController priceController, [
   TextAlign align = TextAlign.center,
@@ -83,14 +81,14 @@ List<TextField> buildInputs(
       controller: dishNameController,
       keyboardType: TextInputType.text,
       textAlign: align,
-      decoration: InputDecoration(labelText: S.current.edit_menu_formLabel),
+      decoration: InputDecoration(labelText: AppLocalizations.of(context)!.edit_menu_formLabel),
     ),
     TextField(
       controller: priceController,
       keyboardType: TextInputType.number,
       textAlign: align,
       decoration: InputDecoration(
-        labelText: S.current.edit_menu_formPrice,
+        labelText: AppLocalizations.of(context)!.edit_menu_formPrice,
         suffix: Text(Money.symbol),
       ),
       inputFormatters: [MoneyFormatter()],

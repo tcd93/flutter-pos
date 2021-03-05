@@ -5,42 +5,32 @@ import 'package:posapp/screens/order_details/main.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  Supplier supplier;
-  TableModel table;
+  final table = TableModel(
+    1,
+    TableState.mock(
+      1,
+      List.generate(
+        3,
+        (index) => LineItem(
+          associatedDish: Dish(index + 1, 'Test Dish $index', 3333),
+          quantity: (index + 1) * 2,
+        ),
+      ),
+    ),
+  );
 
   setUpAll(() async {
     await Menu().load();
   });
 
-  setUp(() async {
-    supplier = Supplier(
-      database: null,
-      modelBuilder: (tracker) => [
-        TableModel(
-          tracker,
-          1,
-          StateObject.mock(
-            List.generate(
-              3,
-              (index) => LineItem(
-                associatedDish: Dish(index + 1, 'Test Dish $index', 3333),
-                quantity: (index + 1) * 2,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-    table = supplier.getTable(1);
-  });
   testWidgets(
     'Should have 3 line in details page for order that have 3 line items',
     (tester) async {
       await tester.pumpWidget(MaterialApp(
         builder: (_, __) {
           return ChangeNotifierProvider(
-            create: (_) => supplier,
-            child: DetailsScreen(table),
+            create: (_) => Supplier(),
+            child: DetailsScreen(table, fromScreen: ''),
           );
         },
       ));

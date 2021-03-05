@@ -18,7 +18,7 @@ class Dish {
   final String dish;
 
   /// image bytes data
-  final Uint8List imageBytes;
+  final Uint8List? imageBytes;
 
   @override
   // ignore: always_declare_return_types, type_annotate_public_apis
@@ -26,9 +26,9 @@ class Dish {
   @override
   int get hashCode => id;
 
-  const Dish(this.id, this.dish, [this.price, this.imageBytes])
+  const Dish(this.id, this.dish, [this.price = 0, this.imageBytes])
       : assert(id >= 0),
-        assert(dish != null && dish != '');
+        assert(dish != '');
 
   /// Index of _menu is the unique ID of associated [Dish].
   /// Return from local storage or return a basic menu set
@@ -40,7 +40,7 @@ class Dish {
     return _menu.list.values.elementAt(index);
   }
 
-  static Dish ofID(int id) {
+  static Dish? ofID(int id) {
     return _menu.list[id.toString()];
   }
 
@@ -49,8 +49,7 @@ class Dish {
   }
 
   static void setMenu(Dish dish) async {
-    assert(dish.id != null);
-    assert(dish.dish != '' || dish.dish != null);
+    assert(dish.dish != '');
     assert(dish.price > 0);
 
     _menu.list.update(
@@ -61,8 +60,7 @@ class Dish {
   }
 
   static void addMenu(Dish dish) async {
-    assert(dish.id != null);
-    assert(dish.dish != '' || dish.dish != null);
+    assert(dish.dish != '');
     assert(dish.price > 0);
 
     _menu.list.addAll({dish.id.toString(): dish});
@@ -71,7 +69,6 @@ class Dish {
   }
 
   static void deleteMenu(Dish dish) async {
-    assert(dish.id != null);
     assert(_menu.list.containsKey(dish.id.toString()));
 
     _menu.list.remove(dish.id.toString());

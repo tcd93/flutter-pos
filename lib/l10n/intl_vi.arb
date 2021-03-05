@@ -1,0 +1,38 @@
+{
+  "main_title": "Chương trình POS",
+  "generic_deleteQuestion": "Xóa?",
+  "generic_yes": "Có",
+  "generic_no": "Không",
+  "generic_confirm": "Xác nhận",
+  "generic_cancel": "Hủy",
+  "lobby": "Sảnh",
+  "lobby_drawerHeader": "POS",
+  "lobby_report": "Báo cáo",
+  "lobby_menuEdit": "Chỉnh sửa thực đơn",
+  "lobby_tooltip": "Nhấn & giữ để thêm bàn",
+  "details_discount": "Khuyến mãi",
+  "details_discountTxt": "Tổng: {total}, giảm: {discountPct}%",
+  "@details_discountTxt": {
+    "placeholders": {
+      "total": {
+        "type": "String",
+        "format": "currency",
+        "description": "đơn giá trước khi giảm"
+      },
+      "discountPct": {
+        "type": "String",
+        "format": "decimalPercentPattern"
+      }
+    }
+  },
+  "details_liDeleted": "(đã xóa)",
+  "details_customerPay": "Khách trả",
+  "details_notEnough": "Không đủ",
+  "menu_confirm": "Xác nhận đơn",
+  "menu_revert": "Hoàn tác",
+  "edit_menu_filterHint": "Lọc bằng tên món..",
+  "edit_menu_formLabel": "Tên món",
+  "edit_menu_formPrice": "Giá",
+  "history_delPopUpTitle": "Bỏ qua đơn này?",
+  "history_rangePickerHelpTxt": "Chọn khoản ngày"
+}
