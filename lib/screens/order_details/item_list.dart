@@ -69,6 +69,8 @@ class _Items extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         itemCount: orders.length,
         itemBuilder: (context, index) {
+          final supplier = Provider.of<MenuSupplier>(context);
+
           return Card(
             key: ObjectKey(orders[index]),
             child: ListTile(
@@ -78,13 +80,14 @@ class _Items extends StatelessWidget {
               title: Text(
                 fromScreen == 'history'
                     ? orders[index].dishName
-                    : Dish.ofID(orders[index].dishID)?.dish ??
-                        orders[index].dishName + AppLocalizations.of(context)!.details_liDeleted,
+                    : supplier.find(orders[index].dishID)?.dish ??
+                        orders[index].dishName +
+                            (AppLocalizations.of(context)?.details_liDeleted ?? ''),
               ),
               trailing: Text(
                 Money.format(fromScreen == 'history'
                     ? orders[index].price * orders[index].quantity
-                    : Dish.ofID(orders[index].dishID)?.price ??
+                    : supplier.find(orders[index].dishID)?.price ??
                         orders[index].price * orders[index].quantity),
               ),
             ),

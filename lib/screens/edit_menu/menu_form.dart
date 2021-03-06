@@ -55,11 +55,13 @@ class FormContent extends StatelessWidget {
             children: [
               if (onCancel != null)
                 TextButton(
-                  child: Text(AppLocalizations.of(context)!.generic_cancel.toUpperCase()),
+                  child: Text(
+                      (AppLocalizations.of(context)?.generic_cancel ?? 'cancel').toUpperCase()),
                   onPressed: onCancel,
                 ),
               ElevatedButton(
-                child: Text(AppLocalizations.of(context)!.generic_confirm.toUpperCase()),
+                child:
+                    Text((AppLocalizations.of(context)?.generic_confirm ?? 'submit').toUpperCase()),
                 onPressed: onSubmit,
               ),
             ],
@@ -81,14 +83,14 @@ List<TextField> buildInputs(
       controller: dishNameController,
       keyboardType: TextInputType.text,
       textAlign: align,
-      decoration: InputDecoration(labelText: AppLocalizations.of(context)!.edit_menu_formLabel),
+      decoration: InputDecoration(labelText: AppLocalizations.of(context)?.edit_menu_formLabel),
     ),
     TextField(
       controller: priceController,
       keyboardType: TextInputType.number,
       textAlign: align,
       decoration: InputDecoration(
-        labelText: AppLocalizations.of(context)!.edit_menu_formPrice,
+        labelText: AppLocalizations.of(context)?.edit_menu_formPrice,
         suffix: Text(Money.symbol),
       ),
       inputFormatters: [MoneyFormatter()],

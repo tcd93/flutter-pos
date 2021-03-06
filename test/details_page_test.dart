@@ -19,17 +19,16 @@ void main() {
     ),
   );
 
-  setUpAll(() async {
-    await Menu().load();
-  });
-
   testWidgets(
     'Should have 3 line in details page for order that have 3 line items',
     (tester) async {
       await tester.pumpWidget(MaterialApp(
         builder: (_, __) {
-          return ChangeNotifierProvider(
-            create: (_) => Supplier(),
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (_) => Supplier()),
+              Provider(create: (_) => MenuSupplier()),
+            ],
             child: DetailsScreen(table, fromScreen: ''),
           );
         },

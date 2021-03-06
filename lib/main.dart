@@ -25,11 +25,7 @@ class PosApp extends StatelessWidget {
   final DatabaseConnectionInterface _storage;
   final Future _init;
 
-  PosApp(this._storage)
-      : _init = Future.wait([
-          _storage.open(),
-          Menu().load(),
-        ], eagerError: true);
+  PosApp(this._storage) : _init = _storage.open();
 
   @override
   Widget build(BuildContext context) {
@@ -48,8 +44,11 @@ class PosApp extends StatelessWidget {
         future: _init,
         builder: (_, dbSnapshot) {
           if (dbSnapshot.hasData) {
-            return ChangeNotifierProvider(
-              create: (_) => Supplier(database: _storage),
+            return MultiProvider(
+              providers: [
+                ChangeNotifierProvider(create: (_) => Supplier(database: _storage)),
+                Provider(create: (_) => MenuSupplier(database: _storage)),
+              ],
               child: screen,
             );
           } else {

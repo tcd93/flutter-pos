@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import './menu_form.dart';
@@ -22,10 +24,10 @@ class EditMenuScreen extends StatefulWidget {
 class EditMenuScreenState extends State<EditMenuScreen> {
   final _debouncer = Debouncer(milliseconds: 300);
 
-  /// The entire menu (all dishes)
-  final dishes = Dish.getMenu().toList();
+  /// The entire menu (all m)
+  late final Menu m;
 
-  /// The filtered list of dishes if user use the filter input,
+  /// The filtered list of m if user use the filter input,
   /// should be the central state object
   late List<Dish> filteredDishes;
 
@@ -35,19 +37,18 @@ class EditMenuScreenState extends State<EditMenuScreen> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      filteredDishes = dishes.toList(growable: true);
-    });
+    m = context.read<MenuSupplier>().menu;
+    filteredDishes = m.toList(growable: true);
   }
 
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
       onAddDish: (Dish newDish) {
-        Dish.addMenu(newDish);
+        final supplier = context.read<MenuSupplier>();
+        supplier.addDish(newDish);
         setState(() {
           filteredDishes.add(newDish);
-          dishes.add(newDish);
         });
       },
       body: SafeArea(
@@ -56,12 +57,12 @@ class EditMenuScreenState extends State<EditMenuScreen> {
             TextField(
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.all(15.0),
-                hintText: AppLocalizations.of(context)!.edit_menu_filterHint,
+                hintText: AppLocalizations.of(context)?.edit_menu_filterHint,
               ),
               onChanged: (string) {
                 _debouncer.run(() {
                   setState(() {
-                    filteredDishes = dishes
+                    filteredDishes = m
                         .where((u) => (u.dish.toLowerCase().contains(string.toLowerCase())))
                         .toList();
                   });
@@ -77,11 +78,11 @@ class EditMenuScreenState extends State<EditMenuScreen> {
                 itemBuilder: (_, index) {
                   return _ListItem(
                     filteredDishes[index],
-                    onEdit: (editedDish) async {
-                      Dish.setMenu(editedDish);
+                    onEdit: (editedDish) {
+                      final supplier = context.read<MenuSupplier>();
+                      supplier.updateDish(editedDish);
                       setState(() {
                         filteredDishes[index] = editedDish;
-                        dishes[index] = editedDish;
                       });
                     },
                     onShow: (keyOfExpandedWidget) {
@@ -99,10 +100,10 @@ class EditMenuScreenState extends State<EditMenuScreen> {
                       });
                     },
                     onDelete: () {
-                      Dish.deleteMenu(filteredDishes[index]);
+                      final supplier = context.read<MenuSupplier>();
+                      supplier.removeDish(filteredDishes[index]);
                       setState(() {
                         filteredDishes.removeAt(index);
-                        dishes.removeAt(index);
                       });
                     },
                   );
@@ -157,7 +158,6 @@ class __ListItemState extends State<_ListItem> {
       onLongPress: () async {
         var delete = await popUpDelete(context);
         if (delete != null && delete) {
-          Dish.deleteMenu(widget.dish);
           widget.onDelete.call();
         }
       },
@@ -190,6 +190,7 @@ class __ListItemState extends State<_ListItem> {
         inputs: buildInputs(context, dishNameController, priceController, TextAlign.start),
         avatar: Avatar(
           imageData: dish.imageBytes,
+          asset: dish.asset,
           onNew: (image) => img = image,
         ),
         gap: 12.0,

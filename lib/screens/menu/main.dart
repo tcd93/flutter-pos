@@ -14,6 +14,7 @@ class MenuScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final menuSupplier = Provider.of<MenuSupplier>(context);
     return Scaffold(
       bottomNavigationBar: BottomAppBar(
         child: Row(
@@ -27,9 +28,9 @@ class MenuScreen extends StatelessWidget {
       body: ListView.builder(
           physics: const BouncingScrollPhysics(),
           // same count of order line items and items in the `menu` constant in [Dish]
-          itemCount: Dish.getMenu().length,
+          itemCount: menuSupplier.menu.length,
           itemBuilder: (context, index) {
-            final dish = Dish.at(index);
+            final dish = menuSupplier.getDish(index);
 
             return Selector<Supplier, LineItem>(
               // in case new menu dish is created from Edit Menu screen
@@ -58,7 +59,7 @@ class MenuScreen extends StatelessWidget {
                         model.setTableStatus(TableStatus.incomplete, supplier);
                       }
                     },
-                    imageData: Dish.at(index).imageBytes,
+                    imageData: menuSupplier.getDish(index).imageBytes,
                     title: dish.dish,
                     subtitle: '(${Money.format(dish.price)})',
                     key: ObjectKey(model),

@@ -52,18 +52,6 @@ extension on Order {
   }
 }
 
-extension on Dish {
-  // create toJson methods to implicitly work with `encode` (local-storage)
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'dish': dish,
-      'imageBytes': imageBytes,
-      'price': price,
-    };
-  }
-}
-
 class LocalStorage implements DatabaseConnectionInterface {
   final lib.LocalStorage ls;
 
@@ -135,34 +123,19 @@ class LocalStorage implements DatabaseConnectionInterface {
   }
 
   @override
-  Map<String, Dish>? getMenu() {
+  Menu? getMenu() {
     var storageData = ls.getItem('menu');
     if (storageData == null) {
-      print('menu not found');
+      print('\x1B[94mmenu not found in localstorage\x1B[0m');
       return null;
     }
-    var cache = storageData is Map ? storageData : json.decode(storageData) as Map<String, dynamic>;
-
-    return cache.map((key, v) {
-      var decoded = v is Map<String, dynamic> ? v : json.decode(v) as Map<String, dynamic>;
-      return MapEntry(
-        key.toString(),
-        Dish(decoded['id'], decoded['dish'], decoded['price'], decoded['imageBytes']),
-      );
-    });
+    return Menu.fromJson(storageData as Map<String, dynamic>);
   }
 
   @override
-  Future<void> setMenu(Map<String, Dish> newMenu) {
-    // to set items to local storage, they must be Map<String, dynamic>
-    return ls.setItem('menu', newMenu, (menu) {
-      return (menu as Map<String, Dish>).map((key, value) {
-        return MapEntry(
-          key.toString(),
-          value.toJson(),
-        );
-      });
-    });
+  Future<void> setMenu(Menu newMenu) {
+    // to set items to local storage
+    return ls.setItem('menu', newMenu);
   }
 
   @override

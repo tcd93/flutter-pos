@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:provider/provider.dart';
 
 import '../../common/common.dart';
 import '../../theme/rally.dart';
@@ -87,8 +88,9 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
                 inputs: buildInputs(context, dishNameController, priceController),
                 onSubmit: () {
                   if (priceController.text.isNotEmpty && dishNameController.text.isNotEmpty) {
+                    final supplier = context.read<MenuSupplier>();
                     final newDish = Dish(
-                      Dish.newID(),
+                      supplier.nextID(),
                       dishNameController.text,
                       Money.unformat(priceController.text).toDouble(),
                       displayImg,

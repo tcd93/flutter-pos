@@ -15,10 +15,10 @@ class DatabaseConnectionInterface {
   List<Order> getRange(DateTime from, DateTime to) => [];
 
   /// Get menu from storage
-  Map<String, Dish>? getMenu() => null;
+  Menu? getMenu() => null;
 
   /// Overrides current menu in storage with new menu object
-  Future<void> setMenu(Map<String, Dish> newMenu) => Future.value();
+  Future<void> setMenu(Menu newMenu) => Future.value();
 
   /// Soft deletes an order in specified date
   Future<Order> delete(DateTime day, int orderID) => Future.value();

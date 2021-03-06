@@ -9,27 +9,30 @@ const _width = 98.0;
 const _height = 98.0;
 
 /// Image of the dish, edittable
-class Avatar extends StatefulWidget {
+class Avatar extends StatelessWidget {
   final Uint8List? imageData;
+  final String? asset;
   final void Function(Uint8List image)? onNew;
 
-  Avatar({this.imageData, this.onNew});
+  late final _imgStream = StreamController<Uint8List>();
 
-  @override
-  _AvatarState createState() => _AvatarState();
-}
+  Avatar({this.imageData, this.asset, this.onNew});
 
-class _AvatarState extends State<Avatar> {
-  late Uint8List image;
-
-  @override
-  void initState() {
-    image = widget.imageData ?? Uint8List.fromList([]);
-    super.initState();
+  void _initStream() async {
+    if (imageData != null) {
+      _imgStream.add(imageData!);
+    } else if (asset != null) {
+      _imgStream.add((await rootBundle.load(asset!)).buffer.asUint8List());
+    } else {
+      final defautImg = await rootBundle.load('assets/coffee.png');
+      _imgStream.add(defautImg.buffer.asUint8List());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    _initStream();
+
     return Stack(
       children: [
         Container(
@@ -46,29 +49,20 @@ class _AvatarState extends State<Avatar> {
     );
   }
 
-  FutureBuilder<Uint8List> imageButton() {
-    final _img = Future.sync(() async {
-      if (image.isNotEmpty) {
-        return image;
-      }
-      final defautImg = await rootBundle.load('assets/coffee.png');
-      return defautImg.buffer.asUint8List();
-    });
-    return FutureBuilder(
-      future: _img,
+  StreamBuilder<Uint8List> imageButton() {
+    return StreamBuilder(
+      stream: _imgStream.stream,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
+        if (snapshot.connectionState == ConnectionState.active) {
           final img = snapshot.data!;
 
           return MaterialButton(
-            onPressed: widget.onNew != null
+            onPressed: onNew != null
                 ? () async {
-                    final selected = await _getImage();
-                    if (selected != null && selected != img) {
-                      setState(() {
-                        image = selected;
-                        widget.onNew!.call(selected);
-                      });
+                    final newSelected = await _getImage();
+                    if (newSelected != null && newSelected != img) {
+                      _imgStream.add(newSelected);
+                      onNew!.call(newSelected);
                     }
                   }
                 : null,
