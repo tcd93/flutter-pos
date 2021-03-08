@@ -6,7 +6,7 @@ const RESOURCES = {
   "manifest.json": "618b9ac624b6bf089537fc775d35fbed",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
 "icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
-"assets/NOTICES": "d7fec8fefd9f46743a27be842f6eb19b",
+"assets/NOTICES": "14eaa377a595724a62af66df6d745e39",
 "assets/assets/rice_noodles.png": "ffbb2e87d2bf0dfa92bb26103a1cf67c",
 "assets/assets/kimchi.png": "78105c408292d02994c0b3aede0365a7",
 "assets/assets/coffee.png": "29a0688d03b19eea14993c1bd3423dda",
@@ -21,10 +21,10 @@ const RESOURCES = {
 "assets/google_fonts/RobotoCondensed-Bold.ttf": "cbd4e701269338259ee0b39a0b768167",
 "assets/google_fonts/Eczar-SemiBold.ttf": "7d2b9b43ddc45f11f9cfddd5a17dcbd2",
 "assets/FontManifest.json": "7b2a36307916a9721811788013e65289",
-"index.html": "194bae4691a8c75a42ef0c226da50c7c",
-"/": "194bae4691a8c75a42ef0c226da50c7c",
-"main.dart.js": "db797fb58c78fa5e8ccb92a16f105b45",
-"version.json": "7d471c710d1d7146ea0ceeb149a89dc0",
+"index.html": "20687697268eee147e2410ea3a92a27c",
+"/": "20687697268eee147e2410ea3a92a27c",
+"main.dart.js": "08c19a3d7a64037433d561c20f19f12f",
+"version.json": "c09791b248746f72c88505538b53f596",
 "favicon.png": "5dcef449791fa27946b3d35ad8803796"
 };
 
