@@ -6,33 +6,34 @@ import '../../storage_engines/connection_interface.dart';
 import '../src.dart';
 
 class Supplier extends ChangeNotifier {
-  List<TableModel> tables;
-  final DatabaseConnectionInterface database;
+  List<TableModel> tables = [];
+  final DatabaseConnectionInterface? database;
 
   Supplier({
     this.database,
-    List<TableModel> Function(Supplier) modelBuilder,
+    List<TableModel>? mockModels,
   }) {
     final l = database?.tableIDs();
-    tables = modelBuilder?.call(this) ?? l.map((id) => TableModel(this, id)).toList();
+    tables = mockModels ?? l?.map((id) => TableModel(id)).toList() ?? [];
   }
 
-  TableModel getTable(int id) => tables.firstWhere((t) => t.id == id, orElse: () {
-        debugPrint('$id not found!');
-        return null;
-      });
+  TableModel getTable(int id) {
+    return tables.firstWhere((t) => t.id == id);
+  }
 
   /// Returns new table's id
   int addTable() {
     final nextID = tables.map((t) => t.id).fold<int>(0, max) + 1;
-    tables.add(TableModel(this, nextID));
+    tables.add(TableModel(nextID));
     database?.addTable(nextID);
+    notifyListeners();
     return nextID;
   }
 
   void removeTable(int tableID) {
     tables.removeWhere((table) => table.id == tableID);
     database?.removeTable(tableID);
+    notifyListeners();
     return;
   }
 

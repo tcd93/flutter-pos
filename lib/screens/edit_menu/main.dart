@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import './menu_form.dart';
 import '../../common/common.dart';
 import '../../theme/rally.dart';
-import '../../generated/l10n.dart';
 import '../../provider/src.dart';
 import '../popup_del.dart';
 import '../avatar.dart';
@@ -22,12 +24,12 @@ class EditMenuScreen extends StatefulWidget {
 class EditMenuScreenState extends State<EditMenuScreen> {
   final _debouncer = Debouncer(milliseconds: 300);
 
-  /// The entire menu (all dishes)
-  final dishes = Dish.getMenu().toList();
+  /// The entire menu (all m)
+  late final Menu m;
 
-  /// The filtered list of dishes if user use the filter input,
+  /// The filtered list of m if user use the filter input,
   /// should be the central state object
-  List<Dish> filteredDishes;
+  late List<Dish> filteredDishes;
 
   // New code
   final ScrollController _scrollController = ScrollController();
@@ -35,19 +37,18 @@ class EditMenuScreenState extends State<EditMenuScreen> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      filteredDishes = dishes.toList(growable: true);
-    });
+    m = context.read<MenuSupplier>().menu;
+    filteredDishes = m.toList(growable: true);
   }
 
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
       onAddDish: (Dish newDish) {
-        Dish.addMenu(newDish);
+        final supplier = context.read<MenuSupplier>();
+        supplier.addDish(newDish);
         setState(() {
           filteredDishes.add(newDish);
-          dishes.add(newDish);
         });
       },
       body: SafeArea(
@@ -56,12 +57,12 @@ class EditMenuScreenState extends State<EditMenuScreen> {
             TextField(
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.all(15.0),
-                hintText: S.current.edit_menu_filterHint,
+                hintText: AppLocalizations.of(context)?.edit_menu_filterHint,
               ),
               onChanged: (string) {
                 _debouncer.run(() {
                   setState(() {
-                    filteredDishes = dishes
+                    filteredDishes = m
                         .where((u) => (u.dish.toLowerCase().contains(string.toLowerCase())))
                         .toList();
                   });
@@ -77,21 +78,21 @@ class EditMenuScreenState extends State<EditMenuScreen> {
                 itemBuilder: (_, index) {
                   return _ListItem(
                     filteredDishes[index],
-                    onEdit: (editedDish) async {
-                      Dish.setMenu(editedDish);
+                    onEdit: (editedDish) {
+                      final supplier = context.read<MenuSupplier>();
+                      supplier.updateDish(editedDish);
                       setState(() {
                         filteredDishes[index] = editedDish;
-                        dishes[index] = editedDish;
                       });
                     },
                     onShow: (keyOfExpandedWidget) {
-                      final ctx = keyOfExpandedWidget.currentContext;
+                      final ctx = keyOfExpandedWidget.currentContext!;
                       // ensure visibility of this widget after expanded (so it is not obscured by the appbar),
                       // but only call after animation from the `AnimatedCrossFade` is completed so the `ctx.findRenderObject`
                       // find the render object at full height to work with
                       Timer(_animDuration, () {
                         _scrollController.position.ensureVisible(
-                          ctx.findRenderObject(),
+                          ctx.findRenderObject()!,
                           duration: _animDuration,
                           curve: Curves.easeOut,
                           alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
@@ -99,10 +100,10 @@ class EditMenuScreenState extends State<EditMenuScreen> {
                       });
                     },
                     onDelete: () {
-                      Dish.deleteMenu(filteredDishes[index]);
+                      final supplier = context.read<MenuSupplier>();
+                      supplier.removeDish(filteredDishes[index]);
                       setState(() {
                         filteredDishes.removeAt(index);
-                        dishes.removeAt(index);
                       });
                     },
                   );
@@ -122,7 +123,7 @@ class _ListItem extends StatefulWidget {
   final VoidCallback onDelete;
   final Dish dish;
 
-  _ListItem(this.dish, {@required this.onEdit, this.onDelete, this.onShow});
+  _ListItem(this.dish, {required this.onEdit, required this.onDelete, required this.onShow});
 
   @override
   __ListItemState createState() => __ListItemState();
@@ -152,13 +153,12 @@ class __ListItemState extends State<_ListItem> {
         setState(() {
           currentState = CrossFadeState.showSecond;
         });
-        widget.onShow?.call(_gk);
+        widget.onShow.call(_gk);
       },
       onLongPress: () async {
         var delete = await popUpDelete(context);
-        if (delete) {
-          Dish.deleteMenu(widget.dish);
-          widget.onDelete?.call();
+        if (delete != null && delete) {
+          widget.onDelete.call();
         }
       },
       child: Padding(
@@ -179,7 +179,6 @@ class __ListItemState extends State<_ListItem> {
   }
 
   Widget expanded(BuildContext context, Dish dish, Function(Dish) onEdit) {
-    assert(dish != null);
     final dishNameController = TextEditingController(text: dish.dish);
     final priceController = TextEditingController(text: Money.format(dish.price));
     var img = dish.imageBytes;
@@ -188,9 +187,10 @@ class __ListItemState extends State<_ListItem> {
       key: _gk,
       padding: EdgeInsets.all(8.0),
       child: FormContent(
-        inputs: buildInputs(dishNameController, priceController, TextAlign.start),
+        inputs: buildInputs(context, dishNameController, priceController, TextAlign.start),
         avatar: Avatar(
           imageData: dish.imageBytes,
+          asset: dish.asset,
           onNew: (image) => img = image,
         ),
         gap: 12.0,
@@ -200,7 +200,7 @@ class __ListItemState extends State<_ListItem> {
             final edittedDish = Dish(
               dish.id,
               dishNameController.text,
-              Money.unformat(priceController.text),
+              Money.unformat(priceController.text).toDouble(),
               img,
             );
             setState(() {

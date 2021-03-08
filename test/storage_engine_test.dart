@@ -2,14 +2,11 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/database_factory.dart';
-import 'package:posapp/storage_engines/connection_interface.dart';
 
 void main() {
-  DatabaseConnectionInterface storage;
+  var storage = DatabaseFactory().create('local-storage', 'test', {}, 'storage_engine_test');
 
   setUpAll(() async {
-    // must set up like this to "overwrite" existing data
-    storage = DatabaseFactory().create('local-storage', 'test', {}, 'storage_engine_test');
     await storage.open();
   });
   tearDownAll(() async {

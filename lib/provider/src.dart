@@ -6,3 +6,4 @@ export 'model/order.dart';
 export 'model/state/state_object.dart';
 export 'model/state/status.dart';
 export 'suppllier/supplier.dart';
+export 'suppllier/menu_supplier.dart';

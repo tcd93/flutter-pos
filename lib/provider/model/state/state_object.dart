@@ -1,14 +1,14 @@
 import '../line_item.dart';
 
 /// State object base class
-class StateObject {
-  int _orderID;
+abstract class StateObject {
+  int _orderID = -1;
 
   /// 0 < discount rate <= 1.
   /// discountRate 0.75 means 25% off the total price
   double discountRate = 1.0;
 
-  DateTime checkoutTime;
+  DateTime checkoutTime = DateTime.parse('1999-01-01');
 
   /// The lineItems associated with a table
   List<LineItem> lineItems = [];
@@ -16,7 +16,7 @@ class StateObject {
   /// The incremental unique ID (for reporting), should be generated when [checkout]
   int get orderID => _orderID;
   set orderID(int orderID) {
-    assert(orderID != null, orderID > 0);
+    assert(orderID >= 0);
     _orderID = orderID;
   }
 
@@ -28,8 +28,4 @@ class StateObject {
   int get totalQuantity => lineItems.fold(0, (prevValue, item) => prevValue + item.quantity);
 
   StateObject();
-
-  StateObject.mock(this.lineItems, {orderID = -1, this.checkoutTime, this.discountRate = 1.0})
-      : _orderID = orderID,
-        assert(discountRate > 0.0 && discountRate <= 1.0);
 }

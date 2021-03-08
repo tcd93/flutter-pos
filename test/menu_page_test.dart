@@ -2,10 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/provider/src.dart';
 
 void main() {
-  TableModel _testModel;
+  var _testModel = TableModel(-1);
 
   setUp(() {
-    _testModel = TableModel(null, 0)
+    _testModel = TableModel(0)
       ..putIfAbsent(Dish(1, 'test1', 100)).quantity = 5
       ..putIfAbsent(Dish(2, 'test2', 200)).quantity = 0
       ..putIfAbsent(Dish(3, 'test3', 300)).quantity = 15

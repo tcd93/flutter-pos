@@ -20,13 +20,13 @@ class HistoryOrderList extends StatelessWidget {
       builder: (_, range, __) {
         final data = database.getRange(range.start, range.end);
         // update price (notify rebuild on AppBar) when list building is done
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance!.addPostFrameCallback((_) {
           amountNotifier.value = _calculateTotalPriceAfterDiscount(data);
         });
 
         return ListView.builder(
           physics: const BouncingScrollPhysics(),
-          itemCount: data?.length ?? 0,
+          itemCount: data.length,
           itemBuilder: (context, index) {
             return OrderCard(
               data[index],

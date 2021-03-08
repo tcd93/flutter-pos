@@ -14,9 +14,9 @@ import 'date_picker.dart';
 class HistoryScreen extends StatelessWidget {
   final DatabaseConnectionInterface database;
   final ValueNotifier<DateTimeRange> range;
-  final ValueListenable<double> amount;
+  final ValueNotifier<double> amount;
 
-  HistoryScreen(this.database, [DateTime from, DateTime to])
+  HistoryScreen(this.database, [DateTime? from, DateTime? to])
       : range = ValueNotifier(
           DateTimeRange(start: from ?? DateTime.now(), end: to ?? DateTime.now()),
         ),
@@ -52,7 +52,7 @@ class _LeadingTitle extends StatelessWidget {
   final ValueListenable<DateTimeRange> displayRange;
   final ValueListenable<double> summaryPrice;
 
-  _LeadingTitle({this.displayRange, this.summaryPrice});
+  _LeadingTitle({required this.displayRange, required this.summaryPrice});
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +63,7 @@ class _LeadingTitle extends StatelessWidget {
           valueListenable: summaryPrice,
           builder: (_, price, __) {
             return Text(
-              '${Money.format(price ?? 0)}',
+              '${Money.format(price)}',
               style: TextStyle(
                 color: Colors.lightGreen,
                 fontWeight: FontWeight.bold,

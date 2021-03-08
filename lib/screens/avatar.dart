@@ -9,30 +9,30 @@ const _width = 98.0;
 const _height = 98.0;
 
 /// Image of the dish, edittable
-class Avatar extends StatefulWidget {
-  final Uint8List imageData;
-  final void Function(Uint8List image) onNew;
+class Avatar extends StatelessWidget {
+  final Uint8List? imageData;
+  final String? asset;
+  final void Function(Uint8List image)? onNew;
 
-  Avatar({this.imageData, this.onNew});
+  late final _imgStream = StreamController<Uint8List>();
 
-  @override
-  _AvatarState createState() => _AvatarState();
-}
+  Avatar({this.imageData, this.asset, this.onNew});
 
-class _AvatarState extends State<Avatar> {
-  FutureOr<Uint8List> image;
-
-  @override
-  void initState() {
-    image = widget.imageData ??
-        rootBundle.load('assets/coffee.png').then(
-              (data) => data.buffer.asUint8List(),
-            );
-    super.initState();
+  void _initStream() async {
+    if (imageData != null) {
+      _imgStream.add(imageData!);
+    } else if (asset != null) {
+      _imgStream.add((await rootBundle.load(asset!)).buffer.asUint8List());
+    } else {
+      final defautImg = await rootBundle.load('assets/coffee.png');
+      _imgStream.add(defautImg.buffer.asUint8List());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    _initStream();
+
     return Stack(
       children: [
         Container(
@@ -40,33 +40,29 @@ class _AvatarState extends State<Avatar> {
           height: _height,
           child: imageButton(),
         ),
-        if (widget.onNew != null)
-          Positioned(
-            bottom: 0.0,
-            right: 0.0,
-            child: Icon(Icons.edit, size: 16.0),
-          ),
+        Positioned(
+          bottom: 0.0,
+          right: 0.0,
+          child: Icon(Icons.edit, size: 16.0),
+        ),
       ],
     );
   }
 
-  FutureBuilder<Uint8List> imageButton() {
-    final _img = Future.sync(() => image);
-    return FutureBuilder(
-      future: _img,
+  StreamBuilder<Uint8List> imageButton() {
+    return StreamBuilder(
+      stream: _imgStream.stream,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          final img = snapshot.data;
+        if (snapshot.connectionState == ConnectionState.active) {
+          final img = snapshot.data!;
 
           return MaterialButton(
-            onPressed: widget.onNew != null
+            onPressed: onNew != null
                 ? () async {
-                    final selected = await _getImage();
-                    if (selected != null && selected != img) {
-                      setState(() {
-                        image = selected;
-                        widget.onNew(selected);
-                      });
+                    final newSelected = await _getImage();
+                    if (newSelected != null && newSelected != img) {
+                      _imgStream.add(newSelected);
+                      onNew!.call(newSelected);
                     }
                   }
                 : null,
@@ -88,7 +84,7 @@ class _AvatarState extends State<Avatar> {
   }
 }
 
-Future<Uint8List> _getImage() async {
+Future<Uint8List?> _getImage() async {
   final pickedFile = await ImagePicker().getImage(
     source: ImageSource.gallery,
     maxHeight: _height,

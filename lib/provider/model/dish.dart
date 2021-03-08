@@ -1,15 +1,8 @@
-import 'dart:collection';
-import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 
-import 'menu.dart';
-
 @immutable
 class Dish {
-  // singleton
-  static final Menu _menu = Menu();
-
   final int id;
 
   final double price;
@@ -18,7 +11,10 @@ class Dish {
   final String dish;
 
   /// image bytes data
-  final Uint8List imageBytes;
+  final Uint8List? imageBytes;
+
+  /// or a string of asset path, if [imageBytes] is not defined
+  final String? asset;
 
   @override
   // ignore: always_declare_return_types, type_annotate_public_apis
@@ -26,55 +22,33 @@ class Dish {
   @override
   int get hashCode => id;
 
-  const Dish(this.id, this.dish, [this.price, this.imageBytes])
+  Dish(this.id, this.dish, [this.price = 0, this.imageBytes])
       : assert(id >= 0),
-        assert(dish != null && dish != '');
+        assert(dish != ''),
+        asset = null;
 
-  /// Index of _menu is the unique ID of associated [Dish].
-  /// Return from local storage or return a basic menu set
-  static UnmodifiableListView<Dish> getMenu() {
-    return UnmodifiableListView(_menu.list.values);
-  }
+  Dish.fromAsset(this.id, this.dish, [this.price = 0, this.asset])
+      : assert(id >= 0),
+        assert(dish != ''),
+        imageBytes = null;
 
-  static Dish at(int index) {
-    return _menu.list.values.elementAt(index);
-  }
+  // will be called implicitly
+  Dish.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        dish = json['dish'],
+        price = json['price'],
+        imageBytes = json['imageBytes'] != null
+            ? Uint8List.fromList(List.castFrom<dynamic, int>(json['imageBytes']))
+            : null,
+        asset = json['asset'];
 
-  static Dish ofID(int id) {
-    return _menu.list[id.toString()];
-  }
-
-  static int newID() {
-    return _menu.list.keys.map(int.parse).reduce(max) + 1;
-  }
-
-  static void setMenu(Dish dish) async {
-    assert(dish.id != null);
-    assert(dish.dish != '' || dish.dish != null);
-    assert(dish.price > 0);
-
-    _menu.list.update(
-      dish.id.toString(),
-      (_) => dish,
-    );
-    await _menu.storage.setMenu(_menu.list);
-  }
-
-  static void addMenu(Dish dish) async {
-    assert(dish.id != null);
-    assert(dish.dish != '' || dish.dish != null);
-    assert(dish.price > 0);
-
-    _menu.list.addAll({dish.id.toString(): dish});
-
-    await _menu.storage.setMenu(_menu.list);
-  }
-
-  static void deleteMenu(Dish dish) async {
-    assert(dish.id != null);
-    assert(_menu.list.containsKey(dish.id.toString()));
-
-    _menu.list.remove(dish.id.toString());
-    await _menu.storage.setMenu(_menu.list);
+  // will be called implicitly
+  // ignore: unused_element
+  Map<String, dynamic> toJson() {
+    return imageBytes != null
+        ? {'id': id, 'dish': dish, 'price': price, 'imageBytes': imageBytes}
+        : asset != null
+            ? {'id': id, 'dish': dish, 'price': price, 'asset': asset}
+            : {'id': id, 'dish': dish, 'price': price};
   }
 }

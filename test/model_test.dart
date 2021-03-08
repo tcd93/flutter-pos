@@ -3,12 +3,11 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/database_factory.dart';
 import 'package:posapp/provider/src.dart';
-import 'package:posapp/storage_engines/connection_interface.dart';
 
 void main() {
-  Supplier mockTracker;
-  TableModel mockTable;
-  DatabaseConnectionInterface storage;
+  var mockTable = TableModel(-1);
+  var storage = DatabaseFactory().create('local-storage');
+  var mockTracker = Supplier(database: storage);
 
   setUpAll(() async {
     // must set up like this to "overwrite" existing data
@@ -31,8 +30,8 @@ void main() {
   setUp(() async {
     mockTracker = Supplier(
       database: storage,
-      modelBuilder: (tracker) => [
-        TableModel(tracker, 0)
+      mockModels: [
+        TableModel(0)
           ..putIfAbsent(Dish(1, 'test1', 100)).quantity = 5
           ..putIfAbsent(Dish(5, 'test5', 500)).quantity = 10
           ..putIfAbsent(Dish(3, 'test3', 300)).quantity = 15,
@@ -46,13 +45,14 @@ void main() {
   });
 
   test('Table should go back to blank state after checkout', () async {
-    await mockTable.checkout();
+    await mockTable.checkout(supplier: mockTracker);
     expect(mockTable.totalMenuItemQuantity, 0);
     expect(mockTable.status, TableStatus.empty);
   });
 
   test('Order should persist to local storage after checkout', () async {
     await mockTable.checkout(
+      supplier: mockTracker,
       atTime: DateTime.parse('20200201 11:00:00'),
     );
     var items = storage.get(DateTime.parse('20200201 11:00:00'));
@@ -64,13 +64,15 @@ void main() {
 
   test('OrderID increase by 1 after first order', () async {
     await mockTable.checkout(
+      supplier: mockTracker,
       atTime: DateTime.parse('20200201 11:00:00'),
     );
 
     // create new order
-    final mockTable2 = TableModel(mockTracker, 0)..putIfAbsent(Dish(1, 'test1', 100)).quantity = 5;
+    final mockTable2 = TableModel(0)..putIfAbsent(Dish(1, 'test1', 100)).quantity = 5;
 
     await mockTable2.checkout(
+      supplier: mockTracker,
       atTime: DateTime.parse('20200201 13:00:00'),
     );
 

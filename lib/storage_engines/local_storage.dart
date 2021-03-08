@@ -52,22 +52,10 @@ extension on Order {
   }
 }
 
-extension on Dish {
-  // create toJson methods to implicitly work with `encode` (local-storage)
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'dish': dish,
-      'imageBytes': imageBytes,
-      'price': price,
-    };
-  }
-}
-
 class LocalStorage implements DatabaseConnectionInterface {
   final lib.LocalStorage ls;
 
-  LocalStorage(String name, [String path, Map<String, dynamic> initialData])
+  LocalStorage(String name, [String? path, Map<String, dynamic>? initialData])
       : ls = lib.LocalStorage(name, path, initialData);
 
   @override
@@ -75,6 +63,7 @@ class LocalStorage implements DatabaseConnectionInterface {
 
   @override
   Future<int> nextUID() async {
+    // if empty, starts from -1
     int current = ls.getItem('order_id_highkey') ?? -1;
     await ls.setItem('order_id_highkey', ++current);
     return current;
@@ -82,81 +71,71 @@ class LocalStorage implements DatabaseConnectionInterface {
 
   @override
   Future<void> insert(StateObject state) {
-    if (state == null) throw '`state` is required for localstorage';
-    if (state.orderID == null || state.orderID < 0) throw 'Invalid `orderID`';
+    if (state.orderID < 0) throw 'Invalid `orderID`';
 
-    var key = Common.extractYYYYMMDD(state.checkoutTime); // key by checkout date
+    final checkoutTime = Common.extractYYYYMMDD(state.checkoutTime);
     var newOrder = state.toJson(); // new order in json format
 
     // current orders of the day that have been saved
     // if this is first order then create it as an List
-    List<dynamic> orders = ls.getItem(key);
+    var orders = ls.getItem(checkoutTime);
     if (orders != null) {
       orders.add(newOrder);
     } else {
       orders = [newOrder];
     }
 
-    return ls.setItem(key, orders);
+    return ls.setItem(checkoutTime, orders);
   }
 
   @override
   List<Order> get(DateTime day) {
-    List<dynamic> storageData = ls.getItem(Common.extractYYYYMMDD(day));
-    var cache = storageData is List<Map> ? storageData : storageData?.cast<String>();
-    return cache?.map((e) {
-      var decoded = e is Map<String, dynamic> ? e : json.decode(e) as Map<String, dynamic>;
+    List<dynamic>? storageData = ls.getItem(Common.extractYYYYMMDD(day));
+    if (storageData == null) return [];
+
+    var cache = storageData is List<Map> ? storageData : storageData.cast<String>();
+    return cache.map((e) {
+      var decoded =
+          e is Map<String, dynamic> ? e : json.decode(e as String) as Map<String, dynamic>;
       List<dynamic> lines = decoded['lineItems'];
       return Order(
-        decoded['tableID'],
-        decoded['orderID'],
+        decoded['tableID'] ?? -1,
+        decoded['orderID'] ?? -1,
         DateTime.parse(decoded['checkoutTime']),
-        decoded['discountRate'],
         lines
             .map((e) => LineItem(
                   associatedDish: Dish(e['dishID'], e['dishName'], e['price'], e['imageBytes']),
                   quantity: e['quantity'],
                 ))
             .toList(),
-        isDeleted: decoded['isDeleted'],
+        discountRate: decoded['discountRate'] ?? -1.0,
+        isDeleted: decoded['isDeleted'] ?? false,
       );
-    })?.toList(growable: false);
+    }).toList(growable: false);
   }
 
   @override
   List<Order> getRange(DateTime start, DateTime end) {
     return List.generate(
       end.difference(start).inDays + 1,
-      (i) => get(DateTime(start.year, start.month, start.day + i)) ?? [],
+      (i) => get(DateTime(start.year, start.month, start.day + i)),
     ).expand((e) => e).toList();
   }
 
   @override
-  Map<String, Dish> getMenu() {
+  Menu? getMenu() {
     var storageData = ls.getItem('menu');
-    if (storageData == null) return null;
-    var cache = storageData is Map ? storageData : json.decode(storageData) as Map<String, dynamic>;
-
-    return cache.map((key, v) {
-      var decoded = v is Map<String, dynamic> ? v : json.decode(v) as Map<String, dynamic>;
-      return MapEntry(
-        key.toString(),
-        Dish(decoded['id'], decoded['dish'], decoded['price'], decoded['imageBytes']),
-      );
-    });
+    if (storageData == null) {
+      print('\x1B[94mmenu not found in localstorage\x1B[0m');
+      return null;
+    }
+    return Menu.fromJson(storageData as Map<String, dynamic>);
   }
 
   @override
-  Future<void> setMenu(Map<String, Dish> newMenu) {
-    // to set items to local storage, they must be Map<String, dynamic>
-    return ls.setItem('menu', newMenu, (menu) {
-      return (menu as Map<String, Dish>).map((key, value) {
-        return MapEntry(
-          key.toString(),
-          value.toJson(),
-        );
-      });
-    });
+  Future<void> setMenu(Menu newMenu) {
+    // to set items to local storage
+    return ls.setItem('menu', newMenu);
   }
 
   @override
@@ -169,8 +148,8 @@ class LocalStorage implements DatabaseConnectionInterface {
           order.tableID,
           order.orderID,
           order.checkoutTime,
-          order.discountRate,
           order.lineItems,
+          discountRate: order.discountRate,
           isDeleted: true,
         );
         return deletedOrder;

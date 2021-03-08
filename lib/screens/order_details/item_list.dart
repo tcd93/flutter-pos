@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../common/common.dart';
-import '../../generated/l10n.dart';
 import '../../provider/src.dart';
 
 class ItemList extends StatelessWidget {
-  final String fromScreen;
+  final String? fromScreen;
   final TableModel order;
 
   const ItemList(this.order, {this.fromScreen});
@@ -30,7 +30,7 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.watch<Supplier>();
-    final headline6Style = Theme.of(context).textTheme.headline6;
+    final headline6Style = Theme.of(context).textTheme.headline6!;
     final priceAfterDisc = order.totalPriceAfterDiscount;
     return SafeArea(
       child: ListTile(
@@ -44,8 +44,10 @@ class _Header extends StatelessWidget {
         ),
         subtitle: order.discountPercent > 0
             ? Text(
-                S.current.details_discountTxt(Money.format(order.totalPricePreDiscount),
-                    order.discountPercent.toStringAsFixed(2)),
+                AppLocalizations.of(context)!.details_discountTxt(
+                  Money.format(order.totalPricePreDiscount),
+                  order.discountPercent.toStringAsFixed(2),
+                ),
                 textAlign: TextAlign.center,
               )
             : null,
@@ -56,7 +58,7 @@ class _Header extends StatelessWidget {
 
 class _Items extends StatelessWidget {
   final List<LineItem> orders;
-  final String fromScreen;
+  final String? fromScreen;
 
   const _Items(this.orders, this.fromScreen);
 
@@ -67,6 +69,8 @@ class _Items extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         itemCount: orders.length,
         itemBuilder: (context, index) {
+          final supplier = Provider.of<MenuSupplier>(context);
+
           return Card(
             key: ObjectKey(orders[index]),
             child: ListTile(
@@ -76,13 +80,14 @@ class _Items extends StatelessWidget {
               title: Text(
                 fromScreen == 'history'
                     ? orders[index].dishName
-                    : Dish.ofID(orders[index].dishID)?.dish ??
-                        orders[index].dishName + S.current.details_liDeleted,
+                    : supplier.find(orders[index].dishID)?.dish ??
+                        orders[index].dishName +
+                            (AppLocalizations.of(context)?.details_liDeleted ?? ''),
               ),
               trailing: Text(
                 Money.format(fromScreen == 'history'
                     ? orders[index].price * orders[index].quantity
-                    : Dish.ofID(orders[index].dishID)?.price ??
+                    : supplier.find(orders[index].dishID)?.price ??
                         orders[index].price * orders[index].quantity),
               ),
             ),

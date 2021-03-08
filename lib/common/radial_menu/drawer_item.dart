@@ -10,7 +10,7 @@ class DrawerItem extends StatelessWidget {
 
   final Animation<double> translation;
 
-  DrawerItem({@required this.controller, @required this.angle, this.child, Key key})
+  DrawerItem({required this.controller, required this.angle, required this.child, Key? key})
       : translation = Tween<double>(begin: 0.0, end: 60.0).animate(
           CurvedAnimation(parent: controller, curve: Curves.elasticOut),
         ),

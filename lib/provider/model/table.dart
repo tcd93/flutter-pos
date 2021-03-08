@@ -7,27 +7,23 @@ import '../src.dart';
 
 @immutable
 class TableModel {
-  final Supplier _tracker;
   final int id;
 
-  final SlidingWindow<_TableState> _s;
-  final Coordinate _coord;
+  final SlidingWindow<TableState> _s;
+  late final Coordinate _coord;
 
-  TableModel(this._tracker, this.id, [StateObject mockState])
-      : _coord = Coordinate.fromDB(id, _tracker?.database),
-        _s = mockState != null
-            ? SlidingWindow(
-                2,
-                [_TableState.downcast(id, mockState), _TableState.downcast(id, mockState)],
-              )
-            : SlidingWindow(2, [_TableState(id), _TableState(id)]);
+  TableModel(this.id, [TableState? mockState, Coordinate? coord])
+      : _s = mockState != null
+            ? SlidingWindow(2, [mockState, TableState.copy(mockState)])
+            : SlidingWindow(2, [TableState(id), TableState(id)]),
+        _coord = coord ?? Coordinate(0, 0);
 
   TableStatus get status => _s.current.status;
 
-  void setTableStatus(TableStatus newStatus) {
+  void setTableStatus(TableStatus newStatus, [Supplier? supplier]) {
     if (newStatus != _s.current.status) {
       _s.current.status = newStatus;
-      _tracker?.notifyListeners();
+      supplier?.notifyListeners();
     }
   }
 
@@ -59,79 +55,73 @@ class TableModel {
   double get discountPercent => (1 - _s.current.discountRate) * 100;
 
   void memorizePreviousState() {
-    final copy = _TableState.copy(_s.current);
+    final copy = TableState.copy(_s.current);
     _s.slideRight(copy);
   }
 
   /// Restore to last "commit" (called by [memorizePreviousState])
-  void revert() {
-    final copy = _TableState.copy(_s.first);
+  void revert([Supplier? supplier]) {
+    final copy = TableState.copy(_s.first);
     _s.slideLeft(copy);
-    _tracker?.notifyListeners();
+    supplier?.notifyListeners();
   }
 
-  Future<TableModel> checkout({DateTime atTime}) async {
-    final database = _tracker?.database;
+  Future<StateObject> checkout({required Supplier supplier, DateTime? atTime}) async {
+    final database = supplier.database;
 
-    _s.current.orderID = await database?.nextUID();
+    if (database != null) {
+      final nextID = await database.nextUID();
+      _s.current.orderID = nextID;
+    }
     _s.current.checkoutTime = atTime ?? DateTime.now();
 
     await database?.insert(_s.current);
 
-    // this is a bit hacky, but we need to keep a state for printing...
-    final copy = _TableState.copy(_s.current);
+    final copiedState = TableState.copy(_s.current);
 
-    _s.lst = [_TableState(id), _TableState(id)]; // clear current state
-    _tracker?.notifyListeners();
-    return TableModel(null, id, copy);
+    _s.lst = [TableState(id), TableState(id)]; // clear current state
+    supplier.notifyListeners();
+    return copiedState;
   }
 
   //TODO: implement store name, set it in the receipt header
-  Future<void> printReceipt(BuildContext context, [double customerPayAmount]) async {
+  Future<void> printReceipt(
+    BuildContext context, [
+    double? customerPayAmount,
+    StateObject? withState,
+  ]) async {
     if (!kIsWeb) {
-      return Printer.print(context, _s.current, customerPayAmount);
+      return Printer.print(context, withState ?? _s.current, customerPayAmount);
     }
   }
 
-  double applyDiscount(double discountRate) {
+  double applyDiscount(double discountRate, Supplier? supplier) {
     assert(0 < discountRate && discountRate <= 1);
     _s.current.discountRate = discountRate;
+    supplier?.notifyListeners();
     return totalPriceAfterDiscount;
   }
 
   /// current global X, Y pos on screen
-  Coordinate get offset => _coord;
+  Coordinate getOffset() => _coord;
 
-  set offset(Coordinate newCoord) {
+  void setOffset(Coordinate newCoord, Supplier? supplier) {
     if (newCoord.x == _coord.y && newCoord.y == _coord.y) return;
-    final database = _tracker?.database;
+    final database = supplier?.database;
     database?.setCoordinate(id, newCoord.x, newCoord.y);
   }
 }
 
-class _TableState extends StateObject {
+class TableState extends StateObject {
   /// The associated table id
   final int tableID;
 
   TableStatus status = TableStatus.empty;
 
-  _TableState(this.tableID);
+  TableState(this.tableID);
 
-  _TableState.downcast(this.tableID, StateObject base) {
-    lineItems = base.lineItems
-        .map((l) => LineItem(
-              associatedDish: l.associatedDish,
-              quantity: l.quantity,
-            ))
-        .toList();
-    checkoutTime = base.checkoutTime;
-    discountRate = base.discountRate;
-    if (base.orderID != null) {
-      orderID = base.orderID;
-    }
-  }
-
-  _TableState.copy(_TableState base) : tableID = base.tableID ?? -1 {
+  /// copy to a new instance (except [orderID])
+  TableState.copy(TableState base) : tableID = base.tableID {
     lineItems = base.lineItems
         .map((l) => LineItem(
               associatedDish: l.associatedDish,
@@ -141,18 +131,29 @@ class _TableState extends StateObject {
     status = base.status;
     checkoutTime = base.checkoutTime;
     discountRate = base.discountRate;
-    if (base.orderID != null) {
-      orderID = base.orderID;
-    }
+  }
+
+  TableState.mock(
+    this.tableID,
+    List<LineItem> lineItems, {
+    int orderID = -1,
+    DateTime? checkoutTime,
+    double discountRate = 1.0,
+    this.status = TableStatus.empty,
+  }) {
+    assert(discountRate > 0.0 && discountRate <= 1.0);
+    super.lineItems = lineItems;
+    super.checkoutTime = checkoutTime ?? DateTime.parse('1999-01-01');
+    super.discountRate = discountRate;
   }
 }
 
 /// the current global X, Y position of this table node
 class Coordinate {
-  double x, y;
+  late double x = 0, y = 0;
   Coordinate(this.x, this.y);
   Coordinate.fromDB(int tableID, DatabaseConnectionInterface database) {
-    x = database?.getX(tableID) ?? 0;
-    y = database?.getY(tableID) ?? 0;
+    x = database.getX(tableID);
+    y = database.getY(tableID);
   }
 }

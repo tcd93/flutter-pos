@@ -1,5 +1,5 @@
 name: posapp
-description: A simple POS app for small restaurants 
+description: A simple POS app for small restaurants
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -15,31 +15,38 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+version: 1.1.0
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  animations: ^1.1.2
-  provider: ^4.3.2+2
-  localstorage: ^3.0.0
-  image_picker: ^0.6.7+14
-  image_picker_for_web: ^0.1.0+2
+  intl: ^0.17.0
+  animations: ^2.0.0
+  provider: ^5.0.0
+  localstorage:
+    git:
+      url: git://github.com/tcd93/flutter_localstorage
+      ref: master
+  image_picker: ^0.7.2
+  image_picker_for_web: ^2.0.0
   blue_thermal_printer:
     git:
       url: git://github.com/tcd93/blue_thermal_printer
       ref: master
-  google_fonts: ^1.1.1
+  google_fonts: ^2.0.0
   date_range_picker:
     git:
       url: git://github.com/tcd93/date_range_picker
       ref: master
-  super_tooltip: ^0.9.6
+  super_tooltip:
+    git:
+      url: git://github.com/tcd93/super_tooltip
+      ref: master
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -49,12 +56,13 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   pedantic: ^1.9.0
-  flutter_launcher_icons: ^0.8.0
+  flutter_launcher_icons: ^0.9.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 # The following section is specific to Flutter.
 flutter:
+  generate: true
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

@@ -1,20 +1,19 @@
 import 'dart:async';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import '../generated/l10n.dart';
 
-Future<bool> popUpDelete(BuildContext context, {Widget title}) {
+Future<bool?> popUpDelete(BuildContext context, {Widget? title}) {
   return showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
-      title: title ?? Text(S.current.generic_deleteQuestion),
+      title: title ?? Text(AppLocalizations.of(context)!.generic_deleteQuestion),
       actions: [
         TextButton(
-          child: Text(S.current.generic_no),
+          child: Text(AppLocalizations.of(context)!.generic_no),
           onPressed: () => Navigator.of(context).pop(false),
         ),
         TextButton(
-          child: Text(S.current.generic_yes),
+          child: Text(AppLocalizations.of(context)!.generic_yes),
           onPressed: () => Navigator.of(context).pop(true),
         ),
       ],

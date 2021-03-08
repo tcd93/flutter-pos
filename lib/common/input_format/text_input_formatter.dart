@@ -20,16 +20,14 @@ class NumberEL100Formatter extends TextInputFormatter {
 /// VN use dot separator, for example: "1.000" is a valid to represent one-thousand vnd;
 /// US uses comma separator.
 ///
-/// TODO: fix clunkiness
+/// TODO fix clunkiness
 class MoneyFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
     final number = Money.unformat(newValue.text);
-    return number == null
-        ? newValue.copyWith(text: '')
-        : newValue.copyWith(
-            text: Money.format(number),
-            selection: TextSelection.collapsed(offset: Money.format(number).length),
-          );
+    return newValue.copyWith(
+      text: Money.format(number),
+      selection: TextSelection.collapsed(offset: Money.format(number).length),
+    );
   }
 }
