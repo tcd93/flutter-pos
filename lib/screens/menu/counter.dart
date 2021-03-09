@@ -10,7 +10,10 @@ const double height = 85.0;
 class Counter extends StatefulWidget {
   final _memoizer = AsyncMemoizer();
   final int startingValue;
+
   final Uint8List? imageData;
+  final String? asset;
+
   final String title;
   final String subtitle;
   final TextEditingController textEditingController;
@@ -22,6 +25,7 @@ class Counter extends StatefulWidget {
     required this.onIncrement,
     required this.onDecrement,
     this.imageData,
+    this.asset,
     required this.title,
     required this.subtitle,
     Key? key,
@@ -77,7 +81,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
 
     return AnimatedBuilder(
       animation: animController,
-      child: Avatar(imageData: widget.imageData),
+      child: Avatar(imageData: widget.imageData, asset: widget.asset),
       builder: (context, child) {
         if (widget.startingValue != 0) {
           widget._memoizer.runOnce(() {

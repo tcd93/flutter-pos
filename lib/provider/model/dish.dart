@@ -51,4 +51,9 @@ class Dish {
             ? {'id': id, 'dish': dish, 'price': price, 'asset': asset}
             : {'id': id, 'dish': dish, 'price': price};
   }
+
+  @override
+  String toString() {
+    return toJson().toString();
+  }
 }
