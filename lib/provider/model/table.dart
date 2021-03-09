@@ -9,13 +9,16 @@ import '../src.dart';
 class TableModel {
   final int id;
 
-  final SlidingWindow<TableState> _s;
-  late final Coordinate _coord;
+  final SlidingWindow<Order> _s;
+  final Coordinate _coord;
 
-  TableModel(this.id, [TableState? mockState, Coordinate? coord])
-      : _s = mockState != null
-            ? SlidingWindow(2, [mockState, TableState.copy(mockState)])
-            : SlidingWindow(2, [TableState(id), TableState(id)]),
+  TableModel(this.id, [Coordinate? coord])
+      : _s = SlidingWindow(2, [Order(id), Order(id)]),
+        _coord = coord ?? Coordinate(0, 0);
+
+  TableModel.withOrder(Order mockState, [Coordinate? coord])
+      : _s = SlidingWindow(2, [mockState, Order.copy(mockState)]),
+        id = mockState.tableID,
         _coord = coord ?? Coordinate(0, 0);
 
   TableStatus get status => _s.current.status;
@@ -39,9 +42,8 @@ class TableModel {
     return s;
   }
 
-  /// Get a list of current [lineItems] (with quantity > 0)
-  List<LineItem> get lineItems =>
-      _s.current.lineItems.where((entry) => entry.isBeingOrdered()).toList();
+  /// Get a list of current items with quantity > 0
+  LineItemList get activeLineItems => _s.current.activeLines;
 
   int get totalMenuItemQuantity => _s.current.lineItems.fold(
         0,
@@ -55,13 +57,13 @@ class TableModel {
   double get discountPercent => (1 - _s.current.discountRate) * 100;
 
   void memorizePreviousState() {
-    final copy = TableState.copy(_s.current);
+    final copy = Order.copy(_s.current);
     _s.slideRight(copy);
   }
 
   /// Restore to last "commit" (called by [memorizePreviousState])
   void revert([Supplier? supplier]) {
-    final copy = TableState.copy(_s.first);
+    final copy = Order.copy(_s.first);
     _s.slideLeft(copy);
     supplier?.notifyListeners();
   }
@@ -71,15 +73,15 @@ class TableModel {
 
     if (database != null) {
       final nextID = await database.nextUID();
-      _s.current.orderID = nextID;
+      _s.current.id = nextID;
     }
     _s.current.checkoutTime = atTime ?? DateTime.now();
 
     await database?.insert(_s.current);
 
-    final copiedState = TableState.copy(_s.current);
+    final copiedState = Order.copy(_s.current);
 
-    _s.lst = [TableState(id), TableState(id)]; // clear current state
+    _s.lst = [Order(id), Order(id)]; // clear current state
     supplier.notifyListeners();
     return copiedState;
   }
@@ -107,45 +109,75 @@ class TableModel {
 
   void setOffset(Coordinate newCoord, Supplier? supplier) {
     if (newCoord.x == _coord.y && newCoord.y == _coord.y) return;
+    _coord.x = newCoord.x;
+    _coord.y = newCoord.y;
     final database = supplier?.database;
     database?.setCoordinate(id, newCoord.x, newCoord.y);
   }
 }
 
-class TableState extends StateObject {
+class Order extends StateObject {
   /// The associated table id
   final int tableID;
 
   TableStatus status = TableStatus.empty;
 
-  TableState(this.tableID);
+  /// "soft-deleted", interactable only in [HistoryScreen]
+  bool isDeleted;
+
+  Order(this.tableID) : isDeleted = false;
 
   /// copy to a new instance (except [orderID])
-  TableState.copy(TableState base) : tableID = base.tableID {
-    lineItems = base.lineItems
-        .map((l) => LineItem(
-              associatedDish: l.associatedDish,
-              quantity: l.quantity,
-            ))
-        .toList();
-    status = base.status;
+  Order.copy(Order base)
+      : tableID = base.tableID,
+        isDeleted = base.isDeleted,
+        status = base.status {
+    lineItems = LineItemList.copy(base.lineItems);
     checkoutTime = base.checkoutTime;
     discountRate = base.discountRate;
   }
 
-  TableState.mock(
-    this.tableID,
-    List<LineItem> lineItems, {
+  Order.create({
+    required this.tableID,
+    required LineItemList lineItems,
     int orderID = -1,
     DateTime? checkoutTime,
     double discountRate = 1.0,
     this.status = TableStatus.empty,
+    this.isDeleted = false,
   }) {
     assert(discountRate > 0.0 && discountRate <= 1.0);
     super.lineItems = lineItems;
     super.checkoutTime = checkoutTime ?? DateTime.parse('1999-01-01');
     super.discountRate = discountRate;
+    if (orderID > -1) id = orderID;
   }
+
+  Order.fromJson(Map<String, dynamic> json)
+      : tableID = json['tableID'] ?? -1,
+        isDeleted = json['isDeleted'] ?? false,
+        super.create(
+          json['orderID'],
+          LineItemList.fromJson(json['lineItems']),
+          json['discountRate'],
+          DateTime.parse(json['checkoutTime']),
+        );
+
+  Map<String, dynamic> toJson() {
+    var lineItemList = LineItemList(lineItems.where((l) => l.isBeingOrdered()));
+
+    return {
+      'tableID': tableID,
+      'lineItems': lineItemList.toJson(),
+      'orderID': id,
+      'checkoutTime': checkoutTime.toString(),
+      'discountRate': discountRate,
+      'isDeleted': isDeleted,
+    };
+  }
+
+  @override
+  String toString() => toJson().toString();
 }
 
 /// the current global X, Y position of this table node

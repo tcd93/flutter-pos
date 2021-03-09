@@ -5,17 +5,16 @@ import 'package:posapp/screens/order_details/main.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  final table = TableModel(
-    1,
-    TableState.mock(
-      1,
-      List.generate(
+  final table = TableModel.withOrder(
+    Order.create(
+      tableID: 1,
+      lineItems: LineItemList(List.generate(
         3,
         (index) => LineItem(
           associatedDish: Dish(index + 1, 'Test Dish $index', 3333),
           quantity: (index + 1) * 2,
         ),
-      ),
+      )),
     ),
   );
 

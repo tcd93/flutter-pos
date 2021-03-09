@@ -39,17 +39,16 @@ void main() {
         database: storage,
         mockModels: [
           TableModel(0),
-          TableModel(
-            1,
-            TableState.mock(
-              1,
-              List.generate(
+          TableModel.withOrder(
+            Order.create(
+              tableID: 1,
+              lineItems: LineItemList(List.generate(
                 1,
                 (index) => LineItem(
                   associatedDish: Dish(index, 'Test Dish $index', 120000),
                   quantity: 1,
                 ),
-              ),
+              )),
             ),
           ),
         ],

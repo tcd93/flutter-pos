@@ -16,7 +16,7 @@ class ItemList extends StatelessWidget {
     return Column(
       children: [
         _Header(order),
-        _Items(order.lineItems, fromScreen),
+        _Items(order.activeLineItems, fromScreen),
       ],
     );
   }
@@ -57,7 +57,7 @@ class _Header extends StatelessWidget {
 }
 
 class _Items extends StatelessWidget {
-  final List<LineItem> orders;
+  final LineItemList orders;
   final String? fromScreen;
 
   const _Items(this.orders, this.fromScreen);
@@ -70,25 +70,23 @@ class _Items extends StatelessWidget {
         itemCount: orders.length,
         itemBuilder: (context, index) {
           final supplier = Provider.of<MenuSupplier>(context);
-
+          final order = orders.elementAt(index);
           return Card(
-            key: ObjectKey(orders[index]),
+            key: ObjectKey(order),
             child: ListTile(
               leading: CircleAvatar(
-                child: Text(orders[index].quantity.toString()),
+                child: Text(order.quantity.toString()),
               ),
               title: Text(
                 fromScreen == 'history'
-                    ? orders[index].dishName
-                    : supplier.find(orders[index].dishID)?.dish ??
-                        orders[index].dishName +
-                            (AppLocalizations.of(context)?.details_liDeleted ?? ''),
+                    ? order.dishName
+                    : supplier.find(order.dishID)?.dish ??
+                        order.dishName + (AppLocalizations.of(context)?.details_liDeleted ?? ''),
               ),
               trailing: Text(
                 Money.format(fromScreen == 'history'
-                    ? orders[index].price * orders[index].quantity
-                    : supplier.find(orders[index].dishID)?.price ??
-                        orders[index].price * orders[index].quantity),
+                    ? order.price * order.quantity
+                    : supplier.find(order.dishID)?.price ?? order.price * order.quantity),
               ),
             ),
           );

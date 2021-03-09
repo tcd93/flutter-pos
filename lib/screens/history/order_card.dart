@@ -26,7 +26,7 @@ class OrderCard extends StatelessWidget {
             key: ObjectKey(order),
             child: ListTile(
               leading: CircleAvatar(
-                child: Text(order.orderID.toString()),
+                child: Text(order.id.toString()),
                 backgroundColor: del == true ? Colors.grey[400]!.withOpacity(0.5) : null,
               ),
               title: Text(
@@ -47,12 +47,11 @@ class OrderCard extends StatelessWidget {
                     },
               onTap: () {
                 Navigator.pushNamed(context, '/order-details', arguments: {
-                  'state': TableModel(
-                    order.tableID,
-                    TableState.mock(
-                      order.tableID,
-                      order.lineItems,
-                      orderID: order.orderID,
+                  'state': TableModel.withOrder(
+                    Order.create(
+                      tableID: order.tableID,
+                      lineItems: order.lineItems,
+                      orderID: order.id,
                       checkoutTime: order.checkoutTime,
                       discountRate: order.discountRate,
                     ),

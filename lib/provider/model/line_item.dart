@@ -30,4 +30,15 @@ class LineItem {
   int substractOne() => _quantity > 0 ? --_quantity : 0;
 
   LineItem({required this.associatedDish, int quantity = 0}) : _quantity = quantity;
+
+  LineItem.fromJson(Map<String, dynamic> json)
+      : associatedDish = Dish(json['dishID'], json['dishName'], json['price']),
+        _quantity = json['quantity'];
+
+  Map<String, dynamic> toJson() {
+    return {'dishID': dishID, 'dishName': dishName, 'quantity': quantity, 'price': price};
+  }
+
+  @override
+  String toString() => toJson().toString();
 }

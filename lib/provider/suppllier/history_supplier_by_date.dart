@@ -37,7 +37,7 @@ class HistorySupplierByDate extends ChangeNotifier {
 
   Future<Order?> ignoreOrder(Order order, int index) async {
     _excludeOrderFromTotal(order);
-    final ord = await database?.delete(order.checkoutTime, order.orderID);
+    final ord = await database?.delete(order.checkoutTime, order.id);
     if (ord != null) {
       _list[index] = ord;
     }

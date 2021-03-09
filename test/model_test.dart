@@ -58,7 +58,7 @@ void main() {
     var items = storage.get(DateTime.parse('20200201 11:00:00'));
     expect(items, isNotNull);
     expect(items[0].checkoutTime, DateTime.parse('20200201 11:00:00'));
-    expect(items[0].orderID, 0);
+    expect(items[0].id, 0);
     expect(() => items[1], throwsRangeError);
   });
 
@@ -78,7 +78,7 @@ void main() {
 
     var items = storage.get(DateTime.parse('20200201 13:00:00'));
     expect(items.length, 2);
-    expect(items[0].orderID, 0);
-    expect(items[1].orderID, 1);
+    expect(items[0].id, 0);
+    expect(items[1].id, 1);
   });
 }
