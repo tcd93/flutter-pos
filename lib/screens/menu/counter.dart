@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import '../avatar.dart';
@@ -11,8 +9,7 @@ class Counter extends StatefulWidget {
   final _memoizer = AsyncMemoizer();
   final int startingValue;
 
-  final Uint8List? imageData;
-  final String? asset;
+  final ImageProvider? imgProvider;
 
   final String title;
   final String subtitle;
@@ -24,8 +21,7 @@ class Counter extends StatefulWidget {
     this.startingValue, {
     required this.onIncrement,
     required this.onDecrement,
-    this.imageData,
-    this.asset,
+    this.imgProvider,
     required this.title,
     required this.subtitle,
     Key? key,
@@ -81,7 +77,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
 
     return AnimatedBuilder(
       animation: animController,
-      child: Avatar(imageData: widget.imageData, asset: widget.asset),
+      child: Avatar(imgProvider: widget.imgProvider),
       builder: (context, child) {
         if (widget.startingValue != 0) {
           widget._memoizer.runOnce(() {
