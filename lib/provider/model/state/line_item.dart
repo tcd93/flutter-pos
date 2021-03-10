@@ -1,5 +1,5 @@
 import 'dart:io';
-import '../src.dart';
+import '../../src.dart';
 
 class LineItem {
   int _quantity = 0;

@@ -56,17 +56,19 @@ class _CheckoutButton extends StatelessWidget {
         minWidth: MediaQuery.of(context).size.width / 2,
         onPressed: () async {
           if (fromScreen == 'history') {
-            // ignore: unawaited_futures
-            order.printReceipt(context);
+            await order.checkoutPrintClear(context: context);
+            Navigator.pop(context);
           } else {
             final customerPaid = await _popUpPayment(context, order.totalPriceAfterDiscount);
             if (customerPaid != null) {
-              final s = await order.checkout(supplier: context.read<Supplier>());
-              // ignore: unawaited_futures
-              order.printReceipt(context, customerPaid, s);
+              await order.checkoutPrintClear(
+                supplier: context.read<Supplier>(),
+                context: context,
+                customerPayAmount: customerPaid,
+              );
+              Navigator.pop(context);
             }
           }
-          Navigator.pop(context); // Go back to Lobby Screen
         },
       ),
     );
