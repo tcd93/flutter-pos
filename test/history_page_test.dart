@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/database_factory.dart';
 import 'package:posapp/provider/src.dart';
 import 'package:posapp/screens/history/main.dart';
+import 'package:posapp/screens/history/order_card.dart';
+import 'package:provider/provider.dart';
 
 final DateTime checkoutTime = DateTime.parse('20201112 13:00:00');
 
@@ -37,17 +39,16 @@ void main() {
         database: storage,
         mockModels: [
           TableModel(0),
-          TableModel(
-            1,
-            TableState.mock(
-              1,
-              List.generate(
+          TableModel.withOrder(
+            Order.create(
+              tableID: 1,
+              lineItems: LineItemList(List.generate(
                 1,
                 (index) => LineItem(
                   associatedDish: Dish(index, 'Test Dish $index', 120000),
                   quantity: 1,
                 ),
-              ),
+              )),
             ),
           ),
         ],
@@ -55,7 +56,7 @@ void main() {
       checkedOutTable = supplier.getTable(testTableID);
 
       // FOR SOME REASON "CHECK OUT" CAN'T BE DONE INSIDE `testWidgets`
-      await checkedOutTable.checkout(supplier: supplier, atTime: checkoutTime);
+      await checkedOutTable.checkoutPrintClear(supplier: supplier, atTime: checkoutTime);
     });
 
     testWidgets(
@@ -64,19 +65,27 @@ void main() {
         expect(checkedOutTable.totalMenuItemQuantity, 0); // confirm checked out
 
         await tester.pumpWidget(MaterialApp(
-          builder: (_, __) => HistoryScreen(storage, checkoutTime, checkoutTime),
+          builder: (_, __) => ChangeNotifierProvider(
+            create: (_) {
+              return HistorySupplierByDate(
+                database: storage,
+                range: DateTimeRange(start: checkoutTime, end: checkoutTime),
+              );
+            },
+            child: HistoryScreen(),
+          ),
         ));
 
         expect(
           find.byWidgetPredicate(
-            (widget) => widget is Card,
+            (widget) => widget is OrderCard,
             description: 'Line item number',
           ),
           findsOneWidget,
         );
 
         expect(
-          find.text('120,000'),
+          find.widgetWithText(OrderCard, '120,000'),
           findsOneWidget,
           reason: 'Total price should be 120,000',
         );
@@ -159,29 +168,34 @@ void main() {
       (tester) async {
         // but only view by 2 days
         await tester.pumpWidget(MaterialApp(
-          builder: (_, __) => HistoryScreen(
-            storage,
-            checkoutTime,
-            checkoutTime.add(const Duration(days: 1)),
+          builder: (_, __) => ChangeNotifierProvider(
+            create: (_) {
+              return HistorySupplierByDate(
+                database: storage,
+                range: DateTimeRange(
+                    start: checkoutTime, end: checkoutTime.add(const Duration(days: 1))),
+              );
+            },
+            child: HistoryScreen(),
           ),
         ));
 
         expect(
           find.byWidgetPredicate(
-            (widget) => widget is Card,
+            (widget) => widget is OrderCard,
             description: 'Line item number',
           ),
           findsNWidgets(2),
         );
 
         expect(
-          find.text('120,000'),
+          find.widgetWithText(OrderCard, '120,000'),
           findsOneWidget,
           reason: 'Price of first line item',
         );
 
         expect(
-          find.text('60,000'),
+          find.widgetWithText(OrderCard, '60,000'),
           findsOneWidget,
           reason: 'Price of second line item',
         );
@@ -328,8 +342,15 @@ void main() {
       'Should have 2 lines in History page, one has strike-thru',
       (tester) async {
         await tester.pumpWidget(MaterialApp(
-          builder: (_, __) =>
-              HistoryScreen(storage, checkoutTime, checkoutTime), //view by same day,
+          builder: (_, __) => ChangeNotifierProvider(
+            create: (_) {
+              return HistorySupplierByDate(
+                database: storage,
+                range: DateTimeRange(start: checkoutTime, end: checkoutTime), //view by same day,
+              );
+            },
+            child: HistoryScreen(),
+          ),
         ));
 
         expect(
@@ -353,18 +374,26 @@ void main() {
     testWidgets(
       'Exclude deleted item in the summary price (appbar)',
       (tester) async {
-        final tomorrow = checkoutTime.add(const Duration(days: 1));
+        final provider = HistorySupplierByDate(
+          database: storage,
+          range: DateTimeRange(start: checkoutTime, end: checkoutTime), //view by same day,
+        );
 
         //
         // same day
         //
 
         await tester.pumpWidget(MaterialApp(
-          builder: (_, __) => HistoryScreen(storage, checkoutTime, checkoutTime),
+          builder: (_, __) => ChangeNotifierProvider(
+            create: (_) {
+              return provider;
+            },
+            child: HistoryScreen(),
+          ),
         ));
 
         expect(
-          find.text('45,000'),
+          find.widgetWithText(Wrap, '45,000'),
           findsOneWidget,
           reason: 'Summary price is not 45,000',
         );
@@ -377,23 +406,23 @@ void main() {
         //
         // cross day
         //
-        await tester.pumpWidget(MaterialApp(
-          builder: (_, __) => HistoryScreen(storage, checkoutTime, tomorrow),
-        ));
+        final tomorrow = checkoutTime.add(const Duration(days: 1));
+        provider.selectedRange = DateTimeRange(start: checkoutTime, end: tomorrow);
+        await tester.pump();
 
         expect(
           find.byWidgetPredicate(
-            (widget) => widget is Card,
+            (widget) => widget is OrderCard,
           ),
           findsNWidgets(4),
-          reason: 'Not finding 3 orders in view',
+          reason: 'Not finding 4 lines in view',
         );
         await tester.pump();
 
         // (450000 * 1.0 discount)
         // + (250000 * 0.1 discount) + (1000 * 0.5 discount)
         expect(
-          find.text('70,500'),
+          find.widgetWithText(Wrap, '70,500'),
           findsOneWidget,
           reason: 'Summary price is not 70,500',
         );

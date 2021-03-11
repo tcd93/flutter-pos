@@ -85,7 +85,14 @@ class PosApp extends StatelessWidget {
               ),
             );
           case '/history':
-            return routeBuilder(HistoryScreen(_storage));
+            return routeBuilder(
+              ChangeNotifierProvider(
+                create: (_) {
+                  return HistorySupplierByDate(database: _storage);
+                },
+                child: HistoryScreen(),
+              ),
+            );
           case '/edit-menu':
             return routeBuilder(EditMenuScreen());
           default:

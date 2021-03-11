@@ -52,7 +52,6 @@ class DraggableWidgetState extends State<DraggableWidget> {
       child: Draggable(
         dragAnchor: DragAnchor.child,
         feedback: widget.child,
-        child: widget.child,
         childWhenDragging: const SizedBox(),
         onDragEnd: (drag) {
           final localOffset = backgroundRenderBox.globalToLocal(drag.offset);
@@ -62,6 +61,7 @@ class DraggableWidgetState extends State<DraggableWidget> {
           });
           widget.onDragEnd?.call(top, left);
         },
+        child: widget.child,
       ),
     );
   }

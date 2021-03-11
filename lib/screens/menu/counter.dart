@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import '../avatar.dart';
@@ -11,8 +9,7 @@ class Counter extends StatefulWidget {
   final _memoizer = AsyncMemoizer();
   final int startingValue;
 
-  final Uint8List? imageData;
-  final String? asset;
+  final ImageProvider? imgProvider;
 
   final String title;
   final String subtitle;
@@ -24,8 +21,7 @@ class Counter extends StatefulWidget {
     this.startingValue, {
     required this.onIncrement,
     required this.onDecrement,
-    this.imageData,
-    this.asset,
+    this.imgProvider,
     required this.title,
     required this.subtitle,
     Key? key,
@@ -81,7 +77,6 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
 
     return AnimatedBuilder(
       animation: animController,
-      child: Avatar(imageData: widget.imageData, asset: widget.asset),
       builder: (context, child) {
         if (widget.startingValue != 0) {
           widget._memoizer.runOnce(() {
@@ -128,8 +123,8 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                           child: FloatingActionButton(
                             // decrease
                             heroTag: null,
-                            child: Icon(Icons.remove),
                             onPressed: () => value = sub(animController, value),
+                            child: Icon(Icons.remove),
                           ),
                         ),
                         Expanded(
@@ -145,8 +140,8 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                           child: FloatingActionButton(
                             // increase
                             heroTag: null,
-                            child: Icon(Icons.add),
                             onPressed: () => value = add(animController, value),
+                            child: Icon(Icons.add),
                           ),
                         ),
                         const SizedBox(width: 2.0),
@@ -175,6 +170,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
           ],
         );
       },
+      child: Avatar(imgProvider: widget.imgProvider),
     );
   }
 }

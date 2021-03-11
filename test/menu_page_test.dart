@@ -15,7 +15,7 @@ void main() {
   group('Not confirmed: ', () {
     setUp(() => _testModel.revert());
     test('Should revert all items to 0', () {
-      expect(_testModel.lineItems.length, 0);
+      expect(_testModel.activeLineItems.length, 0);
       expect(_testModel.totalMenuItemQuantity, 0);
       expect(_testModel.totalPricePreDiscount, 0);
     });
@@ -26,7 +26,7 @@ void main() {
     test('Should keep states of all items', () {
       _testModel.revert();
 
-      expect(_testModel.lineItems.length, 3);
+      expect(_testModel.activeLineItems.length, 3);
       expect(_testModel.totalMenuItemQuantity, 30);
       expect(_testModel.totalPricePreDiscount, 9000);
     });
@@ -38,7 +38,7 @@ void main() {
       _testModel.revert();
 
       expect(_testModel.totalMenuItemQuantity, 30);
-      expect(_testModel.lineItems.length, 3);
+      expect(_testModel.activeLineItems.length, 3);
       expect(_testModel.totalPricePreDiscount, 9000);
     });
   });

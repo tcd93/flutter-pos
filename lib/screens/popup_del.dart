@@ -9,12 +9,12 @@ Future<bool?> popUpDelete(BuildContext context, {Widget? title}) {
       title: title ?? Text(AppLocalizations.of(context)!.generic_deleteQuestion),
       actions: [
         TextButton(
-          child: Text(AppLocalizations.of(context)!.generic_no),
           onPressed: () => Navigator.of(context).pop(false),
+          child: Text(AppLocalizations.of(context)!.generic_no),
         ),
         TextButton(
-          child: Text(AppLocalizations.of(context)!.generic_yes),
           onPressed: () => Navigator.of(context).pop(true),
+          child: Text(AppLocalizations.of(context)!.generic_yes),
         ),
       ],
     ),

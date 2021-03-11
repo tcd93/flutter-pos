@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -135,6 +136,8 @@ class __ListItemState extends State<_ListItem> {
   // for the `ensureVisible` function to work!
   final GlobalKey<__ListItemState> _gk = GlobalKey();
 
+  Uint8List? pickedImage;
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -181,7 +184,6 @@ class __ListItemState extends State<_ListItem> {
   Widget expanded(BuildContext context, Dish dish, Function(Dish) onEdit) {
     final dishNameController = TextEditingController(text: dish.dish);
     final priceController = TextEditingController(text: Money.format(dish.price));
-    var img = dish.imageBytes;
 
     return Padding(
       key: _gk,
@@ -189,9 +191,10 @@ class __ListItemState extends State<_ListItem> {
       child: FormContent(
         inputs: buildInputs(context, dishNameController, priceController, TextAlign.start),
         avatar: Avatar(
-          imageData: dish.imageBytes,
-          asset: dish.asset,
-          onNew: (image) => img = image,
+          imgProvider: pickedImage != null ? MemoryImage(pickedImage!) : dish.imgProvider,
+          onNew: (image) {
+            setState(() => pickedImage = image);
+          },
         ),
         gap: 12.0,
         buttonMinWidth: 70.0,
@@ -201,7 +204,7 @@ class __ListItemState extends State<_ListItem> {
               dish.id,
               dishNameController.text,
               Money.unformat(priceController.text).toDouble(),
-              img,
+              pickedImage,
             );
             setState(() {
               currentState = CrossFadeState.showFirst;

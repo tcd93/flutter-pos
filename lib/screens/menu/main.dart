@@ -27,46 +27,38 @@ class MenuScreen extends StatelessWidget {
       ),
       body: ListView.builder(
           physics: const BouncingScrollPhysics(),
-          // same count of order line items and items in the `menu` constant in [Dish]
           itemCount: menuSupplier.menu.length,
           itemBuilder: (context, index) {
             final dish = menuSupplier.getDish(index);
+            final lineItem = model.putIfAbsent(dish);
+            // there's some inefficiency here as we're replacing the whole state when calling `revert()`
+            // everything in this listview is going to be updated
+            final supplier = Provider.of<Supplier>(context);
 
-            return Selector<Supplier, LineItem>(
-              // in case new menu dish is created from Edit Menu screen
-              // `putIfAbsent` will put new line item to the lineItems object
-              selector: (_, supplier) => model.putIfAbsent(dish),
-              builder: (context, lineItem, _) {
-                final supplier = Provider.of<Supplier>(context);
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Counter(
+                model.putIfAbsent(dish).quantity,
+                onIncrement: (_) {
+                  lineItem.addOne();
 
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: Counter(
-                    model.putIfAbsent(dish).quantity,
-                    onIncrement: (_) {
-                      lineItem.addOne();
-
-                      model.setTableStatus(TableStatus.incomplete, supplier);
-                    },
-                    onDecrement: (_) {
-                      lineItem.substractOne();
-                      // If there are not a single item in this order left,
-                      // Then set status to "empty" to disable the [_ConfirmButton]
-                      if (model.putIfAbsent(dish).quantity == 0 &&
-                          model.totalMenuItemQuantity == 0) {
-                        model.setTableStatus(TableStatus.empty, supplier);
-                      } else {
-                        model.setTableStatus(TableStatus.incomplete, supplier);
-                      }
-                    },
-                    imageData: dish.imageBytes,
-                    asset: dish.asset,
-                    title: dish.dish,
-                    subtitle: '(${Money.format(dish.price)})',
-                    key: ObjectKey(model),
-                  ),
-                );
-              },
+                  model.setTableStatus(TableStatus.incomplete, supplier);
+                },
+                onDecrement: (_) {
+                  lineItem.substractOne();
+                  // If there are not a single item in this order left,
+                  // Then set status to "empty" to disable the [_ConfirmButton]
+                  if (model.putIfAbsent(dish).quantity == 0 && model.totalMenuItemQuantity == 0) {
+                    model.setTableStatus(TableStatus.empty, supplier);
+                  } else {
+                    model.setTableStatus(TableStatus.incomplete, supplier);
+                  }
+                },
+                imgProvider: dish.imgProvider,
+                title: dish.dish,
+                subtitle: '(${Money.format(dish.price)})',
+                key: ObjectKey(model),
+              ),
             );
           }),
     );
@@ -90,7 +82,6 @@ class _ConfirmButton extends StatelessWidget {
             message: AppLocalizations.of(context)!.menu_confirm,
             child: MaterialButton(
               minWidth: MediaQuery.of(context).size.width / 2,
-              child: Icon(Icons.done),
               onPressed: status == TableStatus.incomplete
                   ? () {
                       final supplier = context.read<Supplier>();
@@ -99,6 +90,7 @@ class _ConfirmButton extends StatelessWidget {
                       Navigator.pop(context); // Go back to Lobby Screen
                     }
                   : null,
+              child: Icon(Icons.done),
             ),
           );
         },
@@ -122,13 +114,13 @@ class _UndoButton extends StatelessWidget {
           message: AppLocalizations.of(context)!.menu_undo,
           child: MaterialButton(
             minWidth: MediaQuery.of(context).size.width / 2,
-            child: Icon(Icons.undo),
             onPressed: status == TableStatus.incomplete
                 ? () {
                     final supplier = context.read<Supplier>();
                     model.revert(supplier);
                   }
                 : null,
+            child: Icon(Icons.undo),
           ),
         );
       },

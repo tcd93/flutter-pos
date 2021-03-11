@@ -35,6 +35,7 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
   final dishNameController = TextEditingController();
   final priceController = TextEditingController();
   late AnimationController animController;
+  Uint8List? pickedImage;
 
   @override
   void initState() {
@@ -72,8 +73,6 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    Uint8List? displayImg;
-
     return Scaffold(
       extendBody: true,
       bottomNavigationBar: BottomAppBar(
@@ -93,7 +92,7 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
                       supplier.nextID(),
                       dishNameController.text,
                       Money.unformat(priceController.text).toDouble(),
-                      displayImg,
+                      pickedImage,
                     );
                     widget.onAddDish(newDish);
                     expanded.value = false;
@@ -107,7 +106,8 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: _CenterDockedButton(
         expanded,
-        onNewAvatar: (img) => displayImg = img,
+        onNewAvatar: (img) => setState(() => pickedImage = img),
+        pickedImage: pickedImage,
         animation: animController,
       ),
       body: ValueListenableBuilder(
@@ -120,8 +120,8 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
             },
             child: _ColoredBarrierLayer(
               expanded,
-              child: body!,
               animation: animController,
+              child: body!,
             ),
           );
         },
@@ -184,17 +184,26 @@ class _CenterDockedButton extends StatelessWidget {
   final ValueNotifier<bool> expanded;
   final void Function(Uint8List img) onNewAvatar;
   final AnimationController animation;
+  final Uint8List? pickedImage;
 
-  const _CenterDockedButton(this.expanded, {required this.animation, required this.onNewAvatar});
+  const _CenterDockedButton(
+    this.expanded, {
+    required this.animation,
+    required this.onNewAvatar,
+    this.pickedImage,
+  });
 
   @override
   Widget build(BuildContext context) {
     // avoid unneccessary object recreations
-    final _avatar = Avatar(onNew: onNewAvatar);
+    final _avatar = Avatar(
+      onNew: onNewAvatar,
+      imgProvider: pickedImage != null ? MemoryImage(pickedImage!) : null,
+    );
     final _fab = FloatingActionButton(
-      child: Icon(Icons.add),
       backgroundColor: RallyColors.buttonColor,
       onPressed: () => expanded.value = true,
+      child: Icon(Icons.add),
     );
 
     return RadialMenu(

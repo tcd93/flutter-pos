@@ -56,6 +56,7 @@ class TableIcon extends StatelessWidget {
       DrawerItem(
         controller: radialAnimationController,
         angle: angles[1],
+        key: ValueKey<int>(2),
         child: FloatingActionButton(
           mini: true,
           heroTag: 'details-subtag-table-${table.id}',
@@ -73,10 +74,9 @@ class TableIcon extends StatelessWidget {
                   });
                 }
               : null,
-          child: Icon(Icons.receipt),
           backgroundColor: table.status == TableStatus.occupied ? null : RallyColors.gray,
+          child: Icon(Icons.receipt),
         ),
-        key: ValueKey<int>(2),
       ),
       // remove table node
       DrawerItem(
@@ -126,21 +126,21 @@ class _RadialButton extends StatelessWidget {
       closedBuilder: (radialAnimationController, context) {
         return FloatingActionButton(
           heroTag: null,
-          child: Text(model.id.toString()),
           onPressed: () {
             radialAnimationController.forward();
           },
           backgroundColor: _colorTween.animate(radialAnimationController).value,
+          child: Text(model.id.toString()),
         );
       },
       openBuilder: (radialAnimationController, context) {
         return FloatingActionButton(
           heroTag: null,
-          child: Icon(Icons.circle),
           onPressed: () {
             radialAnimationController.reverse();
           },
           backgroundColor: _colorTween.animate(radialAnimationController).value,
+          child: Icon(Icons.circle),
         );
       },
       drawerBuilder: (context, animController) =>

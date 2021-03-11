@@ -34,11 +34,11 @@ class FormContent extends StatelessWidget {
             children: [
               if (avatar != null)
                 Expanded(
-                  flex: 1,
+                  flex: 2,
                   child: Column(children: [avatar!]),
                 ),
               Expanded(
-                flex: 2,
+                flex: 5,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -55,14 +55,16 @@ class FormContent extends StatelessWidget {
             children: [
               if (onCancel != null)
                 TextButton(
-                  child: Text(
-                      (AppLocalizations.of(context)?.generic_cancel ?? 'cancel').toUpperCase()),
                   onPressed: onCancel,
+                  child: Text(
+                    (AppLocalizations.of(context)?.generic_cancel ?? 'cancel').toUpperCase(),
+                  ),
                 ),
               ElevatedButton(
-                child:
-                    Text((AppLocalizations.of(context)?.generic_confirm ?? 'submit').toUpperCase()),
                 onPressed: onSubmit,
+                child: Text(
+                  (AppLocalizations.of(context)?.generic_confirm ?? 'submit').toUpperCase(),
+                ),
               ),
             ],
           ),

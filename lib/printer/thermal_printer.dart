@@ -42,7 +42,7 @@ class Printer {
         return;
       }
     }
-    var list = o.lineItems.where((i) => i.isBeingOrdered());
+    var list = o.activeLines;
     if (list.isEmpty) {
       debugPrint('print error: empty order');
       return;

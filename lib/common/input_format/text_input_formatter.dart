@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -19,15 +20,30 @@ class NumberEL100Formatter extends TextInputFormatter {
 /// Formatter for money-type text, the separator ("," or ".") is Locale dependant.
 /// VN use dot separator, for example: "1.000" is a valid to represent one-thousand vnd;
 /// US uses comma separator.
-///
-/// TODO fix clunkiness
 class MoneyFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    final number = Money.unformat(newValue.text);
+    if (newValue.text.isEmpty) {
+      return newValue;
+    }
+    final oldNumber = Money.unformat(oldValue.text);
+    final newNumber = Money.unformat(newValue.text);
+
+    // in case non-number is removed (like deleting comma, dot... from oldValue),
+    // display the new number without any format
+    if (oldNumber == newNumber) {
+      return newValue;
+    }
+    final newString = Money.format(newNumber);
+    final adjustment = (newString.length - newValue.text.length).sign;
+
     return newValue.copyWith(
-      text: Money.format(number),
-      selection: TextSelection.collapsed(offset: Money.format(number).length),
+      text: newString,
+      selection: TextSelection.fromPosition(
+        TextPosition(
+          offset: min(newString.length, newValue.selection.baseOffset + adjustment),
+        ),
+      ),
     );
   }
 }

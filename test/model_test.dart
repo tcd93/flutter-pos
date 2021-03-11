@@ -45,25 +45,25 @@ void main() {
   });
 
   test('Table should go back to blank state after checkout', () async {
-    await mockTable.checkout(supplier: mockTracker);
+    await mockTable.checkoutPrintClear(supplier: mockTracker);
     expect(mockTable.totalMenuItemQuantity, 0);
     expect(mockTable.status, TableStatus.empty);
   });
 
   test('Order should persist to local storage after checkout', () async {
-    await mockTable.checkout(
+    await mockTable.checkoutPrintClear(
       supplier: mockTracker,
       atTime: DateTime.parse('20200201 11:00:00'),
     );
     var items = storage.get(DateTime.parse('20200201 11:00:00'));
     expect(items, isNotNull);
     expect(items[0].checkoutTime, DateTime.parse('20200201 11:00:00'));
-    expect(items[0].orderID, 0);
+    expect(items[0].id, 0);
     expect(() => items[1], throwsRangeError);
   });
 
   test('OrderID increase by 1 after first order', () async {
-    await mockTable.checkout(
+    await mockTable.checkoutPrintClear(
       supplier: mockTracker,
       atTime: DateTime.parse('20200201 11:00:00'),
     );
@@ -71,14 +71,14 @@ void main() {
     // create new order
     final mockTable2 = TableModel(0)..putIfAbsent(Dish(1, 'test1', 100)).quantity = 5;
 
-    await mockTable2.checkout(
+    await mockTable2.checkoutPrintClear(
       supplier: mockTracker,
       atTime: DateTime.parse('20200201 13:00:00'),
     );
 
     var items = storage.get(DateTime.parse('20200201 13:00:00'));
     expect(items.length, 2);
-    expect(items[0].orderID, 0);
-    expect(items[1].orderID, 1);
+    expect(items[0].id, 0);
+    expect(items[1].id, 1);
   });
 }

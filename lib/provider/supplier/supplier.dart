@@ -14,7 +14,8 @@ class Supplier extends ChangeNotifier {
     List<TableModel>? mockModels,
   }) {
     final l = database?.tableIDs();
-    tables = mockModels ?? l?.map((id) => TableModel(id)).toList() ?? [];
+    Coordinate? startingCoord(int id) => database != null ? Coordinate.fromDB(id, database!) : null;
+    tables = mockModels ?? l?.map((id) => TableModel(id, startingCoord(id))).toList() ?? [];
   }
 
   TableModel getTable(int id) {

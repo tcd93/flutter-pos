@@ -2,20 +2,22 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import '../../common/common.dart';
 import '../../printer/thermal_printer.dart';
-import '../../storage_engines/connection_interface.dart';
 import '../src.dart';
 
 @immutable
 class TableModel {
   final int id;
 
-  final SlidingWindow<TableState> _s;
-  late final Coordinate _coord;
+  final SlidingWindow<Order> _s;
+  final Coordinate _coord;
 
-  TableModel(this.id, [TableState? mockState, Coordinate? coord])
-      : _s = mockState != null
-            ? SlidingWindow(2, [mockState, TableState.copy(mockState)])
-            : SlidingWindow(2, [TableState(id), TableState(id)]),
+  TableModel(this.id, [Coordinate? coord])
+      : _s = SlidingWindow(2, [Order(id), Order(id)]),
+        _coord = coord ?? Coordinate(0, 0);
+
+  TableModel.withOrder(Order mockState, [Coordinate? coord])
+      : _s = SlidingWindow(2, [mockState, Order.copy(mockState)]),
+        id = mockState.tableID,
         _coord = coord ?? Coordinate(0, 0);
 
   TableStatus get status => _s.current.status;
@@ -39,14 +41,10 @@ class TableModel {
     return s;
   }
 
-  /// Get a list of current [lineItems] (with quantity > 0)
-  List<LineItem> get lineItems =>
-      _s.current.lineItems.where((entry) => entry.isBeingOrdered()).toList();
+  /// Get a list of current items with quantity > 0
+  LineItemList get activeLineItems => _s.current.activeLines;
 
-  int get totalMenuItemQuantity => _s.current.lineItems.fold(
-        0,
-        (previousValue, element) => previousValue + element.quantity,
-      );
+  int get totalMenuItemQuantity => activeLineItems.fold(0, (p, c) => p + c.quantity);
 
   double get totalPricePreDiscount => _s.current.totalPrice;
 
@@ -55,44 +53,56 @@ class TableModel {
   double get discountPercent => (1 - _s.current.discountRate) * 100;
 
   void memorizePreviousState() {
-    final copy = TableState.copy(_s.current);
+    final copy = Order.copy(_s.current);
     _s.slideRight(copy);
   }
 
   /// Restore to last "commit" (called by [memorizePreviousState])
   void revert([Supplier? supplier]) {
-    final copy = TableState.copy(_s.first);
+    final copy = Order.copy(_s.first);
     _s.slideLeft(copy);
     supplier?.notifyListeners();
   }
 
-  Future<StateObject> checkout({required Supplier supplier, DateTime? atTime}) async {
+  Future<int> _genNextID(Supplier supplier) async {
+    return (await supplier.database?.nextUID()) ?? -1;
+  }
+
+  Future<void> _checkout(Supplier supplier, [DateTime? atTime]) async {
     final database = supplier.database;
 
-    if (database != null) {
-      final nextID = await database.nextUID();
-      _s.current.orderID = nextID;
-    }
+    _s.current.id = await _genNextID(supplier);
     _s.current.checkoutTime = atTime ?? DateTime.now();
 
     await database?.insert(_s.current);
 
-    final copiedState = TableState.copy(_s.current);
-
-    _s.lst = [TableState(id), TableState(id)]; // clear current state
     supplier.notifyListeners();
-    return copiedState;
   }
 
   //TODO: implement store name, set it in the receipt header
-  Future<void> printReceipt(
-    BuildContext context, [
+  Future<void> _printReceipt(BuildContext context, [double? customerPayAmount]) async {
+    return Printer.print(context, _s.current, customerPayAmount);
+  }
+
+  void _clear() {
+    _s.lst = [Order(id), Order(id)];
+  }
+
+  /// checkout, print receipt (not for Web), then clear the node's state
+  ///
+  /// - if [supplier] null then this does not persist to storage
+  /// - if [context] null or on Web then it does not print receipt paper, [customerPayAmount] will be
+  /// printed if not null
+  /// - state is always cleared after calling this method
+  Future<void> checkoutPrintClear({
+    Supplier? supplier,
+    DateTime? atTime,
+    BuildContext? context,
     double? customerPayAmount,
-    StateObject? withState,
-  ]) async {
-    if (!kIsWeb) {
-      return Printer.print(context, withState ?? _s.current, customerPayAmount);
-    }
+  }) async {
+    if (supplier != null) await _checkout(supplier, atTime);
+    if (context != null && !kIsWeb) await _printReceipt(context, customerPayAmount);
+    _clear();
   }
 
   double applyDiscount(double discountRate, Supplier? supplier) {
@@ -107,53 +117,9 @@ class TableModel {
 
   void setOffset(Coordinate newCoord, Supplier? supplier) {
     if (newCoord.x == _coord.y && newCoord.y == _coord.y) return;
+    _coord.x = newCoord.x;
+    _coord.y = newCoord.y;
     final database = supplier?.database;
     database?.setCoordinate(id, newCoord.x, newCoord.y);
-  }
-}
-
-class TableState extends StateObject {
-  /// The associated table id
-  final int tableID;
-
-  TableStatus status = TableStatus.empty;
-
-  TableState(this.tableID);
-
-  /// copy to a new instance (except [orderID])
-  TableState.copy(TableState base) : tableID = base.tableID {
-    lineItems = base.lineItems
-        .map((l) => LineItem(
-              associatedDish: l.associatedDish,
-              quantity: l.quantity,
-            ))
-        .toList();
-    status = base.status;
-    checkoutTime = base.checkoutTime;
-    discountRate = base.discountRate;
-  }
-
-  TableState.mock(
-    this.tableID,
-    List<LineItem> lineItems, {
-    int orderID = -1,
-    DateTime? checkoutTime,
-    double discountRate = 1.0,
-    this.status = TableStatus.empty,
-  }) {
-    assert(discountRate > 0.0 && discountRate <= 1.0);
-    super.lineItems = lineItems;
-    super.checkoutTime = checkoutTime ?? DateTime.parse('1999-01-01');
-    super.discountRate = discountRate;
-  }
-}
-
-/// the current global X, Y position of this table node
-class Coordinate {
-  late double x = 0, y = 0;
-  Coordinate(this.x, this.y);
-  Coordinate.fromDB(int tableID, DatabaseConnectionInterface database) {
-    x = database.getX(tableID);
-    y = database.getY(tableID);
   }
 }

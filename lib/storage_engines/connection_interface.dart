@@ -8,7 +8,7 @@ class DatabaseConnectionInterface {
   Future<int> nextUID() => Future.value(-1);
 
   /// Insert stringified version of [TableState] into database
-  Future<void> insert(StateObject state) => Future.microtask(() => null);
+  Future<void> insert(Order order) => Future.value();
 
   List<Order> get(DateTime day) => [];
 

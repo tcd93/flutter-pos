@@ -1,9 +1,12 @@
 export 'model/table.dart';
-export 'model/dish.dart';
+export 'model/state/dish.dart';
 export 'model/menu.dart';
-export 'model/line_item.dart';
-export 'model/order.dart';
+export 'model/state/line_item.dart';
+export 'model/line_item_list.dart';
+export 'model/state/coord.dart';
+export 'model/state/order.dart';
 export 'model/state/state_object.dart';
 export 'model/state/status.dart';
-export 'suppllier/supplier.dart';
-export 'suppllier/menu_supplier.dart';
+export 'supplier/supplier.dart';
+export 'supplier/menu_supplier.dart';
+export 'supplier/history_supplier_by_date.dart';
