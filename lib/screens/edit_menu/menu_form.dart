@@ -55,14 +55,16 @@ class FormContent extends StatelessWidget {
             children: [
               if (onCancel != null)
                 TextButton(
-                  child: Text(
-                      (AppLocalizations.of(context)?.generic_cancel ?? 'cancel').toUpperCase()),
                   onPressed: onCancel,
+                  child: Text(
+                    (AppLocalizations.of(context)?.generic_cancel ?? 'cancel').toUpperCase(),
+                  ),
                 ),
               ElevatedButton(
-                child:
-                    Text((AppLocalizations.of(context)?.generic_confirm ?? 'submit').toUpperCase()),
                 onPressed: onSubmit,
+                child: Text(
+                  (AppLocalizations.of(context)?.generic_confirm ?? 'submit').toUpperCase(),
+                ),
               ),
             ],
           ),

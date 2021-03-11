@@ -6,7 +6,7 @@ void main() {
   final overlayCtnKey = GlobalKey();
   final btnKey = GlobalKey();
   final fab = FloatingActionButton(onPressed: () {});
-  final positionedDraggable = DraggableWidget(containerKey: overlayCtnKey, child: fab, key: btnKey);
+  final positionedDraggable = DraggableWidget(containerKey: overlayCtnKey, key: btnKey, child: fab);
   final stack = Stack(children: [Container(key: overlayCtnKey), positionedDraggable]);
 
   testWidgets(

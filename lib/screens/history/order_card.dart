@@ -26,8 +26,8 @@ class OrderCard extends StatelessWidget {
             key: ObjectKey(order),
             child: ListTile(
               leading: CircleAvatar(
-                child: Text(order.id.toString()),
                 backgroundColor: del == true ? Colors.grey[400]!.withOpacity(0.5) : null,
+                child: Text(order.id.toString()),
               ),
               title: Text(
                 Common.extractYYYYMMDD3(order.checkoutTime),

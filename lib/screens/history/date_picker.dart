@@ -9,7 +9,6 @@ class DatePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      child: Icon(Icons.date_range),
       onPressed: () async {
         final provider = context.read<HistorySupplierByDate>();
         final range = provider.selectedRange;
@@ -25,6 +24,7 @@ class DatePicker extends StatelessWidget {
           provider.selectedRange = newlySelectedRange;
         }
       },
+      child: Icon(Icons.date_range),
     );
   }
 }

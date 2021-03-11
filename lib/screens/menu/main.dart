@@ -82,7 +82,6 @@ class _ConfirmButton extends StatelessWidget {
             message: AppLocalizations.of(context)!.menu_confirm,
             child: MaterialButton(
               minWidth: MediaQuery.of(context).size.width / 2,
-              child: Icon(Icons.done),
               onPressed: status == TableStatus.incomplete
                   ? () {
                       final supplier = context.read<Supplier>();
@@ -91,6 +90,7 @@ class _ConfirmButton extends StatelessWidget {
                       Navigator.pop(context); // Go back to Lobby Screen
                     }
                   : null,
+              child: Icon(Icons.done),
             ),
           );
         },
@@ -114,13 +114,13 @@ class _UndoButton extends StatelessWidget {
           message: AppLocalizations.of(context)!.menu_undo,
           child: MaterialButton(
             minWidth: MediaQuery.of(context).size.width / 2,
-            child: Icon(Icons.undo),
             onPressed: status == TableStatus.incomplete
                 ? () {
                     final supplier = context.read<Supplier>();
                     model.revert(supplier);
                   }
                 : null,
+            child: Icon(Icons.undo),
           ),
         );
       },

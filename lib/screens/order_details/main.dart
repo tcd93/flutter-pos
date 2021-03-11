@@ -22,9 +22,9 @@ class DetailsScreen extends StatelessWidget {
                 order.checkoutPrintClear(context: context);
                 Navigator.pop(context);
               },
-              child: Icon(Icons.print_sharp),
               elevation: 4.0,
               backgroundColor: RallyColors.buttonColor,
+              child: Icon(Icons.print_sharp),
             )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

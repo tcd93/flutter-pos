@@ -52,7 +52,6 @@ class _CheckoutButton extends StatelessWidget {
     return Hero(
       tag: fromHeroTag ?? 'CheckoutButtonHeroTag',
       child: MaterialButton(
-        child: Icon(Icons.print),
         minWidth: MediaQuery.of(context).size.width / 2,
         onPressed: () async {
           if (fromScreen == 'history') {
@@ -70,6 +69,7 @@ class _CheckoutButton extends StatelessWidget {
             }
           }
         },
+        child: Icon(Icons.print),
       ),
     );
   }
@@ -84,7 +84,6 @@ class _ApplyDiscountButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialButton(
-      child: Icon(Icons.local_offer),
       minWidth: MediaQuery.of(context).size.width / 2,
       onPressed: () async {
         final discountPct = await _popUpDiscount(context, order.totalPricePreDiscount);
@@ -93,6 +92,7 @@ class _ApplyDiscountButton extends StatelessWidget {
           order.applyDiscount((100 - discountPct) / 100, supplier);
         }
       },
+      child: Icon(Icons.local_offer),
     );
   }
 }
@@ -132,8 +132,8 @@ Future<double?> _popUpDiscount(BuildContext context, double totalPrice) {
               isDense: true,
               underline: const SizedBox(), // no underline
               items: [
-                DropdownMenuItem(child: Center(child: Text('%')), value: '1'),
-                DropdownMenuItem(child: Center(child: Text(Money.symbol)), value: '2'),
+                DropdownMenuItem(value: '1', child: Center(child: Text('%'))),
+                DropdownMenuItem(value: '2', child: Center(child: Text(Money.symbol))),
               ],
               onChanged: (String? v) {
                 if (v != null) notif.value = v;
@@ -154,7 +154,6 @@ Future<double?> _popUpDiscount(BuildContext context, double totalPrice) {
         ),
         actions: [
           TextButton(
-            child: Icon(Icons.check),
             onPressed: () {
               final selected = notif.value == '1' ? percentageController : fixedPriceController;
               if (selected.text.isNotEmpty) {
@@ -168,12 +167,13 @@ Future<double?> _popUpDiscount(BuildContext context, double totalPrice) {
                 Navigator.pop<double>(context, discountPct);
               }
             },
+            child: Icon(Icons.check),
           ),
           TextButton(
-            child: Icon(Icons.cancel),
             onPressed: () {
               Navigator.of(context).pop();
             },
+            child: Icon(Icons.cancel),
           )
         ],
       );
@@ -200,7 +200,6 @@ Future<double?> _popUpPayment(BuildContext scaffoldCtx, double needsToPay) {
         ),
         actions: [
           TextButton(
-            child: Icon(Icons.check),
             onPressed: () {
               final p = Money.unformat(t.text);
               if (p < needsToPay) {
@@ -211,10 +210,11 @@ Future<double?> _popUpPayment(BuildContext scaffoldCtx, double needsToPay) {
                 Navigator.pop<double>(context, p.toDouble());
               }
             },
+            child: Icon(Icons.check),
           ),
           TextButton(
-            child: Icon(Icons.cancel),
             onPressed: () => Navigator.of(context).pop(),
+            child: Icon(Icons.cancel),
           ),
         ],
       );

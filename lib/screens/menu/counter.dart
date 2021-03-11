@@ -77,7 +77,6 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
 
     return AnimatedBuilder(
       animation: animController,
-      child: Avatar(imgProvider: widget.imgProvider),
       builder: (context, child) {
         if (widget.startingValue != 0) {
           widget._memoizer.runOnce(() {
@@ -124,8 +123,8 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                           child: FloatingActionButton(
                             // decrease
                             heroTag: null,
-                            child: Icon(Icons.remove),
                             onPressed: () => value = sub(animController, value),
+                            child: Icon(Icons.remove),
                           ),
                         ),
                         Expanded(
@@ -141,8 +140,8 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                           child: FloatingActionButton(
                             // increase
                             heroTag: null,
-                            child: Icon(Icons.add),
                             onPressed: () => value = add(animController, value),
+                            child: Icon(Icons.add),
                           ),
                         ),
                         const SizedBox(width: 2.0),
@@ -171,6 +170,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
           ],
         );
       },
+      child: Avatar(imgProvider: widget.imgProvider),
     );
   }
 }

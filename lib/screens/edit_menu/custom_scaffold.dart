@@ -120,8 +120,8 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
             },
             child: _ColoredBarrierLayer(
               expanded,
-              child: body!,
               animation: animController,
+              child: body!,
             ),
           );
         },
@@ -201,9 +201,9 @@ class _CenterDockedButton extends StatelessWidget {
       imgProvider: pickedImage != null ? MemoryImage(pickedImage!) : null,
     );
     final _fab = FloatingActionButton(
-      child: Icon(Icons.add),
       backgroundColor: RallyColors.buttonColor,
       onPressed: () => expanded.value = true,
+      child: Icon(Icons.add),
     );
 
     return RadialMenu(

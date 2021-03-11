@@ -22,8 +22,8 @@ class LobbyScreen extends StatelessWidget {
               child: MaterialButton(
                 onPressed: () => Navigator.pushNamed(context, '/history'),
                 minWidth: MediaQuery.of(context).size.width / 2,
-                child: Icon(Icons.history),
                 shape: CustomShape(side: CustomShapeSide.left),
+                child: Icon(Icons.history),
               ),
             ),
             Text(''),
@@ -32,8 +32,8 @@ class LobbyScreen extends StatelessWidget {
               child: MaterialButton(
                 onPressed: () => Navigator.pushNamed(context, '/edit-menu'),
                 minWidth: MediaQuery.of(context).size.width / 2,
-                child: Icon(Icons.menu_book_sharp),
                 shape: CustomShape(side: CustomShapeSide.right),
+                child: Icon(Icons.menu_book_sharp),
               ),
             )
           ],
@@ -66,7 +66,6 @@ class _InteractiveBody extends StatelessWidget {
           Container(key: bgKey),
           for (var model in supplier.tables)
             DraggableWidget(
-              child: TableIcon(table: model),
               x: model.getOffset().x,
               y: model.getOffset().y,
               containerKey: bgKey,
@@ -74,6 +73,7 @@ class _InteractiveBody extends StatelessWidget {
                 model.setOffset(Coordinate(x, y), supplier);
               },
               key: ObjectKey(model),
+              child: TableIcon(table: model),
             ),
         ],
       ),
