@@ -21,9 +21,9 @@ const RESOURCES = {
 "assets/google_fonts/RobotoCondensed-Bold.ttf": "cbd4e701269338259ee0b39a0b768167",
 "assets/google_fonts/Eczar-SemiBold.ttf": "7d2b9b43ddc45f11f9cfddd5a17dcbd2",
 "assets/FontManifest.json": "7b2a36307916a9721811788013e65289",
-"index.html": "c7ffb188e8c081d47f97417fa5aab246",
-"/": "c7ffb188e8c081d47f97417fa5aab246",
-"main.dart.js": "c62ee00c38365ba92d0945e0c0fbcfc9",
+"index.html": "353e8629138d8417cec0e3531fa1bc2f",
+"/": "353e8629138d8417cec0e3531fa1bc2f",
+"main.dart.js": "aabaf15645ad4c0ccab0257bf31774e6",
 "version.json": "c09791b248746f72c88505538b53f596",
 "favicon.png": "5dcef449791fa27946b3d35ad8803796"
 };
