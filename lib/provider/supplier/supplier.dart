@@ -7,7 +7,7 @@ import '../src.dart';
 
 class Supplier extends ChangeNotifier {
   List<TableModel> tables = [];
-  final DatabaseConnectionInterface? database;
+  final OrderIO? database;
 
   Supplier({
     this.database,

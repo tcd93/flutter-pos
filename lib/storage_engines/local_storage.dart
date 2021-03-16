@@ -10,8 +10,7 @@ class LocalStorage implements DatabaseConnectionInterface {
   LocalStorage(String name, [String? path, Map<String, dynamic>? initialData])
       : ls = lib.LocalStorage(name, path, initialData);
 
-  @override
-  Future<bool> open() => ls.ready;
+  //---Order---
 
   @override
   Future<int> nextUID() async {
@@ -19,6 +18,21 @@ class LocalStorage implements DatabaseConnectionInterface {
     int current = ls.getItem('order_id_highkey') ?? -1;
     await ls.setItem('order_id_highkey', ++current);
     return current;
+  }
+
+  @override
+  List<Order> get(DateTime day) {
+    List<dynamic>? storageData = ls.getItem(Common.extractYYYYMMDD(day));
+    if (storageData == null) return [];
+    return storageData.map((i) => Order.fromJson(i)).toList();
+  }
+
+  @override
+  List<Order> getRange(DateTime start, DateTime end) {
+    return List.generate(
+      end.difference(start).inDays + 1,
+      (i) => get(DateTime(start.year, start.month, start.day + i)),
+    ).expand((e) => e).toList();
   }
 
   @override
@@ -38,37 +52,6 @@ class LocalStorage implements DatabaseConnectionInterface {
   }
 
   @override
-  List<Order> get(DateTime day) {
-    List<dynamic>? storageData = ls.getItem(Common.extractYYYYMMDD(day));
-    if (storageData == null) return [];
-    return storageData.map((i) => Order.fromJson(i)).toList();
-  }
-
-  @override
-  List<Order> getRange(DateTime start, DateTime end) {
-    return List.generate(
-      end.difference(start).inDays + 1,
-      (i) => get(DateTime(start.year, start.month, start.day + i)),
-    ).expand((e) => e).toList();
-  }
-
-  @override
-  Menu? getMenu() {
-    var storageData = ls.getItem('menu');
-    if (storageData == null) {
-      print('\x1B[94mmenu not found in localstorage\x1B[0m');
-      return null;
-    }
-    return Menu.fromJson(storageData as Map<String, dynamic>);
-  }
-
-  @override
-  Future<void> setMenu(Menu newMenu) {
-    // to set items to local storage
-    return ls.setItem('menu', newMenu);
-  }
-
-  @override
   Future<Order> delete(DateTime day, int orderID) async {
     final orders = get(day);
     final deletedOrder = orders.firstWhere((e) => e.id == orderID)..isDeleted = true;
@@ -77,27 +60,18 @@ class LocalStorage implements DatabaseConnectionInterface {
   }
 
   @override
-  Future<void> destroy() => ls.clear();
+  Future<bool> open() => ls.ready;
 
   @override
   void close() => ls.dispose();
 
   @override
-  Future<void> setCoordinate(int tableID, double x, double y) {
-    return Future.wait(
-      [ls.setItem('${tableID}_coord_x', x), ls.setItem('${tableID}_coord_y', y)],
-      eagerError: true,
-    );
-  }
+  Future<void> destroy() => ls.clear();
 
   @override
-  double getX(int tableID) {
-    return ls.getItem('${tableID}_coord_x') ?? 0;
-  }
-
-  @override
-  double getY(int tableID) {
-    return ls.getItem('${tableID}_coord_y') ?? 0;
+  List<int> tableIDs() {
+    final List<dynamic> l = ls.getItem('table_list') ?? [];
+    return l.cast<int>();
   }
 
   @override
@@ -117,8 +91,38 @@ class LocalStorage implements DatabaseConnectionInterface {
   }
 
   @override
-  List<int> tableIDs() {
-    final List<dynamic> l = ls.getItem('table_list') ?? [];
-    return l.cast<int>();
+  Future<void> setCoordinate(int tableID, double x, double y) {
+    return Future.wait(
+      [ls.setItem('${tableID}_coord_x', x), ls.setItem('${tableID}_coord_y', y)],
+      eagerError: true,
+    );
+  }
+
+  @override
+  double getX(int tableID) {
+    return ls.getItem('${tableID}_coord_x') ?? 0;
+  }
+
+  @override
+  double getY(int tableID) {
+    return ls.getItem('${tableID}_coord_y') ?? 0;
+  }
+
+  //---Menu---
+
+  @override
+  Menu? getMenu() {
+    var storageData = ls.getItem('menu');
+    if (storageData == null) {
+      print('\x1B[94mmenu not found in localstorage\x1B[0m');
+      return null;
+    }
+    return Menu.fromJson(storageData as Map<String, dynamic>);
+  }
+
+  @override
+  Future<void> setMenu(Menu newMenu) {
+    // to set items to local storage
+    return ls.setItem('menu', newMenu);
   }
 }

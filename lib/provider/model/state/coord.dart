@@ -6,7 +6,7 @@ class Coordinate {
 
   Coordinate(this.x, this.y);
 
-  Coordinate.fromDB(int tableID, DatabaseConnectionInterface database) {
+  Coordinate.fromDB(int tableID, OrderIO database) {
     x = database.getX(tableID);
     y = database.getY(tableID);
   }
