@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
@@ -20,13 +21,14 @@ class LobbyScreen extends StatelessWidget {
             Tooltip(
               message: AppLocalizations.of(context)!.lobby_report,
               child: MaterialButton(
-                onPressed: () => Navigator.pushNamed(context, '/history'),
+                onPressed: () {
+                  showBottomSheetMenu(context);
+                },
                 minWidth: MediaQuery.of(context).size.width / 2,
                 shape: CustomShape(side: CustomShapeSide.left),
-                child: Icon(Icons.history),
+                child: Icon(Icons.menu),
               ),
             ),
-            Text(''),
             Tooltip(
               message: AppLocalizations.of(context)!.lobby_menuEdit,
               child: MaterialButton(
@@ -44,6 +46,35 @@ class LobbyScreen extends StatelessWidget {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: _InteractiveBody(),
+    );
+  }
+
+  Future showBottomSheetMenu(BuildContext context) {
+    return showModalBottomSheet(
+      context: context,
+      // isScrollControlled combined with shrinkWrap for minimal height in bottom sheet
+      isScrollControlled: true,
+      builder: (context) {
+        return ListView(
+          shrinkWrap: true,
+          children: [
+            ListTile(
+              title: Text(
+                AppLocalizations.of(context)?.lobby_report.toUpperCase() ?? 'HISTORY',
+                textAlign: TextAlign.center,
+              ),
+              onTap: () => Navigator.pushNamed(context, '/history'),
+            ),
+            ListTile(
+              title: Text(
+                AppLocalizations.of(context)?.lobby_journal.toUpperCase() ?? 'INVENTORY JOURNAL',
+                textAlign: TextAlign.center,
+              ),
+              onTap: null, // TODO create new InventoryScreen
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -19,6 +19,7 @@ ThemeData buildRallyTheme() {
   final base = ThemeData.dark();
   return ThemeData(
     appBarTheme: const AppBarTheme(brightness: Brightness.dark, elevation: 0),
+    bottomSheetTheme: BottomSheetThemeData(backgroundColor: base.bottomAppBarColor),
     pageTransitionsTheme: PageTransitionsTheme(builders: {
       TargetPlatform.android: const SharedAxisPageTransitionsBuilder(
         fillColor: RallyColors.primaryBackground,
