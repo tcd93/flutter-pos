@@ -127,4 +127,15 @@ class LocalStorage implements DatabaseConnectionInterface {
   double getY(int tableID) {
     return ls.getItem('${tableID}_coord_y') ?? 0;
   }
+
+  //---Journal---
+
+  // TODO complete this
+  @override
+  List<Journal> getJournals(DateTime from, [DateTime? to]) {
+    return [
+      Journal(id: 1),
+      Journal(id: 2),
+    ];
+  }
 }

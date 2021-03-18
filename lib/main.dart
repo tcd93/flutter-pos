@@ -9,6 +9,7 @@ import 'provider/src.dart';
 import 'screens/order_details/main.dart';
 import 'screens/edit_menu/main.dart';
 import 'screens/history/main.dart';
+import 'screens/inventory_journal/main.dart';
 import 'screens/lobby/main.dart';
 import 'screens/menu/main.dart';
 import 'storage_engines/connection_interface.dart';
@@ -91,6 +92,15 @@ class PosApp extends StatelessWidget {
                   return HistorySupplierByDate(database: _storage);
                 },
                 child: HistoryScreen(),
+              ),
+            );
+          case '/inventory':
+            return routeBuilder(
+              ChangeNotifierProvider(
+                create: (_) {
+                  return InventorySupplier(database: _storage);
+                },
+                child: InventoryJournalScreen(),
               ),
             );
           case '/edit-menu':

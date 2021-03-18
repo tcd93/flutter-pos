@@ -3,7 +3,7 @@ import '../provider/src.dart';
 class SupplierRepository with NodeIO, OrderIO, CoordinateIO {}
 
 /// Represents a storage engine, like "localstorage", "sqlite", or "aws-s3"...
-class DatabaseConnectionInterface = SupplierRepository with MenuIO;
+class DatabaseConnectionInterface = SupplierRepository with MenuIO, JournalIO;
 
 /// Specific operations on table nodes, like inserting an order
 class OrderIO {
@@ -16,6 +16,11 @@ class OrderIO {
 
   /// Soft deletes an order in specified date
   Future<Order> delete(DateTime day, int orderID) => Future.value();
+}
+
+/// Operations with the journal entries
+class JournalIO {
+  List<Journal> getJournals(DateTime from, [DateTime? to]) => [];
 }
 
 /// Specific CRUD operations on Menu

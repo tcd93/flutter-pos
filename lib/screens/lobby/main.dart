@@ -1,4 +1,3 @@
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
@@ -70,7 +69,7 @@ class LobbyScreen extends StatelessWidget {
                 AppLocalizations.of(context)?.lobby_journal.toUpperCase() ?? 'INVENTORY JOURNAL',
                 textAlign: TextAlign.center,
               ),
-              onTap: null, // TODO create new InventoryScreen
+              onTap: () => Navigator.pushNamed(context, '/inventory'),
             ),
           ],
         );
