@@ -9,7 +9,7 @@ class MenuSupplier {
   Menu _m = Menu();
   Menu get menu => _m;
 
-  final DatabaseConnectionInterface? database;
+  final MenuIO? database;
 
   MenuSupplier({this.database, Menu? mockMenu}) {
     _m = mockMenu ?? database?.getMenu() ?? _defaultMenu();

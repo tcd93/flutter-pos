@@ -4,7 +4,7 @@ import '../src.dart';
 
 /// A provider specifically for [HistoryScreen]
 class HistorySupplierByDate extends ChangeNotifier {
-  final DatabaseConnectionInterface? database;
+  final OrderIO? database;
   late List<Order> _list; // list instance of [data]
   late DateTimeRange _selectedRange;
 
