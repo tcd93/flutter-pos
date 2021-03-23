@@ -6,7 +6,7 @@ const RESOURCES = {
   "manifest.json": "618b9ac624b6bf089537fc775d35fbed",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
 "icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
-"assets/NOTICES": "14eaa377a595724a62af66df6d745e39",
+"assets/NOTICES": "a42333a7f4cc33f58c10c7d947be85f2",
 "assets/assets/rice_noodles.png": "ffbb2e87d2bf0dfa92bb26103a1cf67c",
 "assets/assets/kimchi.png": "78105c408292d02994c0b3aede0365a7",
 "assets/assets/coffee.png": "29a0688d03b19eea14993c1bd3423dda",
@@ -21,9 +21,9 @@ const RESOURCES = {
 "assets/google_fonts/RobotoCondensed-Bold.ttf": "cbd4e701269338259ee0b39a0b768167",
 "assets/google_fonts/Eczar-SemiBold.ttf": "7d2b9b43ddc45f11f9cfddd5a17dcbd2",
 "assets/FontManifest.json": "7b2a36307916a9721811788013e65289",
-"index.html": "100adf5f9ee19d3dd6f6b5311907b21e",
-"/": "100adf5f9ee19d3dd6f6b5311907b21e",
-"main.dart.js": "aabaf15645ad4c0ccab0257bf31774e6",
+"index.html": "860e21be22b46e962dd72dc779dd0998",
+"/": "860e21be22b46e962dd72dc779dd0998",
+"main.dart.js": "9d7467662bc6f32b31d94904fc8a8c97",
 "version.json": "c09791b248746f72c88505538b53f596",
 "favicon.png": "5dcef449791fa27946b3d35ad8803796"
 };
@@ -43,7 +43,7 @@ self.addEventListener("install", (event) => {
   return event.waitUntil(
     caches.open(TEMP).then((cache) => {
       return cache.addAll(
-        CORE.map((value) => new Request(value + '?revision=' + RESOURCES[value], {'cache': 'reload'})));
+        CORE.map((value) => new Request(value, {'cache': 'reload'})));
     })
   );
 });
