@@ -14,61 +14,24 @@ class JournalCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = Provider.of<InventorySupplier>(context);
     final journal = provider.data.elementAt(index);
-    return Stack(
+    return Align(
       alignment: Alignment.center,
-      children: [
-        FractionallySizedBox(
-          widthFactor: 0.95,
-          child: Card(
-            key: ObjectKey(journal),
-            child: ListTile(
-              leading: CircleAvatar(
-                // backgroundColor: del == true ? Colors.grey[400]!.withOpacity(0.5) : null,
-                child: Text(journal.id.toString()),
-              ),
-              title: Text(
-                Common.extractYYYYMMDD3(journal.dateTime),
-                // style: del == true ? TextStyle(color: Colors.grey[200]!.withOpacity(0.5)) : null,
-              ),
-              // onLongPress: del == true
-              //     ? null
-              //     : () async {
-              //         var result = await popUpDelete(
-              //           context,
-              //           title:
-              //               Text(AppLocalizations.of(context)?.history_delPopUpTitle ?? 'Ignore?'),
-              //         );
-              //         if (result == true) {
-              //           await provider.ignoreOrder(order, index);
-              //         }
-              //       },
-              // onTap: () {
-              //   Navigator.pushNamed(context, '/order-details', arguments: {
-              //     'state': TableModel.withOrder(
-              //       Order.create(
-              //         tableID: order.tableID,
-              //         lineItems: order.lineItems,
-              //         orderID: order.id,
-              //         checkoutTime: order.checkoutTime,
-              //         discountRate: order.discountRate,
-              //       ),
-              //     ),
-              //     'from': 'history',
-              //   });
-              // },
-              trailing: Text(
-                Money.format(journal.amount),
-                style: TextStyle(
-                  letterSpacing: 3,
-                  // color: del == true ? Colors.grey[200]!.withOpacity(0.5) : Colors.lightGreen,
-                  fontSize: 20,
-                ),
-              ),
+      widthFactor: 0.95,
+      child: Card(
+        key: ObjectKey(journal),
+        child: ListTile(
+          leading: CircleAvatar(child: Text(journal.id.toString())),
+          title: Text(journal.entry, overflow: TextOverflow.ellipsis, textScaleFactor: 0.85),
+          subtitle: Text(Common.extractYYYYMMDD3(journal.dateTime)),
+          trailing: Text(
+            Money.format(journal.amount),
+            style: TextStyle(
+              letterSpacing: 3,
+              fontSize: 20,
             ),
           ),
         ),
-        // if (del == true) Divider(color: Colors.black, thickness: 1.0),
-      ],
+      ),
     );
   }
 }

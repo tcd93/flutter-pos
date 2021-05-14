@@ -7,9 +7,7 @@ import 'journal_card.dart';
 class InventoryJournalList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final data = context.select<InventorySupplier, List<Journal>>(
-      (provider) => provider.data,
-    );
+    final data = context.select((InventorySupplier provider) => provider.data);
     return ListView.builder(
       physics: const BouncingScrollPhysics(),
       itemCount: data.length,

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'journal_list.dart';
 import 'add_new_entry_button.dart';
+import 'date_picker.dart';
 import '../../common/common.dart';
 import '../../provider/supplier/inventory_journal_supplier.dart';
 
@@ -11,8 +13,19 @@ class InventoryJournalScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        bottomOpacity: 0.5,
         title: _LeadingTitle(),
+        bottomOpacity: 0.5,
+        actions: [
+          // fix the text size of the "current date"
+          Theme(
+            data: Theme.of(context).copyWith(
+              textTheme: Theme.of(context).textTheme.copyWith(
+                    bodyText1: GoogleFonts.eczar(fontSize: 20),
+                  ),
+            ),
+            child: DatePicker(),
+          ),
+        ],
       ),
       body: InventoryJournalList(),
       floatingActionButton: AddNewEntryButton(),

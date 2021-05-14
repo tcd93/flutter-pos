@@ -22,8 +22,11 @@ class InventorySupplier extends ChangeNotifier {
     _sumAmount = _calcTotalAmount(_list);
   }
 
-  void add(Journal journal) {
-    _list.add(journal);
+  void addJournal(Journal journal) {
+    assert(journal.id >= 0);
+    _list = [..._list, journal]; // don't use .add() because it does not work with 'select'
+    database?.insertJournal(journal);
+    notifyListeners();
   }
 
   set selectedRange(DateTimeRange newRange) {

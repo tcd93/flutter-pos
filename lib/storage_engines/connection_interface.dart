@@ -20,7 +20,11 @@ class OrderIO {
 
 /// Operations with the journal entries
 class JournalIO {
-  List<Journal> getJournals(DateTime from, [DateTime? to]) => [];
+  List<Journal> getJournal(DateTime day) => [];
+
+  List<Journal> getJournals(DateTime from, DateTime to) => [];
+
+  Future<void> insertJournal(Journal journal) => Future.value();
 }
 
 /// Specific CRUD operations on Menu

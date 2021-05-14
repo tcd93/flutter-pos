@@ -35,5 +35,10 @@
   "edit_menu_formLabel": "Dish",
   "edit_menu_formPrice": "Price",
   "history_delPopUpTitle": "Ignore this order?",
-  "history_rangePickerHelpTxt": "Select range"
+  "history_rangePickerHelpTxt": "Select range",
+  "journal_entry": "Entry",
+  "journal_entryHint": "Describe your entry",
+  "journal_entryReqTxt": "Entry description is required",
+  "journal_amt": "Amount",
+  "journal_datetime": "Time"
 }

@@ -13,7 +13,7 @@ class AddNewEntryButton extends StatelessWidget {
       onPressed: () async {
         final j = await _popUpNewJournal(context);
         if (j != null) {
-          context.read<InventorySupplier>().add(j);
+          context.read<InventorySupplier>().addJournal(j);
         }
       },
       child: Icon(Icons.add),
@@ -21,28 +21,78 @@ class AddNewEntryButton extends StatelessWidget {
   }
 }
 
-// TODO complete this skeleton
 Future<Journal?> _popUpNewJournal(BuildContext scaffoldCtx) {
   final t = TextEditingController();
+  final m = TextEditingController(text: '0');
+  var d = DateTime.now();
+  final dc = TextEditingController(text: Common.extractYYYYMMDD2(d));
   return showDialog<Journal?>(
     context: scaffoldCtx,
     builder: (context) {
+      final _formKey = GlobalKey<FormState>();
       return AlertDialog(
-        content: TextField(
-          controller: t,
-          keyboardType: TextInputType.numberWithOptions(signed: true),
-          inputFormatters: [MoneyFormatter()],
-          textAlign: TextAlign.center,
-          decoration: InputDecoration(
-            labelText: AppLocalizations.of(context)!.details_customerPay,
-            suffixText: Money.symbol,
+        content: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: t,
+                textAlign: TextAlign.center,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.journal_entry,
+                  hintText: AppLocalizations.of(context)!.journal_entryHint,
+                ),
+                validator: (value) => (value == null || value.isEmpty)
+                    ? AppLocalizations.of(context)!.journal_entryReqTxt
+                    : null,
+              ),
+              TextFormField(
+                controller: m,
+                keyboardType: TextInputType.numberWithOptions(signed: true),
+                inputFormatters: [MoneyFormatter()],
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.journal_amt,
+                  suffixText: Money.symbol,
+                ),
+              ),
+              TextFormField(
+                controller: dc,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.journal_datetime,
+                ),
+                onTap: () async {
+                  // Stop keyboard from appearing
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  d = await showDatePicker(
+                        context: context,
+                        fieldLabelText: AppLocalizations.of(context)!.journal_datetime,
+                        initialDate: d,
+                        firstDate: DateTime(2019),
+                        lastDate: DateTime.now(),
+                      ) ??
+                      DateTime.now();
+                  dc.text = Common.extractYYYYMMDD2(d);
+                },
+              ),
+            ],
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              final p = Money.unformat(t.text);
-              Navigator.pop<Journal>(context, Journal(id: 100, amount: p.toDouble()));
+            onPressed: () async {
+              if (_formKey.currentState!.validate()) {
+                final p = Money.unformat(m.text);
+                // too lazy to implement new method...
+                final nextID = await context.read<Supplier>().database?.nextUID();
+                Navigator.pop<Journal>(
+                  context,
+                  Journal(id: nextID ?? 0, entry: t.text, entryTime: d, amount: p.toDouble()),
+                );
+              }
             },
             child: Icon(Icons.check),
           ),
