@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/database_factory.dart';
 import 'package:posapp/provider/src.dart';
 import 'package:posapp/screens/history/main.dart';
-import 'package:posapp/screens/history/order_card.dart';
+import 'package:posapp/screens/history/first_tab/order_card.dart';
 import 'package:provider/provider.dart';
 
 final DateTime checkoutTime = DateTime.parse('20201112 13:00:00');

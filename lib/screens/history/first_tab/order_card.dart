@@ -3,9 +3,9 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../../common/common.dart';
-import '../../provider/src.dart';
-import '../popup_del.dart';
+import '../../../common/common.dart';
+import '../../../provider/src.dart';
+import '../../popup_del.dart';
 
 class OrderCard extends StatelessWidget {
   final int index;

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-import './order_card.dart';
-import '../../provider/src.dart';
+import 'order_card.dart';
+import '../../../provider/src.dart';
 
 class HistoryOrderList extends StatelessWidget {
   @override

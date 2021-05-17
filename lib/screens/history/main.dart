@@ -6,7 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../common/common.dart';
 import '../../provider/src.dart';
-import './order_list.dart';
+import 'first_tab/order_list.dart';
+import 'second_tab/order_linechart.dart';
 import 'date_picker.dart';
 
 // heavy usage of Listenable objects to gain finer controls over widget rebuilding scope.
@@ -19,6 +20,12 @@ class HistoryScreen extends StatelessWidget {
       appBar: AppBar(
         title: _LeadingTitle(),
         bottomOpacity: 0.5,
+        bottom: TabBar(
+          tabs: [
+            Tab(icon: Icon(Icons.list_alt_rounded)),
+            Tab(icon: Icon(Icons.show_chart)),
+          ],
+        ),
         actions: [
           // fix the text size of the "current date"
           Theme(
@@ -31,7 +38,12 @@ class HistoryScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: HistoryOrderList(),
+      body: TabBarView(
+        children: [
+          HistoryOrderList(),
+          HistoryOrderLineChart(),
+        ],
+      ),
     );
   }
 }

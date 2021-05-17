@@ -87,11 +87,19 @@ class PosApp extends StatelessWidget {
             );
           case '/history':
             return routeBuilder(
-              ChangeNotifierProvider(
-                create: (_) {
-                  return HistorySupplierByDate(database: _storage);
-                },
-                child: HistoryScreen(),
+              DefaultTabController(
+                length: 2,
+                child: MultiProvider(
+                  providers: [
+                    ChangeNotifierProvider(
+                      create: (_) => HistorySupplierByDate(database: _storage),
+                    ),
+                    ChangeNotifierProvider(
+                      create: (_) => HistorySupplierByLine(database: _storage),
+                    ),
+                  ],
+                  child: HistoryScreen(),
+                ),
               ),
             );
           case '/inventory':
