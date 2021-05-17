@@ -18,6 +18,9 @@ class Money {
     if (money == '') {
       return 0;
     }
-    return _fc.parse(money.replaceAll(RegExp(r'[^0-9,.]'), '')); // extract numbers, commas & dots
+    // extract numbers, sign, commas & dots
+    var s = money.replaceAll(RegExp(r'[^0-9,.-]'), '');
+    s = s == '-' ? '0' : s;
+    return _fc.parse(s);
   }
 }

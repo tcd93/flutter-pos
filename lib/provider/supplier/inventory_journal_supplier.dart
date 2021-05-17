@@ -22,6 +22,9 @@ class InventorySupplier extends ChangeNotifier {
     _sumAmount = _calcTotalAmount(_list);
   }
 
+  /// Add a new journal entry to the list, note that it still refresh & display newly added
+  /// ones with older date to not confuse users. If the list is refreshed again then it would not
+  /// be shown again
   void addJournal(Journal journal) {
     assert(journal.id >= 0);
     _list = [..._list, journal]; // don't use .add() because it does not work with 'select'
