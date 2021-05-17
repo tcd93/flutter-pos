@@ -26,4 +26,14 @@ class Journal {
       'amount': amount,
     };
   }
+
+  @override
+  String toString() {
+    return '{ '
+        'journalID: $id, '
+        'dateTime: ${dateTime.toString()}, '
+        'entry: $entry, '
+        'amount: $amount '
+        '}';
+  }
 }

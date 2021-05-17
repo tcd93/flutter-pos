@@ -28,6 +28,7 @@ class InventorySupplier extends ChangeNotifier {
   void addJournal(Journal journal) {
     assert(journal.id >= 0);
     _list = [..._list, journal]; // don't use .add() because it does not work with 'select'
+    _sumAmount = _calcTotalAmount(data);
     database?.insertJournal(journal);
     notifyListeners();
   }
@@ -41,6 +42,15 @@ class InventorySupplier extends ChangeNotifier {
     }
   }
 
-  double _calcTotalAmount(List<Journal> journals) =>
-      journals.fold(0, (previousValue, e) => previousValue + e.amount);
+  double _calcTotalAmount(List<Journal> journals) => journals.fold(0,
+      (previousValue, e) => previousValue + (_between(e.dateTime, _selectedRange) ? e.amount : 0));
+
+  /// check daterange inclusive without regards to time
+  bool _between(DateTime current, DateTimeRange range) {
+    final curr = trunc(current);
+    return curr.isAfter(trunc(range.start).add(Duration(days: -1))) &&
+        current.isBefore(trunc(range.end).add(Duration(days: 1)));
+  }
+
+  DateTime trunc(DateTime d) => DateTime(d.year, d.month, d.day);
 }
