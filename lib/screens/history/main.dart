@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../common/common.dart';
 import '../../provider/src.dart';
@@ -27,6 +28,19 @@ class HistoryScreen extends StatelessWidget {
           ],
         ),
         actions: [
+          Column(
+            children: [
+              Switch.adaptive(
+                value: context.select((HistorySupplierByDate s) => s.discountFlag),
+                onChanged: (s) => context.read<HistorySupplierByDate>().discountFlag = s,
+              ),
+              Text(
+                AppLocalizations.of(context)?.history_toggleDiscount ?? 'Apply Discount Rate',
+                style: Theme.of(context).textTheme.caption?.apply(fontSizeFactor: 0.5),
+              ),
+            ],
+          ),
+
           // fix the text size of the "current date"
           Theme(
             data: Theme.of(context).copyWith(

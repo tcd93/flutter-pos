@@ -34,6 +34,7 @@
   "edit_menu_filterHint": "Filter by dish name..",
   "edit_menu_formLabel": "Dish",
   "edit_menu_formPrice": "Price",
+  "history_toggleDiscount": "Apply Discount Rate",
   "history_delPopUpTitle": "Ignore this order?",
   "history_rangePickerHelpTxt": "Select range",
   "journal_entry": "Entry",

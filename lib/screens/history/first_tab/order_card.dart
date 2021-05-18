@@ -60,7 +60,7 @@ class OrderCard extends StatelessWidget {
                 });
               },
               trailing: Text(
-                Money.format(order.totalPrice * order.discountRate),
+                Money.format(provider.saleAmountOf(order)),
                 style: TextStyle(
                   letterSpacing: 3,
                   color: del == true ? Colors.grey[200]!.withOpacity(0.5) : Colors.lightGreen,

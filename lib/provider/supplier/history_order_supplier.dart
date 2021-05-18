@@ -7,6 +7,7 @@ abstract class HistoryOrderSupplier extends ChangeNotifier {
   final OrderIO? database;
   late List<Order> data; // list instance of [data]
   late DateTimeRange _selectedRange;
+  bool _discountFlag = true;
 
   DateTimeRange get selectedRange => _selectedRange;
 
@@ -14,13 +15,25 @@ abstract class HistoryOrderSupplier extends ChangeNotifier {
     if (_selectedRange != newRange) {
       _selectedRange = newRange;
       data = database?.getRange(_selectedRange.start, _selectedRange.end) ?? [];
-      sumAmount = _calculateTotalPriceAfterDiscount(data);
+      sumAmount = _calculateTotalSalesAmount(data);
       notifyListeners();
     }
   }
 
+  bool get discountFlag => _discountFlag;
+
+  /// include discount rate in sales
+  set discountFlag(toggleValue) {
+    _discountFlag = toggleValue;
+    sumAmount = _calculateTotalSalesAmount(data);
+    notifyListeners();
+  }
+
   /// summary amount over the [_selectedRange]
   late double sumAmount = 0;
+
+  double saleAmountOf(Order order) =>
+      order.isDeleted == true ? 0 : order.totalPrice * (discountFlag ? order.discountRate : 1.0);
 
   HistoryOrderSupplier({this.database, DateTimeRange? range}) {
     _selectedRange = range ??
@@ -29,12 +42,11 @@ abstract class HistoryOrderSupplier extends ChangeNotifier {
           end: DateTime.now(),
         );
     data = database?.getRange(_selectedRange.start, _selectedRange.end) ?? [];
-    sumAmount = _calculateTotalPriceAfterDiscount(data);
+    sumAmount = _calculateTotalSalesAmount(data);
   }
 
-  double _calculateTotalPriceAfterDiscount(Iterable<Order> orders) => orders.fold(
+  double _calculateTotalSalesAmount(Iterable<Order> orders) => orders.fold(
         0,
-        (previousValue, e) =>
-            previousValue + (e.isDeleted == true ? 0 : e.totalPrice * e.discountRate),
+        (previousValue, order) => previousValue + saleAmountOf(order),
       );
 }

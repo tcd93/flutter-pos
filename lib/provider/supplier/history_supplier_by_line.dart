@@ -18,6 +18,7 @@ class HistorySupplierByLine extends HistoryOrderSupplier {
   HistorySupplierByLine update(HistorySupplierByDate firstTab) {
     selectedRange = firstTab.selectedRange;
     data = firstTab.data;
+    discountFlag = firstTab.discountFlag;
     groupedData = _group(data);
     return this;
   }
@@ -48,7 +49,7 @@ class HistorySupplierByLine extends HistoryOrderSupplier {
             return newObj;
           },
         );
-        match[1] += (o.isDeleted == true ? 0 : o.totalPrice * o.discountRate);
+        match[1] += saleAmountOf(o);
         return obj;
       },
     );

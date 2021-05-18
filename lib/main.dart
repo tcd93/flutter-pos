@@ -91,6 +91,7 @@ class PosApp extends StatelessWidget {
                 length: 2,
                 child: MultiProvider(
                   providers: [
+                    // TODO: restructure to use parent model HistoryOrderSupplier
                     ChangeNotifierProvider(
                       create: (_) => HistorySupplierByDate(database: _storage),
                     ),
