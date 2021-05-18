@@ -94,8 +94,9 @@ class PosApp extends StatelessWidget {
                     ChangeNotifierProvider(
                       create: (_) => HistorySupplierByDate(database: _storage),
                     ),
-                    ChangeNotifierProvider(
+                    ChangeNotifierProxyProvider<HistorySupplierByDate, HistorySupplierByLine>(
                       create: (_) => HistorySupplierByLine(database: _storage),
+                      update: (_, firstTab, lineChart) => lineChart!..update(firstTab),
                     ),
                   ],
                   child: HistoryScreen(),
