@@ -35,7 +35,11 @@ class HistoryOrderLineChart extends StatelessWidget {
       }
       return prev;
     });
-    return (maxVal % minVal) != 0 ? (maxVal % minVal) : minVal;
+    const maxSteps = 19;
+    final expectedInterval = (maxVal % minVal) != 0 ? (maxVal % minVal) : minVal;
+    final expectedSteps = maxVal ~/ expectedInterval;
+    final modifier = (expectedSteps ~/ maxSteps) + 1;
+    return expectedInterval * modifier;
   }
 
   Widget _drawLineChart(BuildContext context, List<List<dynamic>> groupedData) {
@@ -76,6 +80,7 @@ class HistoryOrderLineChart extends StatelessWidget {
                 ),
               ),
               gridData: FlGridData(show: false),
+              minY: 0.0,
               lineBarsData: [
                 LineChartBarData(
                   spots: _spots,
