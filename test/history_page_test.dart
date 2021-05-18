@@ -72,7 +72,7 @@ void main() {
                 range: DateTimeRange(start: checkoutTime, end: checkoutTime),
               );
             },
-            child: HistoryScreen(),
+            child: DefaultTabController(length: 2, child: HistoryScreen()),
           ),
         ));
 
@@ -176,7 +176,7 @@ void main() {
                     start: checkoutTime, end: checkoutTime.add(const Duration(days: 1))),
               );
             },
-            child: HistoryScreen(),
+            child: DefaultTabController(length: 2, child: HistoryScreen()),
           ),
         ));
 
@@ -349,7 +349,7 @@ void main() {
                 range: DateTimeRange(start: checkoutTime, end: checkoutTime), //view by same day,
               );
             },
-            child: HistoryScreen(),
+            child: DefaultTabController(length: 2, child: HistoryScreen()),
           ),
         ));
 
@@ -388,7 +388,7 @@ void main() {
             create: (_) {
               return provider;
             },
-            child: HistoryScreen(),
+            child: DefaultTabController(length: 2, child: HistoryScreen()),
           ),
         ));
 
