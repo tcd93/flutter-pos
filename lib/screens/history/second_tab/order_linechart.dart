@@ -20,6 +20,24 @@ class HistoryOrderLineChart extends StatelessWidget {
     );
   }
 
+  /// for bigger number `getEfficientInterval` still display too much
+  /// this is a adjustment to that issue
+  double _interval(List<List<dynamic>> groupedData) {
+    final maxVal = groupedData.fold<double>(0.0, (prev, e) {
+      if (prev < e[1]) {
+        return e[1];
+      }
+      return prev;
+    });
+    final minVal = groupedData.fold<double>(double.maxFinite, (prev, e) {
+      if (prev >= e[1] && e[1] > 0) {
+        return e[1];
+      }
+      return prev;
+    });
+    return (maxVal % minVal) != 0 ? (maxVal % minVal) : minVal;
+  }
+
   Widget _drawLineChart(BuildContext context, List<List<dynamic>> groupedData) {
     final _spots = _mapGroupDataToSpots(groupedData);
     return _spots.isEmpty
@@ -31,9 +49,22 @@ class HistoryOrderLineChart extends StatelessWidget {
                 touchCallback: (LineTouchResponse touchResponse) {},
                 handleBuiltInTouches: true,
               ),
-              borderData: FlBorderData(show: false),
+              borderData: FlBorderData(
+                show: true,
+                border: Border(
+                  left: BorderSide(color: RallyColors.gray),
+                  bottom: BorderSide(color: RallyColors.gray),
+                ),
+              ),
               titlesData: FlTitlesData(
-                leftTitles: SideTitles(showTitles: false),
+                leftTitles: SideTitles(
+                  showTitles: true,
+                  getTextStyles: Theme.of(context).textTheme.bodyText2 != null
+                      ? (value) => Theme.of(context).textTheme.bodyText2!
+                      : null,
+                  margin: 12.0,
+                  interval: _interval(groupedData),
+                ),
                 bottomTitles: SideTitles(
                   showTitles: true,
                   getTextStyles: Theme.of(context).textTheme.bodyText2 != null
@@ -44,6 +75,7 @@ class HistoryOrderLineChart extends StatelessWidget {
                   getTitles: (idx) => groupedData[idx.toInt()][0],
                 ),
               ),
+              gridData: FlGridData(show: false),
               lineBarsData: [
                 LineChartBarData(
                   spots: _spots,

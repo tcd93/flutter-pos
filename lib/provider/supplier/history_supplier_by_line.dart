@@ -6,34 +6,44 @@ import '../src.dart';
 
 /// Second tab - report by line chart
 class HistorySupplierByLine extends HistoryOrderSupplier {
-  /// [['YYYY/MM/DD', value (after discount)]]
+  /// If ranges over multiple days, then group by day: [['YYYY/MM/DD', value]].
+  /// If ranges over one day, the group by time: [['HH24:MM', value]]
   List<List<dynamic>> groupedData = [];
 
   HistorySupplierByLine({OrderIO? database, DateTimeRange? range})
       : super(database: database, range: range) {
-    _calGroupData();
+    groupedData = _group(data);
   }
 
   HistorySupplierByLine update(HistorySupplierByDate firstTab) {
     selectedRange = firstTab.selectedRange;
     data = firstTab.data;
-    _calGroupData();
+    groupedData = _group(data);
     return this;
   }
 
-  void _calGroupData() {
-    groupedData = _groupByMonth(data);
+  String extractTime(DateTime dateTime) {
+    return '${dateTime.hour.toString().padLeft(2, '0')}'
+        ':'
+        '${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
-  List<List<dynamic>> _groupByMonth(List<Order> orders) {
+  /// Returns a list of [groupedData], the outer list is for indexing the X axis (time).
+  /// The nested inner list is for marking the display titles and values
+  List<List<dynamic>> _group(List<Order> orders) {
     return orders.fold(
       [],
       (obj, o) {
-        final time = Common.extractYYYYMMDD2(o.checkoutTime);
+        String xAxis;
+        if (selectedRange.duration.inDays > 1) {
+          xAxis = Common.extractYYYYMMDD2(o.checkoutTime);
+        } else {
+          xAxis = extractTime(o.checkoutTime);
+        }
         final match = obj.firstWhere(
-          (element) => element.isNotEmpty && element.first == time,
+          (element) => element.isNotEmpty && element.first == xAxis,
           orElse: () {
-            final newObj = [time, 0];
+            final newObj = [xAxis, 0];
             obj.add(newObj);
             return newObj;
           },
