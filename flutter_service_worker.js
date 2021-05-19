@@ -3,29 +3,29 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
-  "manifest.json": "618b9ac624b6bf089537fc775d35fbed",
-"icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
-"icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
-"assets/NOTICES": "a42333a7f4cc33f58c10c7d947be85f2",
-"assets/assets/rice_noodles.png": "ffbb2e87d2bf0dfa92bb26103a1cf67c",
-"assets/assets/kimchi.png": "78105c408292d02994c0b3aede0365a7",
+  "assets/assets/rice_noodles.png": "ffbb2e87d2bf0dfa92bb26103a1cf67c",
+"assets/assets/fried_chicken-with_with_wit_egg.png": "071da3cc59a90669087debcdd762e8be",
+"assets/assets/oatmeal_with_berries_and_coconut.png": "61fe779e9661d90c58ea2aece4e1713f",
+"assets/assets/vegan_noodles.png": "5dbcc623b0932869ba9d239efd5244fd",
 "assets/assets/coffee.png": "29a0688d03b19eea14993c1bd3423dda",
 "assets/assets/lime_juice.png": "523c70243ffbb8cac2071ef53e724602",
-"assets/assets/fried_chicken-with_with_wit_egg.png": "071da3cc59a90669087debcdd762e8be",
-"assets/assets/vegan_noodles.png": "5dbcc623b0932869ba9d239efd5244fd",
-"assets/assets/oatmeal_with_berries_and_coconut.png": "61fe779e9661d90c58ea2aece4e1713f",
-"assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
-"assets/AssetManifest.json": "fee523e852532cb211da6c8584cf125f",
+"assets/assets/kimchi.png": "78105c408292d02994c0b3aede0365a7",
+"assets/fonts/MaterialIcons-Regular.otf": "4e6447691c9509f7acdbf8a931a85ca1",
 "assets/google_fonts/Eczar-Regular.ttf": "c7ea37b1332eb3de9f29eaaf48152516",
 "assets/google_fonts/RobotoCondensed-Regular.ttf": "52ee8b598488b1ffbaa93e50cbd6a2f4",
 "assets/google_fonts/RobotoCondensed-Bold.ttf": "cbd4e701269338259ee0b39a0b768167",
 "assets/google_fonts/Eczar-SemiBold.ttf": "7d2b9b43ddc45f11f9cfddd5a17dcbd2",
 "assets/FontManifest.json": "7b2a36307916a9721811788013e65289",
-"index.html": "2e7bb3d76c8e5ff82511094740dcc117",
-"/": "2e7bb3d76c8e5ff82511094740dcc117",
-"main.dart.js": "9d7467662bc6f32b31d94904fc8a8c97",
+"assets/AssetManifest.json": "fee523e852532cb211da6c8584cf125f",
+"assets/NOTICES": "c1369284d3b9eda92b9608f82b167b94",
+"icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
+"icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
+"favicon.png": "5dcef449791fa27946b3d35ad8803796",
 "version.json": "c09791b248746f72c88505538b53f596",
-"favicon.png": "5dcef449791fa27946b3d35ad8803796"
+"manifest.json": "618b9ac624b6bf089537fc775d35fbed",
+"main.dart.js": "a6a67a6d3c3ce9097e3d53f9144dcafa",
+"index.html": "f987cd9b5b19857d0797836b235384c1",
+"/": "f987cd9b5b19857d0797836b235384c1"
 };
 
 // The application shell files that are downloaded before a service worker can
