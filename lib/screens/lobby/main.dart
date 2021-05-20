@@ -53,11 +53,14 @@ class _InteractiveBody extends StatelessWidget {
   /// The key to container (1), must be passed into all DraggableWidget widgets in Stack
   final GlobalKey bgKey = GlobalKey();
 
+  final TransformationController transformController = TransformationController();
+
   @override
   Widget build(BuildContext context) {
     final supplier = Provider.of<Supplier>(context, listen: true);
     return InteractiveViewer(
       maxScale: 2.0,
+      transformationController: transformController,
       child: Stack(
         children: [
           // create a container (1) here to act as fixed background for the entire screen,
@@ -69,6 +72,7 @@ class _InteractiveBody extends StatelessWidget {
               x: model.getOffset().x,
               y: model.getOffset().y,
               containerKey: bgKey,
+              transformController: transformController,
               onDragEnd: (x, y) {
                 model.setOffset(Coordinate(x, y), supplier);
               },
