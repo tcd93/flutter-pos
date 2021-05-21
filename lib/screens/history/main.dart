@@ -53,6 +53,7 @@ class HistoryScreen extends StatelessWidget {
         ],
       ),
       body: TabBarView(
+        physics: const NeverScrollableScrollPhysics(),
         children: [
           HistoryOrderList(),
           HistoryOrderLineChart(),
