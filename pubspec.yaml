@@ -47,6 +47,7 @@ dependencies:
     git:
       url: git://github.com/tcd93/super_tooltip
       ref: master
+  fl_chart: ^0.36.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

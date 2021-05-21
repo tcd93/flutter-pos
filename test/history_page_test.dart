@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/database_factory.dart';
 import 'package:posapp/provider/src.dart';
 import 'package:posapp/screens/history/main.dart';
-import 'package:posapp/screens/history/order_card.dart';
+import 'package:posapp/screens/history/first_tab/order_card.dart';
 import 'package:provider/provider.dart';
 
 final DateTime checkoutTime = DateTime.parse('20201112 13:00:00');
@@ -72,7 +72,7 @@ void main() {
                 range: DateTimeRange(start: checkoutTime, end: checkoutTime),
               );
             },
-            child: HistoryScreen(),
+            child: DefaultTabController(length: 2, child: HistoryScreen()),
           ),
         ));
 
@@ -176,7 +176,7 @@ void main() {
                     start: checkoutTime, end: checkoutTime.add(const Duration(days: 1))),
               );
             },
-            child: HistoryScreen(),
+            child: DefaultTabController(length: 2, child: HistoryScreen()),
           ),
         ));
 
@@ -349,7 +349,7 @@ void main() {
                 range: DateTimeRange(start: checkoutTime, end: checkoutTime), //view by same day,
               );
             },
-            child: HistoryScreen(),
+            child: DefaultTabController(length: 2, child: HistoryScreen()),
           ),
         ));
 
@@ -388,7 +388,7 @@ void main() {
             create: (_) {
               return provider;
             },
-            child: HistoryScreen(),
+            child: DefaultTabController(length: 2, child: HistoryScreen()),
           ),
         ));
 

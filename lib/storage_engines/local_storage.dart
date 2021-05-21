@@ -127,4 +127,35 @@ class LocalStorage implements DatabaseConnectionInterface {
   double getY(int tableID) {
     return ls.getItem('${tableID}_coord_y') ?? 0;
   }
+
+  //---Journal---
+
+  @override
+  List<Journal> getJournal(DateTime day) {
+    List<dynamic>? storageData = ls.getItem('j${Common.extractYYYYMMDD(day)}');
+    if (storageData == null) return [];
+    return storageData.map((i) => Journal.fromJson(i)).toList();
+  }
+
+  @override
+  List<Journal> getJournals(DateTime start, DateTime end) {
+    return List.generate(
+      end.difference(start).inDays + 1,
+      (i) => getJournal(DateTime(start.year, start.month, start.day + i)),
+    ).expand((e) => e).toList();
+  }
+
+  @override
+  Future<void> insertJournal(Journal journal) {
+    if (journal.id < 0) throw 'Invalid order ID';
+    final dateTime = Common.extractYYYYMMDD(journal.dateTime);
+
+    var journals = ls.getItem('j$dateTime');
+    if (journals != null) {
+      journals.add(journal.toJson());
+    } else {
+      journals = [journal.toJson()];
+    }
+    return ls.setItem('j$dateTime', journals);
+  }
 }

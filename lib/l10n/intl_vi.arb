@@ -8,6 +8,7 @@
   "lobby": "Sảnh",
   "lobby_drawerHeader": "POS",
   "lobby_report": "Báo cáo",
+  "lobby_journal": "Nhật ký nhập hàng",
   "lobby_menuEdit": "Chỉnh sửa thực đơn",
   "lobby_tooltip": "Nhấn & giữ để thêm bàn",
   "details_discount": "Khuyến mãi",
@@ -33,6 +34,12 @@
   "edit_menu_filterHint": "Lọc bằng tên món..",
   "edit_menu_formLabel": "Tên món",
   "edit_menu_formPrice": "Giá",
+  "history_toggleDiscount": "Áp giá KM",
   "history_delPopUpTitle": "Bỏ qua đơn này?",
-  "history_rangePickerHelpTxt": "Chọn khoản ngày"
+  "history_rangePickerHelpTxt": "Chọn khoản ngày",
+  "journal_entry": "Mục",
+  "journal_entryHint": "Mô tả đơn",
+  "journal_entryReqTxt": "Mô tả không được rỗng",
+  "journal_amt": "Đơn giá",
+  "journal_datetime": "Thời gian"
 }

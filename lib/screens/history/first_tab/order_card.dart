@@ -3,9 +3,9 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../../common/common.dart';
-import '../../provider/src.dart';
-import '../popup_del.dart';
+import '../../../common/common.dart';
+import '../../../provider/src.dart';
+import '../../popup_del.dart';
 
 class OrderCard extends StatelessWidget {
   final int index;
@@ -60,7 +60,7 @@ class OrderCard extends StatelessWidget {
                 });
               },
               trailing: Text(
-                Money.format(order.totalPrice * order.discountRate),
+                Money.format(provider.saleAmountOf(order)),
                 style: TextStyle(
                   letterSpacing: 3,
                   color: del == true ? Colors.grey[200]!.withOpacity(0.5) : Colors.lightGreen,

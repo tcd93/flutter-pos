@@ -9,6 +9,7 @@ import 'provider/src.dart';
 import 'screens/order_details/main.dart';
 import 'screens/edit_menu/main.dart';
 import 'screens/history/main.dart';
+import 'screens/expense_journal/main.dart';
 import 'screens/lobby/main.dart';
 import 'screens/menu/main.dart';
 import 'storage_engines/connection_interface.dart';
@@ -86,11 +87,30 @@ class PosApp extends StatelessWidget {
             );
           case '/history':
             return routeBuilder(
+              DefaultTabController(
+                length: 2,
+                child: MultiProvider(
+                  providers: [
+                    // TODO: restructure to use parent model HistoryOrderSupplier
+                    ChangeNotifierProvider(
+                      create: (_) => HistorySupplierByDate(database: _storage),
+                    ),
+                    ChangeNotifierProxyProvider<HistorySupplierByDate, HistorySupplierByLine>(
+                      create: (_) => HistorySupplierByLine(database: _storage),
+                      update: (_, firstTab, lineChart) => lineChart!..update(firstTab),
+                    ),
+                  ],
+                  child: HistoryScreen(),
+                ),
+              ),
+            );
+          case '/expense':
+            return routeBuilder(
               ChangeNotifierProvider(
                 create: (_) {
-                  return HistorySupplierByDate(database: _storage);
+                  return ExpenseSupplier(database: _storage);
                 },
-                child: HistoryScreen(),
+                child: ExpenseJournalScreen(),
               ),
             );
           case '/edit-menu':
