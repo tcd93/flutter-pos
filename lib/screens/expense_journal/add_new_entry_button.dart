@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../common/common.dart';
 import '../../provider/src.dart';
-import '../../provider/supplier/inventory_journal_supplier.dart';
+import '../../provider/supplier/expense_journal_supplier.dart';
 
 class AddNewEntryButton extends StatelessWidget {
   @override
@@ -13,7 +13,7 @@ class AddNewEntryButton extends StatelessWidget {
       onPressed: () async {
         final j = await _popUpNewJournal(context);
         if (j != null) {
-          context.read<InventorySupplier>().addJournal(j);
+          context.read<ExpenseSupplier>().addJournal(j);
         }
       },
       child: Icon(Icons.add),

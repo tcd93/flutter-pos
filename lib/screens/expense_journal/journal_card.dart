@@ -12,7 +12,7 @@ class JournalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<InventorySupplier>(context);
+    final provider = Provider.of<ExpenseSupplier>(context);
     final journal = provider.data.elementAt(index);
     return Align(
       alignment: Alignment.center,

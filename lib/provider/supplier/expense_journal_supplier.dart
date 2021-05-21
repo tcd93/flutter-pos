@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../src.dart';
 import '../../storage_engines/connection_interface.dart';
 
-/// A provider specifically for [InventoryJournalScreen]
-class InventorySupplier extends ChangeNotifier {
+/// A provider specifically for [ExpenseJournalScreen]
+class ExpenseSupplier extends ChangeNotifier {
   final JournalIO? database;
   late List<Journal> _list;
   late DateTimeRange _selectedRange;
@@ -16,7 +16,7 @@ class InventorySupplier extends ChangeNotifier {
 
   double get sumAmount => _sumAmount;
 
-  InventorySupplier({this.database, DateTimeRange? range}) {
+  ExpenseSupplier({this.database, DateTimeRange? range}) {
     _selectedRange = range ?? DateTimeRange(start: DateTime.now(), end: DateTime.now());
     _list = database?.getJournals(_selectedRange.start, _selectedRange.end) ?? [];
     _sumAmount = _calcTotalAmount(_list);

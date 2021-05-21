@@ -66,10 +66,10 @@ class LobbyScreen extends StatelessWidget {
             ),
             ListTile(
               title: Text(
-                AppLocalizations.of(context)?.lobby_journal.toUpperCase() ?? 'INVENTORY JOURNAL',
+                AppLocalizations.of(context)?.lobby_journal.toUpperCase() ?? 'EXPENSE JOURNAL',
                 textAlign: TextAlign.center,
               ),
-              onTap: () => Navigator.pushNamed(context, '/inventory'),
+              onTap: () => Navigator.pushNamed(context, '/expense'),
             ),
           ],
         );

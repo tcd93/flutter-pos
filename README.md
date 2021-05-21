@@ -32,6 +32,4 @@ Get [flutter](https://flutter.dev/)
 `flutter test`
 
 ## TODO
-
-- [ ] Inventory journal
 - [ ] Remote printing? (via Bluetooth)

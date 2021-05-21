@@ -9,7 +9,7 @@ import 'provider/src.dart';
 import 'screens/order_details/main.dart';
 import 'screens/edit_menu/main.dart';
 import 'screens/history/main.dart';
-import 'screens/inventory_journal/main.dart';
+import 'screens/expense_journal/main.dart';
 import 'screens/lobby/main.dart';
 import 'screens/menu/main.dart';
 import 'storage_engines/connection_interface.dart';
@@ -104,13 +104,13 @@ class PosApp extends StatelessWidget {
                 ),
               ),
             );
-          case '/inventory':
+          case '/expense':
             return routeBuilder(
               ChangeNotifierProvider(
                 create: (_) {
-                  return InventorySupplier(database: _storage);
+                  return ExpenseSupplier(database: _storage);
                 },
-                child: InventoryJournalScreen(),
+                child: ExpenseJournalScreen(),
               ),
             );
           case '/edit-menu':

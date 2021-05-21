@@ -6,9 +6,9 @@ import 'journal_list.dart';
 import 'add_new_entry_button.dart';
 import 'date_picker.dart';
 import '../../common/common.dart';
-import '../../provider/supplier/inventory_journal_supplier.dart';
+import '../../provider/supplier/expense_journal_supplier.dart';
 
-class InventoryJournalScreen extends StatelessWidget {
+class ExpenseJournalScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +27,7 @@ class InventoryJournalScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: InventoryJournalList(),
+      body: ExpenseJournalList(),
       floatingActionButton: AddNewEntryButton(),
     );
   }
@@ -36,7 +36,7 @@ class InventoryJournalScreen extends StatelessWidget {
 class _LeadingTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<InventorySupplier>(context);
+    final provider = Provider.of<ExpenseSupplier>(context);
     final price = provider.sumAmount;
     final range = provider.selectedRange;
     return Wrap(
