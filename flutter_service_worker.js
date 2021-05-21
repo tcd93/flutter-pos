@@ -4,11 +4,11 @@ const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
   "version.json": "c09791b248746f72c88505538b53f596",
-"main.dart.js": "710da71c6426df7abdbb5fb2229ce1ab",
-"index.html": "26f23966ea6845c499d6c255af8ce317",
-"/": "26f23966ea6845c499d6c255af8ce317",
+"main.dart.js": "4f3223e7260eed4edb2c79e09c19610e",
+"index.html": "0680576706baaeba5dab7e4f57e9d9d5",
+"/": "0680576706baaeba5dab7e4f57e9d9d5",
 "assets/AssetManifest.json": "fee523e852532cb211da6c8584cf125f",
-"assets/NOTICES": "c1369284d3b9eda92b9608f82b167b94",
+"assets/NOTICES": "2bdb1c31ae4c591be36439f1e0dcb4a4",
 "assets/fonts/MaterialIcons-Regular.otf": "4e6447691c9509f7acdbf8a931a85ca1",
 "assets/assets/rice_noodles.png": "ffbb2e87d2bf0dfa92bb26103a1cf67c",
 "assets/assets/fried_chicken-with_with_wit_egg.png": "071da3cc59a90669087debcdd762e8be",
