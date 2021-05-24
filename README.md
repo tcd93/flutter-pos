@@ -20,12 +20,18 @@ A mobile POS written in _Flutter_, suitable for small cafe/restaurant, fully off
 
 Get [flutter](https://flutter.dev/)
 
-`flutter run`
+```
+flutter pub get
+flutter run
+```
 
 **For web**
 
 1. `flutter config --enable-web`
 2. `flutter run -d chrome --web-renderer canvaskit`
+
+**For emulator**
+1. `flutter run`
 
 ## Testing
 
