@@ -36,11 +36,7 @@ abstract class HistoryOrderSupplier extends ChangeNotifier {
       order.isDeleted == true ? 0 : order.totalPrice * (discountFlag ? order.discountRate : 1.0);
 
   HistoryOrderSupplier({this.database, DateTimeRange? range}) {
-    _selectedRange = range ??
-        DateTimeRange(
-          start: DateTime.now().add(Duration(days: -30)),
-          end: DateTime.now(),
-        );
+    _selectedRange = range ?? DateTimeRange(start: DateTime.now(), end: DateTime.now());
     data = database?.getRange(_selectedRange.start, _selectedRange.end) ?? [];
     sumAmount = _calculateTotalSalesAmount(data);
   }
