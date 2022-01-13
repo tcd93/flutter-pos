@@ -1,5 +1,8 @@
+// ignore_for_file: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import '../../storage_engines/connection_interface.dart';
 import '../../common/common.dart';
 import '../../printer/thermal_printer.dart';
 import '../src.dart';
@@ -22,12 +25,14 @@ class TableModel {
 
   TableStatus get status => _s.current.status;
 
-  void setTableStatus(TableStatus newStatus, [Supplier? supplier]) {
+  void setTableStatus(TableStatus newStatus, [ChangeNotifier? notifier]) {
     if (newStatus != _s.current.status) {
       _s.current.status = newStatus;
-      supplier?.notifyListeners();
+      notifier?.notifyListeners();
     }
   }
+
+  Order get currentOrder => _s.current;
 
   LineItem putIfAbsent(Dish dish) {
     var s = _s.current.lineItems.firstWhere(
@@ -58,25 +63,10 @@ class TableModel {
   }
 
   /// Restore to last "commit" (called by [memorizePreviousState])
-  void revert([Supplier? supplier]) {
+  void revert([ChangeNotifier? notifier]) {
     final copy = Order.copy(_s.first);
     _s.slideLeft(copy);
-    supplier?.notifyListeners();
-  }
-
-  Future<int> _genNextID(Supplier supplier) async {
-    return (await supplier.database?.nextUID()) ?? -1;
-  }
-
-  Future<void> _checkout(Supplier supplier, [DateTime? atTime]) async {
-    final database = supplier.database;
-
-    _s.current.id = await _genNextID(supplier);
-    _s.current.checkoutTime = atTime ?? DateTime.now();
-
-    await database?.insert(_s.current);
-
-    supplier.notifyListeners();
+    notifier?.notifyListeners();
   }
 
   //TODO: implement store name, set it in the receipt header
@@ -88,38 +78,33 @@ class TableModel {
     _s.lst = [Order(id), Order(id)];
   }
 
-  /// checkout, print receipt (not for Web), then clear the node's state
+  /// print receipt (not for Web), then clear the node's state
   ///
-  /// - if [supplier] null then this does not persist to storage
   /// - if [context] null or on Web then it does not print receipt paper, [customerPayAmount] will be
   /// printed if not null
   /// - state is always cleared after calling this method
-  Future<void> checkoutPrintClear({
-    Supplier? supplier,
-    DateTime? atTime,
+  Future<void> printClear({
     BuildContext? context,
     double? customerPayAmount,
   }) async {
-    if (supplier != null) await _checkout(supplier, atTime);
     if (context != null && !kIsWeb) await _printReceipt(context, customerPayAmount);
     _clear();
   }
 
-  double applyDiscount(double discountRate, Supplier? supplier) {
+  double applyDiscount(double discountRate, ChangeNotifier? notifier) {
     assert(0 < discountRate && discountRate <= 1);
     _s.current.discountRate = discountRate;
-    supplier?.notifyListeners();
+    notifier?.notifyListeners();
     return totalPriceAfterDiscount;
   }
 
   /// current global X, Y pos on screen
   Coordinate getOffset() => _coord;
 
-  void setOffset(Coordinate newCoord, Supplier? supplier) {
+  void setOffset(Coordinate newCoord, CoordinateIO? db) {
     if (newCoord.x == _coord.y && newCoord.y == _coord.y) return;
     _coord.x = newCoord.x;
     _coord.y = newCoord.y;
-    final database = supplier?.database;
-    database?.setCoordinate(id, newCoord.x, newCoord.y);
+    db?.setCoordinate(id, newCoord.x, newCoord.y);
   }
 }

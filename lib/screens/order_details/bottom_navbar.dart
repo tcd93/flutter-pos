@@ -54,13 +54,13 @@ class _CheckoutButton extends StatelessWidget {
         minWidth: MediaQuery.of(context).size.width / 2,
         onPressed: () async {
           if (fromScreen == 'history') {
-            await order.checkoutPrintClear(context: context);
+            await order.printClear(context: context);
             Navigator.pop(context);
           } else {
             final customerPaid = await _popUpPayment(context, order.totalPriceAfterDiscount);
             if (customerPaid != null) {
-              await order.checkoutPrintClear(
-                supplier: context.read<Supplier>(),
+              await context.read<Supplier>().checkout(order);
+              await order.printClear(
                 context: context,
                 customerPayAmount: customerPaid,
               );

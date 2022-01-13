@@ -19,7 +19,7 @@ class DetailsScreen extends StatelessWidget {
       floatingActionButton: fromScreen == 'history'
           ? FloatingActionButton(
               onPressed: () {
-                order.checkoutPrintClear(context: context);
+                order.printClear(context: context);
                 Navigator.pop(context);
               },
               elevation: 4.0,

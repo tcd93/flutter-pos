@@ -103,7 +103,7 @@ class _InteractiveBody extends StatelessWidget {
               containerKey: bgKey,
               transformController: transformController,
               onDragEnd: (x, y) {
-                model.setOffset(Coordinate(x, y), supplier);
+                model.setOffset(Coordinate(x, y), supplier.database);
               },
               key: ObjectKey(model),
               child: TableIcon(table: model),

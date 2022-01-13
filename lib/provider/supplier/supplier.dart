@@ -38,4 +38,16 @@ class Supplier extends ChangeNotifier {
     return;
   }
 
+  Future<void> checkout(TableModel table, [DateTime? atTime]) async {
+    table.currentOrder.id = await _genNextID();
+    table.currentOrder.checkoutTime = atTime ?? DateTime.now();
+
+    await database?.insert(table.currentOrder);
+
+    notifyListeners();
+  }
+
+  Future<int> _genNextID() async {
+    return (await database?.nextUID()) ?? -1;
+  }
 }

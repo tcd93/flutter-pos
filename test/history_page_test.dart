@@ -59,7 +59,8 @@ void main() {
       checkedOutTable = supplier.getTable(testTableID);
 
       // FOR SOME REASON "CHECK OUT" CAN'T BE DONE INSIDE `testWidgets`
-      await checkedOutTable.checkoutPrintClear(supplier: supplier, atTime: checkoutTime);
+      await supplier.checkout(checkedOutTable, checkoutTime);
+      await checkedOutTable.printClear();
     });
 
     testWidgets(
