@@ -33,7 +33,7 @@ class PosApp extends StatelessWidget {
     return MaterialApp(
       // title: '',
       theme: appTheme,
-      localizationsDelegates: [
+      localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -116,7 +116,7 @@ class PosApp extends StatelessWidget {
           case '/edit-menu':
             return routeBuilder(EditMenuScreen());
           default:
-            return MaterialPageRoute(builder: (context) => Center(child: Text('404')));
+            return MaterialPageRoute(builder: (context) => const Center(child: Text('404')));
         }
       },
     );

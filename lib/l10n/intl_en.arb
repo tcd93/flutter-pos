@@ -5,6 +5,7 @@
   "generic_no": "No",
   "generic_confirm": "Confirm",
   "generic_cancel": "Cancel",
+  "generic_empty": "No data found",
   "lobby": "Lobby",
   "lobby_drawerHeader": "Simple POS",
   "lobby_report": "Report",

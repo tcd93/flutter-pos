@@ -2,6 +2,7 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 const bottomNavbarHeight = 48.0;
@@ -18,14 +19,14 @@ class RallyColors {
 ThemeData buildRallyTheme() {
   final base = ThemeData.dark();
   return ThemeData(
-    appBarTheme: const AppBarTheme(brightness: Brightness.dark, elevation: 0),
+    appBarTheme: const AppBarTheme(systemOverlayStyle: SystemUiOverlayStyle.dark, elevation: 0),
     bottomSheetTheme: BottomSheetThemeData(backgroundColor: base.bottomAppBarColor),
-    pageTransitionsTheme: PageTransitionsTheme(builders: {
-      TargetPlatform.android: const SharedAxisPageTransitionsBuilder(
+    pageTransitionsTheme: const PageTransitionsTheme(builders: {
+      TargetPlatform.android: SharedAxisPageTransitionsBuilder(
         fillColor: RallyColors.primaryBackground,
         transitionType: SharedAxisTransitionType.horizontal,
       ),
-      TargetPlatform.windows: const ZoomPageTransitionsBuilder(),
+      TargetPlatform.windows: ZoomPageTransitionsBuilder(),
     }),
     scaffoldBackgroundColor: RallyColors.primaryBackground,
     primaryColor: RallyColors.primaryBackground,
@@ -50,7 +51,7 @@ ThemeData buildRallyTheme() {
         CircleBorder(),
       ),
     ),
-    buttonTheme: ButtonThemeData(
+    buttonTheme: const ButtonThemeData(
       height: bottomNavbarHeight,
     ),
     highlightColor: RallyColors.primaryColor,
@@ -65,13 +66,13 @@ ThemeData buildRallyTheme() {
       ),
     ),
     canvasColor: RallyColors.primaryBackground, // also works for dropdown button
-    dialogTheme: DialogTheme(
+    dialogTheme: const DialogTheme(
       elevation: 36.0,
       backgroundColor: RallyColors.primaryBackground,
     ),
-    colorScheme: ColorScheme.dark(), // for date range picker
+    colorScheme: const ColorScheme.dark(), // for date range picker
     inputDecorationTheme: InputDecorationTheme(
-      labelStyle: TextStyle(
+      labelStyle: const TextStyle(
         color: RallyColors.gray,
         fontWeight: FontWeight.w500,
       ),
@@ -80,10 +81,10 @@ ThemeData buildRallyTheme() {
         fontWeight: FontWeight.w300,
       ),
       // border: InputBorder.none,
-      focusedBorder: OutlineInputBorder(
+      focusedBorder: const OutlineInputBorder(
         borderSide: BorderSide(color: RallyColors.primaryColor),
       ),
-      contentPadding: EdgeInsets.all(4.0),
+      contentPadding: const EdgeInsets.all(4.0),
     ),
     visualDensity: VisualDensity.standard,
   );
@@ -133,7 +134,7 @@ enum CustomShapeSide {
 class CustomShape extends ShapeBorder {
   final CustomShapeSide side;
 
-  CustomShape({this.side = CustomShapeSide.right});
+  const CustomShape({this.side = CustomShapeSide.right});
 
   @override
   EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
@@ -151,35 +152,35 @@ class CustomShape extends ShapeBorder {
     }
 
     // extra radius to the notch circle
-    final margin = 9.0;
+    const margin = 9.0;
     // get the radius info of the circular notch (cn)
-    final r_cn = rect.height / 2 + margin;
-    final rad_cn = Radius.circular(r_cn);
-    final rectNotch_cn = Rect.fromCircle(center: Offset.zero, radius: r_cn);
+    final rCn = rect.height / 2 + margin;
+    final radCn = Radius.circular(rCn);
+    final rectNotchCn = Rect.fromCircle(center: Offset.zero, radius: rCn);
 
     // as we're using a ContinuousRectangleBorder with border radius of 72 (defined in theme),
     // there'd be a circular curve on the topleft/topright corners.
 
     // the top-right / top-left curve info (trc)
-    final r_trc = 20.0;
-    final rad_trc = Radius.circular(r_trc);
-    final rectNotch_trc = Rect.fromCircle(center: Offset.zero, radius: r_trc);
+    const rTrc = 20.0;
+    const radTrc = Radius.circular(rTrc);
+    final rectNotchTrc = Rect.fromCircle(center: Offset.zero, radius: rTrc);
 
     var p = Path()
       ..moveTo(baseX, baseY)
-      ..relativeMoveTo(0, r_cn)
+      ..relativeMoveTo(0, rCn)
       ..relativeArcToPoint(
         // arc to create notch
-        side == CustomShapeSide.right ? rectNotch_cn.topRight : rectNotch_cn.topLeft,
+        side == CustomShapeSide.right ? rectNotchCn.topRight : rectNotchCn.topLeft,
         clockwise: side == CustomShapeSide.right ? false : true,
-        radius: rad_cn,
+        radius: radCn,
       )
       // move to the starting curve point
-      ..lineTo(((rect.width - baseX) - r_trc).abs(), 0)
+      ..lineTo(((rect.width - baseX) - rTrc).abs(), 0)
       ..relativeArcToPoint(
-        side == CustomShapeSide.right ? rectNotch_trc.bottomRight : rectNotch_trc.bottomLeft,
+        side == CustomShapeSide.right ? rectNotchTrc.bottomRight : rectNotchTrc.bottomLeft,
         clockwise: side == CustomShapeSide.right ? true : false,
-        radius: rad_trc,
+        radius: radTrc,
       ); // arc down
 
     if (side == CustomShapeSide.right) {
@@ -196,5 +197,5 @@ class CustomShape extends ShapeBorder {
   void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
 
   @override
-  ShapeBorder scale(double t) => CustomShape();
+  ShapeBorder scale(double t) => const CustomShape();
 }

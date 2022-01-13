@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -8,14 +7,13 @@ import '../../../provider/src.dart';
 import '../../popup_del.dart';
 
 class OrderCard extends StatelessWidget {
-  final int index;
+  final Order order;
 
-  const OrderCard(this.index);
+  const OrderCard(this.order);
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<HistorySupplierByDate>(context);
-    final order = provider.data.elementAt(index);
     var del = order.isDeleted;
     return Stack(
       alignment: Alignment.center,
@@ -42,7 +40,7 @@ class OrderCard extends StatelessWidget {
                             Text(AppLocalizations.of(context)?.history_delPopUpTitle ?? 'Ignore?'),
                       );
                       if (result == true) {
-                        await provider.ignoreOrder(order, index);
+                        provider.ignoreOrder(order);
                       }
                     },
               onTap: () {
@@ -70,7 +68,7 @@ class OrderCard extends StatelessWidget {
             ),
           ),
         ),
-        if (del == true) Divider(color: Colors.black, thickness: 1.0),
+        if (del == true) const Divider(color: Colors.black, thickness: 1.0),
       ],
     );
   }

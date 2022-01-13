@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:localstorage/localstorage.dart' as lib;
 
 import '../common/common.dart';
@@ -13,18 +14,22 @@ class LocalStorage implements DatabaseConnectionInterface {
   //---Order---
 
   @override
-  List<Order> get(DateTime day) {
+  Future<List<Order>> get(DateTime day) async {
     List<dynamic>? storageData = ls.getItem(Common.extractYYYYMMDD(day));
     if (storageData == null) return [];
     return storageData.map((i) => Order.fromJson(i)).toList();
   }
 
   @override
-  List<Order> getRange(DateTime start, DateTime end) {
-    return List.generate(
-      end.difference(start).inDays + 1,
-      (i) => get(DateTime(start.year, start.month, start.day + i)),
-    ).expand((e) => e).toList();
+  Future<List<Order>> getRange(DateTime start, DateTime end) async {
+    return (await Future.wait(
+      List.generate(
+        end.difference(start).inDays + 1,
+        (i) => get(DateTime(start.year, start.month, start.day + i)),
+      ),
+    ))
+        .expand((e) => e)
+        .toList();
   }
 
   @override
@@ -44,11 +49,11 @@ class LocalStorage implements DatabaseConnectionInterface {
   }
 
   @override
-  Future<Order> delete(DateTime day, int orderID) async {
-    final orders = get(day);
-    final deletedOrder = orders.firstWhere((e) => e.id == orderID)..isDeleted = true;
+  Future<void> delete(DateTime day, int orderID) async {
+    final orders = await get(day);
+    orders.firstWhere((e) => e.id == orderID).isDeleted = true;
     await ls.setItem(Common.extractYYYYMMDD(day), orders.map((e) => e.toJson()).toList());
-    return deletedOrder;
+    return;
   }
 
   @override
@@ -66,7 +71,9 @@ class LocalStorage implements DatabaseConnectionInterface {
   Menu? getMenu() {
     var storageData = ls.getItem('menu');
     if (storageData == null) {
-      print('\x1B[94mmenu not found in localstorage\x1B[0m');
+      if (kDebugMode) {
+        print('\x1B[94mmenu not found in localstorage\x1B[0m');
+      }
       return null;
     }
     return Menu.fromJson(storageData as Map<String, dynamic>);

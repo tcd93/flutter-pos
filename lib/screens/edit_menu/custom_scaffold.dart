@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
 import '../../common/common.dart';
@@ -24,7 +23,7 @@ class CustomScaffold extends StatefulWidget {
   /// called when user press the central FAB in bottom appbar
   final void Function(Dish newDish) onAddDish;
 
-  CustomScaffold({required this.body, required this.onAddDish});
+  const CustomScaffold({required this.body, required this.onAddDish});
 
   @override
   _CustomScaffoldState createState() => _CustomScaffoldState();
@@ -80,7 +79,7 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
         child: _BottomAppBarContainer(
           expanded,
           child: Padding(
-            padding: EdgeInsets.only(top: 70.0, left: 70.0, right: 70.0),
+            padding: const EdgeInsets.only(top: 70.0, left: 70.0, right: 70.0),
             child: WillPopScope(
               onWillPop: _preventNavPop,
               child: FormContent(
@@ -203,7 +202,7 @@ class _CenterDockedButton extends StatelessWidget {
     final _fab = FloatingActionButton(
       backgroundColor: RallyColors.buttonColor,
       onPressed: () => expanded.value = true,
-      child: Icon(Icons.add),
+      child: const Icon(Icons.add),
     );
 
     return RadialMenu(

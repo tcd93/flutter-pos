@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../common/common.dart';
@@ -14,7 +13,7 @@ class FormContent extends StatelessWidget {
   final double gap;
   final double buttonMinWidth;
 
-  FormContent({
+  const FormContent({
     required this.inputs,
     required this.onSubmit,
     this.onCancel,

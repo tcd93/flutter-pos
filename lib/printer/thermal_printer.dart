@@ -20,7 +20,7 @@ class Printer {
       try {
         _bondedDevices = await instance.getBondedDevices();
         if (_bondedDevices!.isEmpty) {
-          final snackbar = SnackBar(content: Text('No bluetooth devices!'));
+          const snackbar = SnackBar(content: Text('No bluetooth devices!'));
           ScaffoldMessenger.of(context).showSnackBar(snackbar);
           return;
         }
@@ -32,7 +32,7 @@ class Printer {
     }
 
     var isConnected = await instance.isConnected;
-    if (!isConnected) {
+    if (isConnected != null && !isConnected) {
       _device = _bondedDevices![0];
       try {
         await instance.connect(_device);
@@ -63,7 +63,7 @@ class Printer {
     for (final i in list) {
       await instance.printLeftRight(
         '${i.dishName}(${i.quantity})',
-        '${Money.format(i.quantity * i.price)}',
+        Money.format(i.quantity * i.price),
         0,
       );
     }

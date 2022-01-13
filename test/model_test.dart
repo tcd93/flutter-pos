@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/database_factory.dart';
 import 'package:posapp/provider/src.dart';
@@ -16,14 +17,16 @@ void main() {
   });
   tearDownAll(() async {
     storage.close();
-    await Future.delayed(Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 500));
     File('test/model_test').deleteSync(); // delete the newly created storage file
   });
   tearDown(() async {
     try {
       await storage.destroy();
     } on Exception catch (e) {
-      print('\x1B[94m $e\x1B[0m');
+      if (kDebugMode) {
+        print('\x1B[94m $e\x1B[0m');
+      }
     }
   });
 
@@ -55,7 +58,7 @@ void main() {
       supplier: mockTracker,
       atTime: DateTime.parse('20200201 11:00:00'),
     );
-    var items = storage.get(DateTime.parse('20200201 11:00:00'));
+    var items = await storage.get(DateTime.parse('20200201 11:00:00'));
     expect(items, isNotNull);
     expect(items[0].checkoutTime, DateTime.parse('20200201 11:00:00'));
     expect(items[0].id, 0);
@@ -76,7 +79,7 @@ void main() {
       atTime: DateTime.parse('20200201 13:00:00'),
     );
 
-    var items = storage.get(DateTime.parse('20200201 13:00:00'));
+    var items = await storage.get(DateTime.parse('20200201 13:00:00'));
     expect(items.length, 2);
     expect(items[0].id, 0);
     expect(items[1].id, 1);

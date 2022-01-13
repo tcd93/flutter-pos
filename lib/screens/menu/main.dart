@@ -10,7 +10,7 @@ class MenuScreen extends StatelessWidget {
   final TableModel model;
   final String? fromHeroTag;
 
-  MenuScreen(this.model, {this.fromHeroTag});
+  const MenuScreen(this.model, {this.fromHeroTag});
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +69,7 @@ class _ConfirmButton extends StatelessWidget {
   final TableModel model;
   final String? fromHeroTag;
 
-  _ConfirmButton(this.model, {this.fromHeroTag});
+  const _ConfirmButton(this.model, {this.fromHeroTag});
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +90,7 @@ class _ConfirmButton extends StatelessWidget {
                       Navigator.pop(context); // Go back to Lobby Screen
                     }
                   : null,
-              child: Icon(Icons.done),
+              child: const Icon(Icons.done),
             ),
           );
         },
@@ -102,7 +102,7 @@ class _ConfirmButton extends StatelessWidget {
 class _UndoButton extends StatelessWidget {
   final TableModel model;
 
-  _UndoButton(this.model);
+  const _UndoButton(this.model);
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +120,7 @@ class _UndoButton extends StatelessWidget {
                     model.revert(supplier);
                   }
                 : null,
-            child: Icon(Icons.undo),
+            child: const Icon(Icons.undo),
           ),
         );
       },

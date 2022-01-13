@@ -43,8 +43,8 @@ class _LeadingTitle extends StatelessWidget {
       direction: Axis.vertical,
       children: [
         Text(
-          '${Money.format(price)}',
-          style: TextStyle(
+          Money.format(price),
+          style: const TextStyle(
             color: Colors.lightGreen,
             fontWeight: FontWeight.bold,
             fontSize: 22,

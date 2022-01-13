@@ -15,12 +15,12 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(body: stack),
       ));
-      await tester.drag(find.byWidget(fab), Offset(300.0, 300.0));
-      await tester.pumpAndSettle(Duration(seconds: 1));
+      await tester.drag(find.byWidget(fab), const Offset(300.0, 300.0));
+      await tester.pumpAndSettle(const Duration(seconds: 1));
 
       final rb = btnKey.currentState!.context.findRenderObject()! as RenderBox;
       var globalOffset = rb.localToGlobal(Offset.zero);
-      expect(globalOffset, equals(Offset(300, 300)));
+      expect(globalOffset, equals(const Offset(300, 300)));
     },
   );
 }

@@ -23,7 +23,7 @@ class RadialMenu extends StatefulWidget {
   /// Duration of animation, default 500ms; if [animationController] is passed, then this is ignored
   final Duration duration;
 
-  RadialMenu({
+  const RadialMenu({
     this.closedBuilder,
     this.drawerBuilder,
     this.openBuilder,
@@ -62,7 +62,7 @@ class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateM
     rotation = Tween<double>(begin: 0.0, end: 360.0).animate(
       CurvedAnimation(
         parent: controller,
-        curve: Interval(0.0, 0.7, curve: Curves.decelerate),
+        curve: const Interval(0.0, 0.7, curve: Curves.decelerate),
       ),
     );
   }
@@ -78,7 +78,7 @@ class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateM
 
   @override
   // rotates by rotation value, also scales down in the process
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => SizedBox(
       width: widget.width,
       height: widget.height,
       child: AnimatedBuilder(

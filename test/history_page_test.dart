@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/database_factory.dart';
@@ -24,17 +25,19 @@ void main() {
       await storage.destroy();
       storage.close();
       // .close() is async, but lib does not await...
-      await Future.delayed(Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 500));
       try {
         File('test/test-group-1').deleteSync();
       } on Exception catch (e) {
-        print('\x1B[94mtearDownAll (test/test-group-1): $e\x1B[0m');
+        if (kDebugMode) {
+          print('\x1B[94mtearDownAll (test/test-group-1): $e\x1B[0m');
+        }
       }
       // delete the newly created storage file
     });
 
     setUp(() async {
-      final testTableID = 1;
+      const testTableID = 1;
       supplier = Supplier(
         database: storage,
         mockModels: [
@@ -75,6 +78,7 @@ void main() {
             child: DefaultTabController(length: 2, child: HistoryScreen()),
           ),
         ));
+        await tester.pumpAndSettle();
 
         expect(
           find.byWidgetPredicate(
@@ -149,11 +153,13 @@ void main() {
       await storage.destroy();
       storage.close();
       // .close() is async, but lib does not await...
-      await Future.delayed(Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 500));
       try {
         File('test/test-group-2').deleteSync();
       } on Exception catch (e) {
-        print('\x1B[94mtearDownAll (test/test-group-2): $e\x1B[0m');
+        if (kDebugMode) {
+          print('\x1B[94mtearDownAll (test/test-group-2): $e\x1B[0m');
+        }
       }
       // delete the newly created storage file
     });
@@ -179,6 +185,7 @@ void main() {
             child: DefaultTabController(length: 2, child: HistoryScreen()),
           ),
         ));
+        await tester.pumpAndSettle();
 
         expect(
           find.byWidgetPredicate(
@@ -242,11 +249,13 @@ void main() {
       await storage.destroy();
       storage.close();
       // .close() is async, but lib does not await...
-      await Future.delayed(Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 500));
       try {
         File('test/test-group-3').deleteSync();
       } on Exception catch (e) {
-        print('\x1B[94mteardownAll (test/test-group-3): $e\x1B[0m');
+        if (kDebugMode) {
+          print('\x1B[94mteardownAll (test/test-group-3): $e\x1B[0m');
+        }
       }
       // delete the newly created storage file
     });
@@ -259,7 +268,7 @@ void main() {
     test('Should be able to set isDeleted to true', () async {
       await storage.delete(DateTime.parse('2020-11-12'), 1);
 
-      var order = storage.get(DateTime.parse('2020-11-12'));
+      var order = await storage.get(DateTime.parse('2020-11-12'));
 
       expect(order[0].isDeleted, false);
       expect(order[1].isDeleted, true);
@@ -324,11 +333,13 @@ void main() {
       await storage.destroy();
       storage.close();
       // .close() is async, but lib does not await...
-      await Future.delayed(Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 500));
       try {
         File('test/test-group-4').deleteSync();
       } on Exception catch (e) {
-        print('\x1B[94mtearDownAll: (test/test-group-4)$e\x1B[0m');
+        if (kDebugMode) {
+          print('\x1B[94mtearDownAll: (test/test-group-4)$e\x1B[0m');
+        }
       }
       // delete the newly created storage file
     });
@@ -352,6 +363,7 @@ void main() {
             child: DefaultTabController(length: 2, child: HistoryScreen()),
           ),
         ));
+        await tester.pumpAndSettle();
 
         expect(
           find.byWidgetPredicate(
@@ -391,6 +403,7 @@ void main() {
             child: DefaultTabController(length: 2, child: HistoryScreen()),
           ),
         ));
+        await tester.pumpAndSettle();
 
         expect(
           find.widgetWithText(Wrap, '45,000'),
@@ -408,7 +421,7 @@ void main() {
         //
         final tomorrow = checkoutTime.add(const Duration(days: 1));
         provider.selectedRange = DateTimeRange(start: checkoutTime, end: tomorrow);
-        await tester.pump();
+        await tester.pumpAndSettle();
 
         expect(
           find.byWidgetPredicate(

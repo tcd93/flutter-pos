@@ -5,7 +5,6 @@ import '../src.dart';
 /// A provider specifically for [HistoryScreen]
 abstract class HistoryOrderSupplier extends ChangeNotifier {
   final OrderIO? database;
-  late List<Order> data; // list instance of [data]
   late DateTimeRange _selectedRange;
   bool _discountFlag = true;
 
@@ -14,8 +13,6 @@ abstract class HistoryOrderSupplier extends ChangeNotifier {
   set selectedRange(DateTimeRange newRange) {
     if (_selectedRange != newRange) {
       _selectedRange = newRange;
-      data = database?.getRange(_selectedRange.start, _selectedRange.end) ?? [];
-      sumAmount = _calculateTotalSalesAmount(data);
       notifyListeners();
     }
   }
@@ -25,23 +22,21 @@ abstract class HistoryOrderSupplier extends ChangeNotifier {
   /// include discount rate in sales
   set discountFlag(toggleValue) {
     _discountFlag = toggleValue;
-    sumAmount = _calculateTotalSalesAmount(data);
     notifyListeners();
   }
 
-  /// summary amount over the [_selectedRange]
-  late double sumAmount = 0;
+  Future<List<Order>> retrieveOrders() async {
+    return await database?.getRange(_selectedRange.start, _selectedRange.end) ?? [];
+  }
+
+  HistoryOrderSupplier({this.database, DateTimeRange? range}) {
+    _selectedRange = range ?? DateTimeRange(start: DateTime.now(), end: DateTime.now());
+  }
 
   double saleAmountOf(Order order) =>
       order.isDeleted == true ? 0 : order.totalPrice * (discountFlag ? order.discountRate : 1.0);
 
-  HistoryOrderSupplier({this.database, DateTimeRange? range}) {
-    _selectedRange = range ?? DateTimeRange(start: DateTime.now(), end: DateTime.now());
-    data = database?.getRange(_selectedRange.start, _selectedRange.end) ?? [];
-    sumAmount = _calculateTotalSalesAmount(data);
-  }
-
-  double _calculateTotalSalesAmount(Iterable<Order> orders) => orders.fold(
+  double calculateTotalSalesAmount(Iterable<Order> orders) => orders.fold(
         0,
         (previousValue, order) => previousValue + saleAmountOf(order),
       );

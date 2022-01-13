@@ -10,7 +10,7 @@ class DetailsScreen extends StatelessWidget {
   final String? fromHeroTag;
   final String fromScreen;
 
-  DetailsScreen(this.order, {this.fromHeroTag, required this.fromScreen});
+  const DetailsScreen(this.order, {this.fromHeroTag, required this.fromScreen});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class DetailsScreen extends StatelessWidget {
               },
               elevation: 4.0,
               backgroundColor: RallyColors.buttonColor,
-              child: Icon(Icons.print_sharp),
+              child: const Icon(Icons.print_sharp),
             )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

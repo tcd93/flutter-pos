@@ -9,7 +9,7 @@ import '../popup_del.dart';
 class TableIcon extends StatelessWidget {
   final TableModel table;
 
-  TableIcon({required this.table});
+  const TableIcon({required this.table});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class TableIcon extends StatelessWidget {
         table,
         surroundingButtonsBuilder: (context, animController, angles) =>
             _build(context, animController, angles),
-        displayAngles: [0, 90, 180],
+        displayAngles: const [0, 90, 180],
       ),
     );
   }
@@ -34,7 +34,7 @@ class TableIcon extends StatelessWidget {
       DrawerItem(
         controller: radialAnimationController,
         angle: angles[0],
-        key: ValueKey<int>(1),
+        key: const ValueKey<int>(1),
         child: FloatingActionButton(
           mini: true,
           heroTag: 'menu-subtag-table-${table.id}',
@@ -44,19 +44,19 @@ class TableIcon extends StatelessWidget {
               'model': table,
             }).then((_) {
               Future.delayed(
-                Duration(milliseconds: 600),
+                const Duration(milliseconds: 600),
                 () => radialAnimationController.reverse(),
               );
             });
           },
-          child: Icon(Icons.add),
+          child: const Icon(Icons.add),
         ),
       ),
       // see order details (and checkout)
       DrawerItem(
         controller: radialAnimationController,
         angle: angles[1],
-        key: ValueKey<int>(2),
+        key: const ValueKey<int>(2),
         child: FloatingActionButton(
           mini: true,
           heroTag: 'details-subtag-table-${table.id}',
@@ -68,26 +68,26 @@ class TableIcon extends StatelessWidget {
                     'from': 'lobby',
                   }).then((_) {
                     Future.delayed(
-                      Duration(milliseconds: 600),
+                      const Duration(milliseconds: 600),
                       () => radialAnimationController.reverse(),
                     );
                   });
                 }
               : null,
           backgroundColor: table.status == TableStatus.occupied ? null : RallyColors.gray,
-          child: Icon(Icons.receipt),
+          child: const Icon(Icons.receipt),
         ),
       ),
       // remove table node
       DrawerItem(
         controller: radialAnimationController,
         angle: angles[2],
-        key: ValueKey<int>(3),
+        key: const ValueKey<int>(3),
         child: FloatingActionButton(
           mini: true,
           heroTag: 'delete-subtag-table-${table.id}',
           onPressed: () => _removeTable(context, table.id),
-          child: Icon(Icons.delete),
+          child: const Icon(Icons.delete),
         ),
       ),
     ];
@@ -104,7 +104,7 @@ class _RadialButton extends StatelessWidget {
   /// Example: `[0, 90]` would place one at 3 o'clock, the other at 6 o'clock
   final List<double> displayAngles;
 
-  _RadialButton(
+  const _RadialButton(
     this.model, {
     required this.surroundingButtonsBuilder,
     required this.displayAngles,
@@ -140,7 +140,7 @@ class _RadialButton extends StatelessWidget {
             radialAnimationController.reverse();
           },
           backgroundColor: _colorTween.animate(radialAnimationController).value,
-          child: Icon(Icons.circle),
+          child: const Icon(Icons.circle),
         );
       },
       drawerBuilder: (context, animController) =>

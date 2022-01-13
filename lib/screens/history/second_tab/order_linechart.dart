@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 import '../../../theme/rally.dart';
@@ -9,16 +6,18 @@ import '../../../theme/rally.dart';
 import '../../../provider/src.dart';
 
 class HistoryOrderLineChart extends StatelessWidget {
+  final Iterable<Order> orders;
+
+  const HistoryOrderLineChart(this.orders);
+
   @override
   Widget build(BuildContext context) {
-    final groupedData = context.select<HistorySupplierByLine, List<List<dynamic>>>(
-      (provider) => provider.groupedData,
-    );
+    final provider = Provider.of<HistorySupplierByLine>(context, listen: false);
 
     return Container(
       alignment: Alignment.center,
-      margin: EdgeInsets.fromLTRB(48, 60, 48, 48),
-      child: _drawLineChart(context, groupedData),
+      margin: const EdgeInsets.fromLTRB(48, 60, 48, 48),
+      child: _drawLineChart(context, provider.group(orders)),
     );
   }
 
@@ -61,26 +60,18 @@ class HistoryOrderLineChart extends StatelessWidget {
       belowBarData: BarAreaData(show: false),
     );
     return _spots.isEmpty
-        ? Center(child: Text('No data'))
+        ? const Center(child: Text('No data'))
         : StatefulBuilder(
             builder: (context, setState) => LineChart(
               LineChartData(
                 backgroundColor: RallyColors.primaryBackground,
                 lineTouchData: LineTouchData(
                   // show tooltips on all spots on long tap
-                  touchCallback: (LineTouchResponse touchResponse) {
-                    Timer? _timer;
-                    if (touchResponse.touchInput.down) {
-                      _timer = Timer(Duration(seconds: 1), () {
-                        setState(() {
-                          showTooltipsOnAllSpots = touchResponse.touchInput.down;
-                        });
-                      });
-                    } else {
-                      _timer?.cancel();
-                      setState(() {
-                        showTooltipsOnAllSpots = touchResponse.touchInput.down;
-                      });
+                  touchCallback: (FlTouchEvent event, BaseTouchResponse? touchResponse) {
+                    if (event is FlLongPressStart) {
+                      setState(() => showTooltipsOnAllSpots = true);
+                    } else if (event is FlLongPressEnd) {
+                      setState(() => showTooltipsOnAllSpots = false);
                     }
                   },
                   // must disable this for showingTooltipIndicators to work
@@ -89,7 +80,7 @@ class HistoryOrderLineChart extends StatelessWidget {
                 ),
                 borderData: FlBorderData(
                   show: true,
-                  border: Border(
+                  border: const Border(
                     left: BorderSide(color: RallyColors.gray),
                     bottom: BorderSide(color: RallyColors.gray),
                   ),
@@ -97,17 +88,13 @@ class HistoryOrderLineChart extends StatelessWidget {
                 titlesData: FlTitlesData(
                   leftTitles: SideTitles(
                     showTitles: true,
-                    getTextStyles: Theme.of(context).textTheme.bodyText2 != null
-                        ? (value) => Theme.of(context).textTheme.bodyText2!
-                        : null,
+                    getTextStyles: (_, __) => Theme.of(context).textTheme.bodyText2,
                     margin: 12.0,
                     interval: _interval(groupedData),
                   ),
                   bottomTitles: SideTitles(
                     showTitles: true,
-                    getTextStyles: Theme.of(context).textTheme.bodyText2 != null
-                        ? (value) => Theme.of(context).textTheme.bodyText2!
-                        : null,
+                    getTextStyles: (_, __) => Theme.of(context).textTheme.bodyText2,
                     margin: 24.0,
                     // convert index value back to yyyymmdd
                     getTitles: (idx) => groupedData[idx.toInt()][0],

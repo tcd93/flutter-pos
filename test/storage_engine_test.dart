@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/database_factory.dart';
 
@@ -11,14 +12,16 @@ void main() {
   });
   tearDownAll(() async {
     storage.close();
-    await Future.delayed(Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 500));
     File('test/storage_engine_test').deleteSync(); // delete the newly created storage file
   });
   tearDown(() async {
     try {
       await storage.destroy();
     } on Exception catch (e) {
-      print('\x1B[94m $e\x1B[0m');
+      if (kDebugMode) {
+        print('\x1B[94m $e\x1B[0m');
+      }
     }
   });
 

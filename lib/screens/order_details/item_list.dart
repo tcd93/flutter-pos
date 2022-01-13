@@ -36,7 +36,7 @@ class _Header extends StatelessWidget {
       child: ListTile(
         dense: true,
         title: Text(
-          '${Money.format(priceAfterDisc, symbol: true)}',
+          Money.format(priceAfterDisc, symbol: true),
           style: (order.discountPercent > 0)
               ? headline6Style.apply(color: Colors.green[400], fontWeightDelta: 7) //apply bold
               : headline6Style,

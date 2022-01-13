@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -12,7 +11,7 @@ class BottomNavBar extends StatelessWidget {
   final String? fromHeroTag;
   final TableModel order;
 
-  BottomNavBar(this.order, {required this.fromScreen, this.fromHeroTag});
+  const BottomNavBar(this.order, {required this.fromScreen, this.fromHeroTag});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +44,7 @@ class _CheckoutButton extends StatelessWidget {
   final String? fromHeroTag;
   final String fromScreen;
 
-  _CheckoutButton(this.order, {this.fromHeroTag, required this.fromScreen});
+  const _CheckoutButton(this.order, {this.fromHeroTag, required this.fromScreen});
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +68,7 @@ class _CheckoutButton extends StatelessWidget {
             }
           }
         },
-        child: Icon(Icons.print),
+        child: const Icon(Icons.print),
       ),
     );
   }
@@ -79,7 +78,7 @@ class _ApplyDiscountButton extends StatelessWidget {
   final TableModel order;
   final String fromScreen;
 
-  _ApplyDiscountButton(this.order, {required this.fromScreen});
+  const _ApplyDiscountButton(this.order, {required this.fromScreen});
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +91,7 @@ class _ApplyDiscountButton extends StatelessWidget {
           order.applyDiscount((100 - discountPct) / 100, supplier);
         }
       },
-      child: Icon(Icons.local_offer),
+      child: const Icon(Icons.local_offer),
     );
   }
 }
@@ -104,14 +103,14 @@ Future<double?> _popUpDiscount(BuildContext context, double totalPrice) {
 
   final pctCtrl = TextField(
     controller: percentageController,
-    keyboardType: TextInputType.numberWithOptions(signed: true, decimal: true),
+    keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
     inputFormatters: [NumberEL100Formatter()],
     textAlign: TextAlign.center,
     decoration: InputDecoration(labelText: AppLocalizations.of(context)!.details_discount),
   );
   final fixCtrl = TextField(
     controller: fixedPriceController,
-    keyboardType: TextInputType.numberWithOptions(signed: true, decimal: false),
+    keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: false),
     inputFormatters: [MoneyFormatter()],
     textAlign: TextAlign.center,
     decoration: InputDecoration(labelText: AppLocalizations.of(context)!.details_discount),
@@ -132,7 +131,7 @@ Future<double?> _popUpDiscount(BuildContext context, double totalPrice) {
               isDense: true,
               underline: const SizedBox(), // no underline
               items: [
-                DropdownMenuItem(value: '1', child: Center(child: Text('%'))),
+                const DropdownMenuItem(value: '1', child: Center(child: Text('%'))),
                 DropdownMenuItem(value: '2', child: Center(child: Text(Money.symbol))),
               ],
               onChanged: (String? v) {
@@ -167,13 +166,13 @@ Future<double?> _popUpDiscount(BuildContext context, double totalPrice) {
                 Navigator.pop<double>(context, discountPct);
               }
             },
-            child: Icon(Icons.check),
+            child: const Icon(Icons.check),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Icon(Icons.cancel),
+            child: const Icon(Icons.cancel),
           )
         ],
       );
@@ -190,7 +189,7 @@ Future<double?> _popUpPayment(BuildContext scaffoldCtx, double needsToPay) {
       return AlertDialog(
         content: TextField(
           controller: t,
-          keyboardType: TextInputType.numberWithOptions(signed: true),
+          keyboardType: const TextInputType.numberWithOptions(signed: true),
           inputFormatters: [MoneyFormatter()],
           textAlign: TextAlign.center,
           decoration: InputDecoration(
@@ -210,11 +209,11 @@ Future<double?> _popUpPayment(BuildContext scaffoldCtx, double needsToPay) {
                 Navigator.pop<double>(context, p.toDouble());
               }
             },
-            child: Icon(Icons.check),
+            child: const Icon(Icons.check),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Icon(Icons.cancel),
+            child: const Icon(Icons.cancel),
           ),
         ],
       );

@@ -7,15 +7,15 @@ class DatabaseConnectionInterface = SupplierRepository with MenuIO, JournalIO;
 
 /// Specific operations on table nodes, like inserting an order
 class OrderIO {
-  List<Order> get(DateTime day) => [];
+  Future<List<Order>> get(DateTime day) => Future.value([]);
 
-  List<Order> getRange(DateTime from, DateTime to) => [];
+  Future<List<Order>> getRange(DateTime from, DateTime to) => Future.value([]);
 
   /// Insert stringified version of [TableState] into database
   Future<void> insert(Order order) => Future.value();
 
   /// Soft deletes an order in specified date
-  Future<Order> delete(DateTime day, int orderID) => Future.value();
+  Future<void> delete(DateTime day, int orderID) => Future.value();
 }
 
 /// Operations with the journal entries
@@ -40,7 +40,9 @@ class MenuIO {
 class NodeIO {
   Future<dynamic> open() => Future.value();
 
-  void close() => null;
+  void close() {
+    return;
+  }
 
   /// Removes all items from database, should be wrapped in try/catch block
   Future<void> destroy() => Future.value();
@@ -50,9 +52,9 @@ class NodeIO {
 
   List<int> tableIDs() => [];
 
-  Future<List<int>> addTable(int tableID) => Future.value();
+  Future<List<int>> addTable(int tableID) => Future.value([]);
 
-  Future<List<int>> removeTable(int tableID) => Future.value();
+  Future<List<int>> removeTable(int tableID) => Future.value([]);
 }
 
 class CoordinateIO {

@@ -5,6 +5,7 @@
   "generic_no": "Không",
   "generic_confirm": "Xác nhận",
   "generic_cancel": "Hủy",
+  "generic_empty": "Không có dữ liệu",
   "lobby": "Sảnh",
   "lobby_drawerHeader": "POS",
   "lobby_report": "Báo cáo",

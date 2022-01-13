@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -57,7 +56,7 @@ class EditMenuScreenState extends State<EditMenuScreen> {
           children: [
             TextField(
               decoration: InputDecoration(
-                contentPadding: EdgeInsets.all(15.0),
+                contentPadding: const EdgeInsets.all(15.0),
                 hintText: AppLocalizations.of(context)?.edit_menu_filterHint,
               ),
               onChanged: (string) {
@@ -73,7 +72,7 @@ class EditMenuScreenState extends State<EditMenuScreen> {
             Expanded(
               child: ListView.builder(
                 physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(10.0),
                 controller: _scrollController,
                 itemCount: filteredDishes.length,
                 itemBuilder: (_, index) {
@@ -124,7 +123,7 @@ class _ListItem extends StatefulWidget {
   final VoidCallback onDelete;
   final Dish dish;
 
-  _ListItem(this.dish, {required this.onEdit, required this.onDelete, required this.onShow});
+  const _ListItem(this.dish, {required this.onEdit, required this.onDelete, required this.onShow});
 
   @override
   __ListItemState createState() => __ListItemState();
@@ -165,7 +164,7 @@ class __ListItemState extends State<_ListItem> {
         }
       },
       child: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -187,7 +186,7 @@ class __ListItemState extends State<_ListItem> {
 
     return Padding(
       key: _gk,
-      padding: EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8.0),
       child: FormContent(
         inputs: buildInputs(context, dishNameController, priceController, TextAlign.start),
         avatar: Avatar(

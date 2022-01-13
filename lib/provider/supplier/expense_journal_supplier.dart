@@ -48,8 +48,8 @@ class ExpenseSupplier extends ChangeNotifier {
   /// check daterange inclusive without regards to time
   bool _between(DateTime current, DateTimeRange range) {
     final curr = trunc(current);
-    return curr.isAfter(trunc(range.start).add(Duration(days: -1))) &&
-        current.isBefore(trunc(range.end).add(Duration(days: 1)));
+    return curr.isAfter(trunc(range.start).add(const Duration(days: -1))) &&
+        current.isBefore(trunc(range.end).add(const Duration(days: 1)));
   }
 
   DateTime trunc(DateTime d) => DateTime(d.year, d.month, d.day);

@@ -39,7 +39,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
 
   _CounterState() {
     animController = AnimationController(
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
   }
@@ -92,7 +92,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
         return Stack(
           alignment: Alignment.centerLeft,
           children: [
-            Container(
+            SizedBox(
               height: height - 20.0,
               child: Card(
                 margin: const EdgeInsets.only(left: height - 20.0),
@@ -110,7 +110,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                           child: ListTile(
                             minVerticalPadding: 2.0,
                             horizontalTitleGap: 2.0,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 2.0),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 2.0),
                             title: Text(
                               widget.title,
                               overflow: TextOverflow.ellipsis,
@@ -124,7 +124,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                             // decrease
                             heroTag: null,
                             onPressed: () => value = sub(animController, value),
-                            child: Icon(Icons.remove),
+                            child: const Icon(Icons.remove),
                           ),
                         ),
                         Expanded(
@@ -141,7 +141,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                             // increase
                             heroTag: null,
                             onPressed: () => value = add(animController, value),
-                            child: Icon(Icons.add),
+                            child: const Icon(Icons.add),
                           ),
                         ),
                         const SizedBox(width: 2.0),
@@ -156,7 +156,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
               width: height,
               margin: const EdgeInsets.only(left: 2.0),
               decoration: ShapeDecoration(
-                shape: CircleBorder(),
+                shape: const CircleBorder(),
                 shadows: [
                   BoxShadow(
                     color: Theme.of(context).primaryColorLight,

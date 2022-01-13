@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../../common/common.dart';
 import '../../provider/src.dart';
-import '../../provider/supplier/expense_journal_supplier.dart';
 
 class AddNewEntryButton extends StatelessWidget {
   @override
@@ -16,7 +15,7 @@ class AddNewEntryButton extends StatelessWidget {
           context.read<ExpenseSupplier>().addJournal(j);
         }
       },
-      child: Icon(Icons.add),
+      child: const Icon(Icons.add),
     );
   }
 }
@@ -50,7 +49,7 @@ Future<Journal?> _popUpNewJournal(BuildContext scaffoldCtx) {
               ),
               TextFormField(
                 controller: m,
-                keyboardType: TextInputType.numberWithOptions(signed: true),
+                keyboardType: const TextInputType.numberWithOptions(signed: true),
                 inputFormatters: [MoneyFormatter()],
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
@@ -94,11 +93,11 @@ Future<Journal?> _popUpNewJournal(BuildContext scaffoldCtx) {
                 );
               }
             },
-            child: Icon(Icons.check),
+            child: const Icon(Icons.check),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Icon(Icons.cancel),
+            child: const Icon(Icons.cancel),
           ),
         ],
       );

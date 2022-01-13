@@ -17,5 +17,9 @@ class Common {
 
   /// Create a string in the form of `YYYY-MM-DD HH24:MM`
   static String extractYYYYMMDD3(DateTime dateTime) =>
-      '${dateTime.year.toString()}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+      '${dateTime.year.toString()}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} ${extractTime(dateTime)}';
+
+  /// Create a string in the form of `HH24:MM`
+  static String extractTime(DateTime dateTime) =>
+      '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
 }

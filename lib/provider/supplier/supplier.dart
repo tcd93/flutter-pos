@@ -38,8 +38,4 @@ class Supplier extends ChangeNotifier {
     return;
   }
 
-  @override
-  void notifyListeners() {
-    super.notifyListeners();
-  }
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -23,7 +22,7 @@ class DraggableWidget extends StatefulWidget {
   /// Correctly scale feedback object when using this in a scaled view
   final TransformationController? transformController;
 
-  DraggableWidget({
+  const DraggableWidget({
     required this.child,
     this.x = 0,
     this.y = 0,

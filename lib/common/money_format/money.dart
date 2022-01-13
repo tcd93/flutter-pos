@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 
 @immutable
 class Money {
-  Money._();
+  const Money._();
 
   static final _fc = NumberFormat('#,###.##');
   static final _fcFull = NumberFormat.simpleCurrency();

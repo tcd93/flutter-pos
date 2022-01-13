@@ -12,18 +12,18 @@ class Avatar extends StatelessWidget {
   final ImageProvider? imgProvider;
   final void Function(Uint8List image)? onNew;
 
-  Avatar({this.imgProvider, this.onNew});
+  const Avatar({this.imgProvider, this.onNew});
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(
+        SizedBox(
           width: _width,
           height: _height,
           child: imageButton(),
         ),
-        Positioned(
+        const Positioned(
           bottom: 0.0,
           right: 0.0,
           child: Icon(Icons.edit, size: 16.0),
@@ -41,12 +41,12 @@ class Avatar extends StatelessWidget {
         }
       },
       color: Colors.transparent,
-      padding: EdgeInsets.all(0.0),
+      padding: const EdgeInsets.all(0.0),
       shape: const CircleBorder(
         side: BorderSide(width: 3.0, color: Colors.black38),
       ),
       child: CircleAvatar(
-        backgroundImage: imgProvider ?? AssetImage('assets/coffee.png'),
+        backgroundImage: imgProvider ?? const AssetImage('assets/coffee.png'),
         radius: _width,
       ),
     );
@@ -54,7 +54,7 @@ class Avatar extends StatelessWidget {
 }
 
 Future<Uint8List?> _getImage() async {
-  final pickedFile = await ImagePicker().getImage(
+  final pickedFile = await ImagePicker().pickImage(
     source: ImageSource.gallery,
     maxHeight: _height,
     maxWidth: _width,

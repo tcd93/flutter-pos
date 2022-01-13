@@ -8,18 +8,9 @@ class HistorySupplierByDate extends HistoryOrderSupplier {
   HistorySupplierByDate({OrderIO? database, DateTimeRange? range})
       : super(database: database, range: range);
 
-  Future<Order?> ignoreOrder(Order order, int index) async {
-    _excludeOrderFromTotal(order);
-    final ord = await database?.delete(order.checkoutTime, order.id);
-    if (ord != null) {
-      data[index] = ord;
-    }
-    return ord;
-  }
-
-  double _excludeOrderFromTotal(Order order) {
-    sumAmount -= (order.totalPrice * order.discountRate);
+  /// Mark an order from history list as 'ignored'
+  void ignoreOrder(Order order) async {
+    await database?.delete(order.checkoutTime, order.id);
     notifyListeners();
-    return sumAmount;
   }
 }

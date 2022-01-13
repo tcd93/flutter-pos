@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 import '../../common/common.dart';
@@ -25,7 +24,7 @@ class JournalCard extends StatelessWidget {
           subtitle: Text(Common.extractYYYYMMDD3(journal.dateTime)),
           trailing: Text(
             Money.format(journal.amount),
-            style: TextStyle(
+            style: const TextStyle(
               letterSpacing: 3,
               fontSize: 20,
             ),

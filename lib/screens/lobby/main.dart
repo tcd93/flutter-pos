@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -24,8 +23,8 @@ class LobbyScreen extends StatelessWidget {
                   showBottomSheetMenu(context);
                 },
                 minWidth: MediaQuery.of(context).size.width / 2,
-                shape: CustomShape(side: CustomShapeSide.left),
-                child: Icon(Icons.menu),
+                shape: const CustomShape(side: CustomShapeSide.left),
+                child: const Icon(Icons.menu),
               ),
             ),
             Tooltip(
@@ -33,8 +32,8 @@ class LobbyScreen extends StatelessWidget {
               child: MaterialButton(
                 onPressed: () => Navigator.pushNamed(context, '/edit-menu'),
                 minWidth: MediaQuery.of(context).size.width / 2,
-                shape: CustomShape(side: CustomShapeSide.right),
-                child: Icon(Icons.menu_book_sharp),
+                shape: const CustomShape(side: CustomShapeSide.right),
+                child: const Icon(Icons.menu_book_sharp),
               ),
             )
           ],

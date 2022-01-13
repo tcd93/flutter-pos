@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 @immutable
@@ -57,7 +56,7 @@ class Dish {
         ? MemoryImage(_imageBytes!)
         : _asset != null
             ? AssetImage(_asset!)
-            : AssetImage('assets/coffee.png')) as ImageProvider;
+            : const AssetImage('assets/coffee.png')) as ImageProvider;
   }
 
   Map<String, dynamic> toJson() {

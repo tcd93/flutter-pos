@@ -6,20 +6,12 @@ import '../src.dart';
 
 /// Second tab - report by line chart
 class HistorySupplierByLine extends HistoryOrderSupplier {
-  /// If ranges over multiple days, then group by day: [['YYYY/MM/DD', value]].
-  /// If ranges over one day, the group by time: [['HH24:MM', value]]
-  List<List<dynamic>> groupedData = [];
-
   HistorySupplierByLine({OrderIO? database, DateTimeRange? range})
-      : super(database: database, range: range) {
-    groupedData = _group(data);
-  }
+      : super(database: database, range: range);
 
   HistorySupplierByLine update(HistorySupplierByDate firstTab) {
     selectedRange = firstTab.selectedRange;
-    data = firstTab.data;
     discountFlag = firstTab.discountFlag;
-    groupedData = _group(data);
     return this;
   }
 
@@ -29,9 +21,13 @@ class HistorySupplierByLine extends HistoryOrderSupplier {
         '${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
-  /// Returns a list of [groupedData], the outer list is for indexing the X axis (time).
+  /// Returns a list of grouped orders:
+  ///   - If ranges over multiple days, then group by day: [['YYYY/MM/DD', value]]
+  ///   - If ranges over one day, the group by time: [['HH24:MM', value]]
+  ///
+  /// The outer list is for indexing the X axis (time).
   /// The nested inner list is for marking the display titles and values
-  List<List<dynamic>> _group(List<Order> orders) {
+  List<List<dynamic>> group(Iterable<Order> orders) {
     return orders.fold(
       [],
       (obj, o) {

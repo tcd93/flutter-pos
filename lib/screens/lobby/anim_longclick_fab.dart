@@ -103,7 +103,7 @@ class _AnimatedLongClickableFABState extends State<AnimatedLongClickableFAB>
               valueController.reset();
               colorController.reset();
             },
-            child: Icon(Icons.add),
+            child: const Icon(Icons.add),
           ),
         ),
       ],

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/database_factory.dart';
@@ -24,17 +25,21 @@ void main() {
     try {
       await storage.destroy();
     } on Exception catch (e) {
-      print('\x1B[94m $e\x1B[0m');
+      if (kDebugMode) {
+        print('\x1B[94m $e\x1B[0m');
+      }
     }
   });
 
   tearDownAll(() async {
     storage.close();
-    await Future.delayed(Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 500));
     try {
       File('test/menu_test').deleteSync();
     } on Exception catch (e) {
-      print('\x1B[94mtearDownAll (test/menu-test): $e\x1B[0m');
+      if (kDebugMode) {
+        print('\x1B[94mtearDownAll (test/menu-test): $e\x1B[0m');
+      }
     }
   });
 

@@ -50,7 +50,9 @@ class Order extends StateObject {
   Order.fromJson(Map<String, dynamic> json)
       : tableID = json['tableID'] ?? -1,
         _id = json['orderID'] ?? -1,
-        isDeleted = json['isDeleted'] ?? false,
+        isDeleted = json['isDeleted'] is bool
+            ? json['isDeleted']
+            : bool.fromEnvironment(json['isDeleted'] ?? 'false', defaultValue: false),
         super.create(
           LineItemList.fromJson(json['lineItems']),
           json['discountRate'],
