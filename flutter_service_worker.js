@@ -14,22 +14,22 @@ const RESOURCES = {
 "assets/assets/fried_chicken-with_with_wit_egg.png": "071da3cc59a90669087debcdd762e8be",
 "assets/assets/vegan_noodles.png": "5dbcc623b0932869ba9d239efd5244fd",
 "assets/assets/rice_noodles.png": "ffbb2e87d2bf0dfa92bb26103a1cf67c",
-"assets/NOTICES": "317574fd181ab5dc7eaea3161e3ec978",
+"assets/NOTICES": "dfd741160e3970273c505bf29d7570c1",
 "assets/google_fonts/RobotoCondensed-Bold.ttf": "cbd4e701269338259ee0b39a0b768167",
 "assets/google_fonts/RobotoCondensed-Regular.ttf": "52ee8b598488b1ffbaa93e50cbd6a2f4",
 "assets/google_fonts/Eczar-Regular.ttf": "c7ea37b1332eb3de9f29eaaf48152516",
 "assets/google_fonts/Eczar-SemiBold.ttf": "7d2b9b43ddc45f11f9cfddd5a17dcbd2",
 "assets/FontManifest.json": "7b2a36307916a9721811788013e65289",
 "assets/fonts/MaterialIcons-Regular.otf": "4e6447691c9509f7acdbf8a931a85ca1",
-"index.html": "b7be550368eab66ae50713d8b16c5eeb",
-"/": "b7be550368eab66ae50713d8b16c5eeb",
+"index.html": "f83e916d5ddeaf968e00387312179cec",
+"/": "f83e916d5ddeaf968e00387312179cec",
 "version.json": "167fa0f70b5eab43ed9a9dd1d81af947",
 "favicon.png": "5dcef449791fa27946b3d35ad8803796",
-"main.dart.js": "c75204d8ed9f5c4dd05028505ce61dc5",
-"canvaskit/profiling/canvaskit.js": "3783918f48ef691e230156c251169480",
-"canvaskit/profiling/canvaskit.wasm": "6d1b0fc1ec88c3110db88caa3393c580",
-"canvaskit/canvaskit.js": "62b9906717d7215a6ff4cc24efbd1b5c",
-"canvaskit/canvaskit.wasm": "b179ba02b7a9f61ebc108f82c5a1ecdb"
+"main.dart.js": "aaec4013b1148504f890f42b47f03eaa",
+"canvaskit/profiling/canvaskit.js": "f3bfccc993a1e0bfdd3440af60d99df4",
+"canvaskit/profiling/canvaskit.wasm": "a9610cf39260f60fbe7524a785c66101",
+"canvaskit/canvaskit.js": "43fa9e17039a625450b6aba93baf521e",
+"canvaskit/canvaskit.wasm": "04ed3c745ff1dee16504be01f9623498"
 };
 
 // The application shell files that are downloaded before a service worker can
