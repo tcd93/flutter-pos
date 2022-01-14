@@ -49,6 +49,7 @@ dependencies:
       url: git://github.com/tcd93/super_tooltip
       ref: master
   fl_chart: ^0.41.0
+  sqflite:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -59,6 +60,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints:
   flutter_launcher_icons: ^0.9.0
+  sqflite_common_ffi:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
