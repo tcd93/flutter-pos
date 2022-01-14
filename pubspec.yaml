@@ -28,6 +28,7 @@ dependencies:
   intl: ^0.17.0
   animations: ^2.0.0
   provider: ^6.0.0
+  sqflite:
   path:
   localstorage:
     git:
@@ -49,7 +50,6 @@ dependencies:
       url: git://github.com/tcd93/super_tooltip
       ref: master
   fl_chart: ^0.41.0
-  sqflite:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

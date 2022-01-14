@@ -165,11 +165,6 @@ void main() {
       // delete the newly created storage file
     });
 
-    test('Confirm data access normal', () async {
-      final nextInt = await storage.nextUID();
-      expect(nextInt, 3);
-    });
-
     testWidgets(
       'Should have 2 line in History page, price = 180,000',
       (tester) async {
@@ -261,11 +256,6 @@ void main() {
       // delete the newly created storage file
     });
 
-    test('Confirm data access normal', () async {
-      final nextInt = await storage.nextUID();
-      expect(nextInt, 2);
-    });
-
     test('Should be able to set isDeleted to true', () async {
       await storage.delete(DateTime.parse('2020-11-12'), 1);
 
@@ -343,11 +333,6 @@ void main() {
         }
       }
       // delete the newly created storage file
-    });
-
-    test('Confirm data access normal', () async {
-      final nextInt = await storage.nextUID();
-      expect(nextInt, 4);
     });
 
     testWidgets(

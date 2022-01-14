@@ -47,9 +47,6 @@ class NodeIO {
   /// Removes all items from database, should be wrapped in try/catch block
   Future<void> destroy() => Future.value();
 
-  /// Get next incremental unique ID
-  Future<int> nextUID() => Future.value(-1);
-
   List<int> tableIDs() => [];
 
   Future<List<int>> addTable(int tableID) => Future.value([]);

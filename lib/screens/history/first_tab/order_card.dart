@@ -45,15 +45,7 @@ class OrderCard extends StatelessWidget {
                     },
               onTap: () {
                 Navigator.pushNamed(context, '/order-details', arguments: {
-                  'state': TableModel.withOrder(
-                    Order.create(
-                      tableID: order.tableID,
-                      lineItems: order.lineItems,
-                      orderID: order.id,
-                      checkoutTime: order.checkoutTime,
-                      discountRate: order.discountRate,
-                    ),
-                  ),
+                  'state': TableModel.withOrder(order),
                   'from': 'history',
                 });
               },

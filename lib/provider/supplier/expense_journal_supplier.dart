@@ -26,7 +26,6 @@ class ExpenseSupplier extends ChangeNotifier {
   /// ones with older date to not confuse users. If the list is refreshed again then it would not
   /// be shown again
   void addJournal(Journal journal) {
-    assert(journal.id >= 0);
     _list = [..._list, journal]; // don't use .add() because it does not work with 'select'
     _sumAmount = _calcTotalAmount(data);
     database?.insertJournal(journal);

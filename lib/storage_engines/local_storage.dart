@@ -33,17 +33,22 @@ class LocalStorage implements DatabaseConnectionInterface {
   }
 
   @override
-  Future<void> insert(Order order) {
-    if (order.id < 0) throw 'Invalid order ID';
+  Future<void> insert(Order order) async {
+    if (order.id >= 0) throw 'This is not a new order, id = ${order.id}';
+
     final checkoutTime = Common.extractYYYYMMDD(order.checkoutTime);
+    final orderWithID = {
+      ...order.toJson(),
+      ...{'orderID': await _nextUID()},
+    };
 
     // current orders of the day that have been saved
     // if this is first order then create it as an List
     var orders = ls.getItem(checkoutTime);
     if (orders != null) {
-      orders.add(order.toJson());
+      orders.add(orderWithID);
     } else {
-      orders = [order.toJson()];
+      orders = [orderWithID];
     }
     return ls.setItem(checkoutTime, orders);
   }
@@ -87,8 +92,7 @@ class LocalStorage implements DatabaseConnectionInterface {
 
 //---Node---
 
-  @override
-  Future<int> nextUID() async {
+  Future<int> _nextUID() async {
     // if empty, starts from -1
     int current = ls.getItem('order_id_highkey') ?? -1;
     await ls.setItem('order_id_highkey', ++current);
@@ -153,15 +157,18 @@ class LocalStorage implements DatabaseConnectionInterface {
   }
 
   @override
-  Future<void> insertJournal(Journal journal) {
-    if (journal.id < 0) throw 'Invalid order ID';
+  Future<void> insertJournal(Journal journal) async {
     final dateTime = Common.extractYYYYMMDD(journal.dateTime);
+    final journalWithID = {
+      ...journal.toJson(),
+      ...{'journalID': await _nextUID()}, // too lazy to make new key...
+    };
 
     var journals = ls.getItem('j$dateTime');
     if (journals != null) {
-      journals.add(journal.toJson());
+      journals.add(journalWithID);
     } else {
-      journals = [journal.toJson()];
+      journals = [journalWithID];
     }
     return ls.setItem('j$dateTime', journals);
   }

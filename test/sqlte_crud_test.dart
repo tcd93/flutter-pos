@@ -50,6 +50,21 @@ void main() {
 
   group('Insert', () {
     setUp(() async {
+      order = Order.create(
+        tableID: 0,
+        checkoutTime: checkOutTime,
+        lineItems: LineItemList([
+          LineItem(
+            associatedDish: Dish(0, 'Test Dish 0', 5000),
+            quantity: 1,
+          ),
+          LineItem(
+            associatedDish: Dish(1, 'Test Dish 1', 6000),
+            quantity: 2,
+          ),
+        ]),
+      );
+
       expect(await sqlite.open(), true);
     });
 

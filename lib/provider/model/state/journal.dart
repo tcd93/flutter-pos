@@ -2,25 +2,27 @@ import 'package:flutter/foundation.dart';
 
 @immutable
 class Journal {
-  final int id;
+  final int _id; // currently of no use...
   final DateTime dateTime;
   final String entry;
   final double amount;
 
-  Journal({required this.id, required this.entry, DateTime? entryTime, double? amount})
-      : assert(id >= 0),
-        dateTime = entryTime ?? DateTime.now(),
-        amount = amount ?? 0;
+  int get id => _id;
+
+  Journal({required this.entry, DateTime? entryTime, double? amount})
+      : dateTime = entryTime ?? DateTime.now(),
+        amount = amount ?? 0,
+        _id = -1;
 
   Journal.fromJson(Map<String, dynamic> json)
-      : id = json['journalID'] ?? -1,
+      : _id = json['journalID'] ?? -1,
         dateTime = DateTime.parse(json['dateTime']),
         entry = json['entry'],
         amount = json['amount'];
 
   Map<String, dynamic> toJson() {
     return {
-      'journalID': id,
+      'journalID': _id,
       'dateTime': dateTime.toString(),
       'entry': entry,
       'amount': amount,
@@ -30,7 +32,7 @@ class Journal {
   @override
   String toString() {
     return '{ '
-        'journalID: $id, '
+        'journalID: $_id, '
         'dateTime: ${dateTime.toString()}, '
         'entry: $entry, '
         'amount: $amount '

@@ -95,8 +95,6 @@ class SQLite /*implements DatabaseConnectionInterface*/ {
 
   @override
   Future<void> insert(Order order) {
-    if (order.id < 0) throw 'Invalid order ID';
-
     return db.transaction((txn) async {
       final rowID = await txn.insert(
         orderTable,

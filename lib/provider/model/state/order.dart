@@ -6,10 +6,6 @@ class Order extends StateObject {
 
   /// The incremental unique ID (for reporting), should be generated when [checkout]
   int get id => _id;
-  set id(int orderID) {
-    assert(orderID >= 0);
-    _id = orderID;
-  }
 
   /// The associated table id
   final int tableID;
@@ -34,7 +30,6 @@ class Order extends StateObject {
   Order.create({
     required this.tableID,
     required LineItemList lineItems,
-    int orderID = -1,
     DateTime? checkoutTime,
     double discountRate = 1.0,
     this.status = TableStatus.empty,
@@ -44,12 +39,11 @@ class Order extends StateObject {
     super.lineItems = lineItems;
     super.checkoutTime = checkoutTime ?? DateTime.parse('1999-01-01');
     super.discountRate = discountRate;
-    if (orderID > -1) id = orderID;
   }
 
   Order.fromJson(Map<String, dynamic> json)
       : tableID = json['tableID'] ?? -1,
-        _id = json['orderID'] ?? -1,
+        _id = json['orderID'] ?? json['ID'] ?? -1,
         isDeleted = json['isDeleted'] is bool
             ? json['isDeleted']
             : bool.fromEnvironment(json['isDeleted'] ?? 'false', defaultValue: false),
@@ -61,9 +55,9 @@ class Order extends StateObject {
 
   Map<String, dynamic> toJson() {
     return {
+      'orderID': _id,
       'tableID': tableID,
       'lineItems': activeLines.toJson(),
-      'orderID': id,
       'checkoutTime': checkoutTime.toString(),
       'discountRate': discountRate,
       'isDeleted': isDeleted,
