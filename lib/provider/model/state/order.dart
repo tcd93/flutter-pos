@@ -66,4 +66,7 @@ class Order extends StateObject {
 
   @override
   String toString() => toJson().toString();
+
+  double saleAmount(bool withDiscount) =>
+      isDeleted == true ? 0 : totalPrice * (withDiscount ? discountRate : 1.0);
 }

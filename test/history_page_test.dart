@@ -71,7 +71,7 @@ void main() {
         await tester.pumpWidget(MaterialApp(
           builder: (_, __) => ChangeNotifierProvider(
             create: (_) {
-              return HistorySupplierByDate(
+              return HistoryOrderSupplier(
                 database: storage,
                 range: DateTimeRange(start: checkoutTime, end: checkoutTime),
               );
@@ -172,7 +172,7 @@ void main() {
         await tester.pumpWidget(MaterialApp(
           builder: (_, __) => ChangeNotifierProvider(
             create: (_) {
-              return HistorySupplierByDate(
+              return HistoryOrderSupplier(
                 database: storage,
                 range: DateTimeRange(
                     start: checkoutTime, end: checkoutTime.add(const Duration(days: 1))),
@@ -341,7 +341,7 @@ void main() {
         await tester.pumpWidget(MaterialApp(
           builder: (_, __) => ChangeNotifierProvider(
             create: (_) {
-              return HistorySupplierByDate(
+              return HistoryOrderSupplier(
                 database: storage,
                 range: DateTimeRange(start: checkoutTime, end: checkoutTime), //view by same day,
               );
@@ -372,7 +372,7 @@ void main() {
     testWidgets(
       'Exclude deleted item in the summary price (appbar)',
       (tester) async {
-        final provider = HistorySupplierByDate(
+        final provider = HistoryOrderSupplier(
           database: storage,
           range: DateTimeRange(start: checkoutTime, end: checkoutTime), //view by same day,
         );

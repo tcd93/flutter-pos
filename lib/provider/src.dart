@@ -11,6 +11,4 @@ export 'model/state/status.dart';
 export 'supplier/supplier.dart';
 export 'supplier/menu_supplier.dart';
 export 'supplier/history_order_supplier.dart';
-export 'supplier/history_supplier_by_date.dart';
-export 'supplier/history_supplier_by_line.dart';
 export 'supplier/expense_journal_supplier.dart';

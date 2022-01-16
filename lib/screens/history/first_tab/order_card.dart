@@ -7,13 +7,19 @@ import '../../../provider/src.dart';
 import '../../popup_del.dart';
 
 class OrderCard extends StatelessWidget {
-  final Order order;
+  final int index;
 
-  const OrderCard(this.order);
+  const OrderCard(this.index);
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<HistorySupplierByDate>(context);
+    var order = context.select<HistoryOrderSupplier, Order>(
+      (HistoryOrderSupplier supplier) => supplier.orders.elementAt(index),
+    );
+
+    var discountFlag = context.select<HistoryOrderSupplier, bool>(
+      (HistoryOrderSupplier supplier) => supplier.discountFlag,
+    );
     var del = order.isDeleted;
     return Stack(
       alignment: Alignment.center,
@@ -40,7 +46,7 @@ class OrderCard extends StatelessWidget {
                             Text(AppLocalizations.of(context)?.history_delPopUpTitle ?? 'Ignore?'),
                       );
                       if (result == true) {
-                        provider.ignoreOrder(order);
+                        context.read<HistoryOrderSupplier>().ignoreOrder(order);
                       }
                     },
               onTap: () {
@@ -50,7 +56,7 @@ class OrderCard extends StatelessWidget {
                 });
               },
               trailing: Text(
-                Money.format(provider.saleAmountOf(order)),
+                Money.format(order.saleAmount(discountFlag)),
                 style: TextStyle(
                   letterSpacing: 3,
                   color: del == true ? Colors.grey[200]!.withOpacity(0.5) : Colors.lightGreen,

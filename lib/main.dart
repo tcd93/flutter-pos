@@ -89,17 +89,8 @@ class PosApp extends StatelessWidget {
             return routeBuilder(
               DefaultTabController(
                 length: 2,
-                child: MultiProvider(
-                  providers: [
-                    // TODO: restructure to use parent model HistoryOrderSupplier
-                    ChangeNotifierProvider(
-                      create: (_) => HistorySupplierByDate(database: _storage),
-                    ),
-                    ChangeNotifierProxyProvider<HistorySupplierByDate, HistorySupplierByLine>(
-                      create: (_) => HistorySupplierByLine(database: _storage),
-                      update: (_, firstTab, lineChart) => lineChart!..update(firstTab),
-                    ),
-                  ],
+                child: ChangeNotifierProvider(
+                  create: (_) => HistoryOrderSupplier(database: _storage),
                   child: HistoryScreen(),
                 ),
               ),

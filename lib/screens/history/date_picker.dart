@@ -9,7 +9,7 @@ class DatePicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () async {
-        final provider = context.read<HistorySupplierByDate>();
+        final provider = context.read<HistoryOrderSupplier>();
         final range = provider.selectedRange;
         final dates = await date_range_picker.showDatePicker(
           context: context,
