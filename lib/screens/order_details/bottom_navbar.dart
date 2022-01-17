@@ -87,8 +87,7 @@ class _ApplyDiscountButton extends StatelessWidget {
       onPressed: () async {
         final discountPct = await _popUpDiscount(context, order.totalPricePreDiscount);
         if (discountPct != null) {
-          final supplier = context.read<Supplier>();
-          order.applyDiscount((100 - discountPct) / 100, supplier);
+          context.read<Supplier>().setTableDiscount(order, (100 - discountPct) / 100);
         }
       },
       child: const Icon(Icons.local_offer),

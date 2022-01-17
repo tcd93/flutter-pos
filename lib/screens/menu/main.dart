@@ -41,17 +41,16 @@ class MenuScreen extends StatelessWidget {
                 model.putIfAbsent(dish).quantity,
                 onIncrement: (_) {
                   lineItem.addOne();
-
-                  model.setTableStatus(TableStatus.incomplete, supplier);
+                  supplier.setTableStatus(model, TableStatus.incomplete);
                 },
                 onDecrement: (_) {
                   lineItem.substractOne();
                   // If there are not a single item in this order left,
                   // Then set status to "empty" to disable the [_ConfirmButton]
                   if (model.putIfAbsent(dish).quantity == 0 && model.totalMenuItemQuantity == 0) {
-                    model.setTableStatus(TableStatus.empty, supplier);
+                    supplier.setTableStatus(model, TableStatus.empty);
                   } else {
-                    model.setTableStatus(TableStatus.incomplete, supplier);
+                    supplier.setTableStatus(model, TableStatus.incomplete);
                   }
                 },
                 imgProvider: dish.imgProvider,
@@ -84,8 +83,7 @@ class _ConfirmButton extends StatelessWidget {
               minWidth: MediaQuery.of(context).size.width / 2,
               onPressed: status == TableStatus.incomplete
                   ? () {
-                      final supplier = context.read<Supplier>();
-                      model.setTableStatus(TableStatus.occupied, supplier);
+                      context.read<Supplier>().setTableStatus(model, TableStatus.occupied);
                       model.memorizePreviousState();
                       Navigator.pop(context); // Go back to Lobby Screen
                     }
@@ -116,8 +114,7 @@ class _UndoButton extends StatelessWidget {
             minWidth: MediaQuery.of(context).size.width / 2,
             onPressed: status == TableStatus.incomplete
                 ? () {
-                    final supplier = context.read<Supplier>();
-                    model.revert(supplier);
+                    context.read<Supplier>().revert(model);
                   }
                 : null,
             child: const Icon(Icons.undo),

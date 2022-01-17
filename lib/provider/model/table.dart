@@ -1,5 +1,3 @@
-// ignore_for_file: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import '../../storage_engines/connection_interface.dart';
@@ -25,13 +23,6 @@ class TableModel {
         _coord = coord ?? Coordinate(0, 0);
 
   TableStatus get status => currentOrder.status;
-
-  void setTableStatus(TableStatus newStatus, [ChangeNotifier? notifier]) {
-    if (newStatus != _s.first.status) {
-      _s.replaceFirst(Order.create(fromBase: currentOrder, status: newStatus));
-      notifier?.notifyListeners();
-    }
-  }
 
   LineItem putIfAbsent(Dish dish) {
     var s = currentOrder.lineItems.firstWhere(
@@ -62,10 +53,9 @@ class TableModel {
   }
 
   /// Restore to last "commit" (called by [memorizePreviousState])
-  void revert([ChangeNotifier? notifier]) {
+  void revert() {
     final copy = Order.create(fromBase: currentOrder);
     _s.slideRight(copy);
-    notifier?.notifyListeners();
   }
 
   Future<void> _printReceipt(BuildContext context, [double? customerPayAmount]) async {
@@ -90,10 +80,14 @@ class TableModel {
     _clear();
   }
 
-  double applyDiscount(double discountRate, ChangeNotifier? notifier) {
+  void applyStatus(TableStatus newStatus) {
+    if (newStatus == currentOrder.status) return;
+    _s.replaceFirst(Order.create(fromBase: currentOrder, status: newStatus));
+  }
+
+  double applyDiscount(double discountRate) {
     assert(0 < discountRate && discountRate <= 1);
     _s.replaceFirst(Order.create(fromBase: currentOrder, discountRate: discountRate));
-    notifier?.notifyListeners();
     return totalPriceAfterDiscount;
   }
 

@@ -45,4 +45,23 @@ class Supplier extends ChangeNotifier {
     ));
     notifyListeners();
   }
+
+  void setTableStatus(TableModel table, TableStatus newStatus) {
+    table.applyStatus(newStatus);
+    notifyListeners();
+  }
+
+  void setTableDiscount(TableModel table, double discount) {
+    table.applyDiscount(discount);
+    notifyListeners();
+  }
+
+  void revert(TableModel table) {
+    table.revert();
+    notifyListeners();
+  }
+
+  void commit(TableModel table) {
+    table.memorizePreviousState();
+  }
 }
