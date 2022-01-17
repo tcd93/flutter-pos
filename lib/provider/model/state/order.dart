@@ -1,45 +1,52 @@
+import 'package:flutter/foundation.dart';
+
 import '../../src.dart';
 
 /// an data class to encapsulate the state of a node
+@immutable
 class Order extends StateObject {
-  int _id = -1;
-
-  /// The incremental unique ID (for reporting), should be generated when [checkout]
+  final int _id;
   int get id => _id;
 
   /// The associated table id
   final int tableID;
 
-  TableStatus status = TableStatus.empty;
+  final TableStatus status;
 
   /// "soft-deleted", interactable only in [HistoryScreen]
-  bool isDeleted;
+  final bool isDeleted;
 
-  Order(this.tableID) : isDeleted = false;
-
-  /// copy to a new instance (except [orderID])
-  Order.copy(Order base)
-      : tableID = base.tableID,
-        isDeleted = base.isDeleted,
-        status = base.status {
-    lineItems = LineItemList.copy(base.lineItems);
-    checkoutTime = base.checkoutTime;
-    discountRate = base.discountRate;
-  }
-
+  /// copy to a new instance
   Order.create({
+    int? tableID,
+    int? id,
+    bool? isDeleted,
+    TableStatus? status,
+    LineItemList? lineItems,
+    double? discountRate,
+    DateTime? checkoutTime,
+    Order? fromBase,
+  })  : tableID = tableID ?? fromBase?.tableID ?? -1,
+        _id = id ?? fromBase?.id ?? -1,
+        isDeleted = isDeleted ?? fromBase?.isDeleted ?? false,
+        status = status ?? fromBase?.status ?? TableStatus.empty,
+        super.create(
+          LineItemList.copy(lineItems ?? fromBase?.lineItems ?? LineItemList()),
+          discountRate ?? fromBase?.discountRate ?? 1.0,
+          checkoutTime ?? fromBase?.checkoutTime,
+        );
+
+  Order({
+    required int id,
     required this.tableID,
     required LineItemList lineItems,
     DateTime? checkoutTime,
     double discountRate = 1.0,
     this.status = TableStatus.empty,
     this.isDeleted = false,
-  }) {
-    assert(discountRate > 0.0 && discountRate <= 1.0);
-    super.lineItems = lineItems;
-    super.checkoutTime = checkoutTime ?? DateTime.parse('1999-01-01');
-    super.discountRate = discountRate;
-  }
+  })  : _id = id,
+        assert(discountRate > 0.0 && discountRate <= 1.0),
+        super.create(LineItemList.copy(lineItems), discountRate, checkoutTime);
 
   Order.fromJson(Map<String, dynamic> json)
       : tableID = json['tableID'] ?? -1,
@@ -47,6 +54,7 @@ class Order extends StateObject {
         isDeleted = json['isDeleted'] is bool
             ? json['isDeleted']
             : bool.fromEnvironment(json['isDeleted'] ?? 'false', defaultValue: false),
+        status = TableStatus.empty,
         super.create(
           LineItemList.fromJson(json['lineItems']),
           json['discountRate'],

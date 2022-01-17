@@ -10,36 +10,35 @@ import '../src.dart';
 @immutable
 class TableModel {
   final int id;
-
-  final SlidingWindow<Order> _s;
   final Coordinate _coord;
 
+  final SlidingWindow<Order> _s;
+  Order get currentOrder => _s.first;
+
   TableModel(this.id, [Coordinate? coord])
-      : _s = SlidingWindow(2, [Order(id), Order(id)]),
+      : _s = SlidingWindow([Order.create(tableID: id), Order.create(tableID: id)]),
         _coord = coord ?? Coordinate(0, 0);
 
-  TableModel.withOrder(Order mockState, [Coordinate? coord])
-      : _s = SlidingWindow(2, [mockState, Order.copy(mockState)]),
-        id = mockState.tableID,
+  TableModel.withOrder(Order order, [Coordinate? coord])
+      : _s = SlidingWindow([Order.create(fromBase: order), Order.create(fromBase: order)]),
+        id = order.tableID,
         _coord = coord ?? Coordinate(0, 0);
 
-  TableStatus get status => _s.current.status;
+  TableStatus get status => currentOrder.status;
 
   void setTableStatus(TableStatus newStatus, [ChangeNotifier? notifier]) {
-    if (newStatus != _s.current.status) {
-      _s.current.status = newStatus;
+    if (newStatus != _s.first.status) {
+      _s.replaceFirst(Order.create(fromBase: currentOrder, status: newStatus));
       notifier?.notifyListeners();
     }
   }
 
-  Order get currentOrder => _s.current;
-
   LineItem putIfAbsent(Dish dish) {
-    var s = _s.current.lineItems.firstWhere(
+    var s = currentOrder.lineItems.firstWhere(
       (li) => li.associatedDish == dish,
       orElse: () {
         final newLine = LineItem(associatedDish: dish);
-        _s.current.lineItems.add(newLine);
+        currentOrder.lineItems.add(newLine);
         return newLine;
       },
     );
@@ -47,35 +46,35 @@ class TableModel {
   }
 
   /// Get a list of current items with quantity > 0
-  LineItemList get activeLineItems => _s.current.activeLines;
+  LineItemList get activeLineItems => currentOrder.activeLines;
 
   int get totalMenuItemQuantity => activeLineItems.fold(0, (p, c) => p + c.quantity);
 
-  double get totalPricePreDiscount => _s.current.totalPrice;
+  double get totalPricePreDiscount => currentOrder.totalPrice;
 
-  double get totalPriceAfterDiscount => _s.current.totalPrice * _s.current.discountRate;
+  double get totalPriceAfterDiscount => currentOrder.totalPrice * currentOrder.discountRate;
 
-  double get discountPercent => (1 - _s.current.discountRate) * 100;
+  double get discountPercent => (1 - currentOrder.discountRate) * 100;
 
   void memorizePreviousState() {
-    final copy = Order.copy(_s.current);
-    _s.slideRight(copy);
+    final copy = Order.create(fromBase: currentOrder);
+    _s.slideLeft(copy);
   }
 
   /// Restore to last "commit" (called by [memorizePreviousState])
   void revert([ChangeNotifier? notifier]) {
-    final copy = Order.copy(_s.first);
-    _s.slideLeft(copy);
+    final copy = Order.create(fromBase: currentOrder);
+    _s.slideRight(copy);
     notifier?.notifyListeners();
   }
 
-  //TODO: implement store name, set it in the receipt header
   Future<void> _printReceipt(BuildContext context, [double? customerPayAmount]) async {
-    return Printer.print(context, _s.current, customerPayAmount);
+    return Printer.print(context, currentOrder, customerPayAmount);
   }
 
   void _clear() {
-    _s.lst = [Order(id), Order(id)];
+    _s.slideRight(Order.create(tableID: -1));
+    _s.slideRight(Order.create(tableID: -1));
   }
 
   /// print receipt (not for Web), then clear the node's state
@@ -93,7 +92,7 @@ class TableModel {
 
   double applyDiscount(double discountRate, ChangeNotifier? notifier) {
     assert(0 < discountRate && discountRate <= 1);
-    _s.current.discountRate = discountRate;
+    _s.replaceFirst(Order.create(fromBase: currentOrder, discountRate: discountRate));
     notifier?.notifyListeners();
     return totalPriceAfterDiscount;
   }

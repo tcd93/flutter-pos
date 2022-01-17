@@ -1,5 +1,8 @@
+import 'package:flutter/foundation.dart';
+
 import '../src.dart';
 
+@immutable
 class Menu extends Iterable<Dish> {
   late final List<Dish> _list;
 

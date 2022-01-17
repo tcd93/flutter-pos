@@ -1,5 +1,8 @@
+import 'package:flutter/foundation.dart';
+
 import '../src.dart';
 
+@immutable
 class LineItemList extends Iterable<LineItem> {
   final List<LineItem> _list;
 

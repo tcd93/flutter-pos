@@ -39,10 +39,10 @@ class Supplier extends ChangeNotifier {
   }
 
   Future<void> checkout(TableModel table, [DateTime? atTime]) async {
-    table.currentOrder.checkoutTime = atTime ?? DateTime.now();
-
-    await database?.insert(table.currentOrder);
-
+    await database?.insert(Order.create(
+      fromBase: table.currentOrder,
+      checkoutTime: atTime ?? DateTime.now(),
+    ));
     notifyListeners();
   }
 }

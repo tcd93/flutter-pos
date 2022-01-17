@@ -56,8 +56,17 @@ class LocalStorage implements DatabaseConnectionInterface {
   @override
   Future<void> delete(DateTime day, int orderID) async {
     final orders = await get(day);
-    orders.firstWhere((e) => e.id == orderID).isDeleted = true;
-    await ls.setItem(Common.extractYYYYMMDD(day), orders.map((e) => e.toJson()).toList());
+    await ls.setItem(
+        Common.extractYYYYMMDD(day),
+        orders.map((e) {
+          if (e.id == orderID) {
+            return {
+              ...e.toJson(),
+              ...{'isDeleted': true}
+            };
+          }
+          return e.toJson();
+        }).toList());
     return;
   }
 

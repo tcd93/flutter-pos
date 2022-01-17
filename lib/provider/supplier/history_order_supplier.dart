@@ -40,14 +40,8 @@ class HistoryOrderSupplier extends ChangeNotifier {
   /// Mark an order from history list as 'ignored'
   void ignoreOrder(Order order) async {
     await database?.delete(order.checkoutTime, order.id);
-    // don't directly modify order object as this will make the 'selector' from Provider
-    // unable to compare states
-    final copy = Order.copy(order);
-    copy.isDeleted = true;
-    // copy.id = order.id; TODO: ???
-    final i = orders.indexOf(order);
-    orders.replaceRange(i, i + 1, [copy]);
-
+    final copy = Order.create(fromBase: order, isDeleted: true);
+    orders[orders.indexOf(order)] = copy;
     notifyListeners();
   }
 
