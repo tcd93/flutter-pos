@@ -4,18 +4,15 @@ import 'package:posapp/provider/src.dart';
 import 'package:posapp/storage_engines/sqlite.dart';
 
 void main() {
-  final sqlite = SQLite('test');
+  SQLite sqlite = SQLite('test');
   final checkOutTime = DateTime(2017, 9, 7, 17, 30);
   final checkOutTime2 = DateTime(2017, 9, 7, 19, 30);
   late Order order;
   late Order order2;
 
-  setUpAll(() {
+  setUpAll(() async {
     WidgetsFlutterBinding.ensureInitialized(); // must have this line for sqlite to work
-  });
-
-  tearDownAll(() async {
-    await sqlite.destroy();
+    expect(await sqlite.open(), true);
   });
 
   order = Order.create(
@@ -50,25 +47,8 @@ void main() {
 
   group('Insert', () {
     setUp(() async {
-      order = Order.create(
-        tableID: 0,
-        checkoutTime: checkOutTime,
-        lineItems: LineItemList([
-          LineItem(
-            associatedDish: Dish(0, 'Test Dish 0', 5000),
-            quantity: 1,
-          ),
-          LineItem(
-            associatedDish: Dish(1, 'Test Dish 1', 6000),
-            quantity: 2,
-          ),
-        ]),
-      );
-
-      expect(await sqlite.open(), true);
+      await sqlite.truncateTables();
     });
-
-    tearDown(() => sqlite.close());
 
     test('Should insert a row', () async {
       await sqlite.insert(order);

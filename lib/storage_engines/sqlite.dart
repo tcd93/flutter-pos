@@ -55,17 +55,77 @@ List<Map<String, Object?>> mergeRaws(List<Map<String, Object?>> rawResults) {
 
 class SQLite /*implements DatabaseConnectionInterface*/ {
   final String name;
-  late final Database db;
+
+  /// Should be initialized if you do a [open] check beforehand
+  late Database _db;
   String? path;
   Map<String, dynamic>? initialData;
 
-  SQLite(this.name, [this.path, this.initialData]);
+  final Completer<bool> _completer = Completer();
+
+  SQLite(this.name, [this.path]) {
+    if (name == '') return;
+    // use ffi for windows and linux as base sqflite package only work on mobile platform
+    if (Platform.isWindows || Platform.isLinux) {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
+    Future(() async {
+      final _dtb = await openDatabase(
+        join(path ?? await getDatabasesPath(), '$name.db'),
+        onCreate: (db, version) {
+          return db.execute(
+            '''
+            CREATE TABLE $orderTable(
+              ID           INTEGER PRIMARY KEY AUTOINCREMENT, 
+              date         TEXT, -- YYYYMMDD
+              time         TEXT, -- HH24:MM:SS
+              tableID      INTEGER, 
+              status       BOOLEAN,
+              discountRate REAL,
+              isDeleted    TINYINT
+            );
+            CREATE INDEX ${orderTable}Idx ON $orderTable (date, ID);
+
+            CREATE TABLE $lineItemTable(
+              orderID        INTEGER,
+              dishID         INT,
+              dishName       TEXT,
+              price          REAL,
+              quantity       INT,
+              FOREIGN KEY(orderID) REFERENCES $orderTable(ID)
+            );
+            ''',
+          );
+        },
+        version: 1,
+      );
+      if (kDebugMode) {
+        print('Initiating sqlite database at path: ${await getDatabasesPath()}');
+      }
+      _db = _dtb;
+      _completer.complete(_dtb.isOpen);
+    });
+  }
+
+  @visibleForTesting
+  Future<void> truncateTables() {
+    if (_db.isOpen) {
+      return _db.execute('''
+        DELETE FROM $orderTable;
+        DELETE FROM $lineItemTable;
+        DELETE FROM sqlite_sequence WHERE name='$orderTable';
+        DELETE FROM sqlite_sequence WHERE name='$lineItemTable';
+      ''');
+    }
+    throw 'Database is not opened';
+  }
 
   //---Order---
 
   @override
   Future<List<Order>> get(DateTime day) async {
-    final rawResults = await db.rawQuery('''
+    final rawResults = await _db.rawQuery('''
       SELECT *
         FROM $orderTable o
         JOIN $lineItemTable l
@@ -82,7 +142,7 @@ class SQLite /*implements DatabaseConnectionInterface*/ {
 
   @override
   Future<List<Order>> getRange(DateTime start, DateTime end) async {
-    final rawResults = await db.query(
+    final rawResults = await _db.query(
       orderTable,
       where: 'date BETWEEN ? AND ?',
       whereArgs: [Common.extractYYYYMMDD(start), Common.extractYYYYMMDD(end)],
@@ -95,7 +155,7 @@ class SQLite /*implements DatabaseConnectionInterface*/ {
 
   @override
   Future<void> insert(Order order) {
-    return db.transaction((txn) async {
+    return _db.transaction((txn) async {
       final rowID = await txn.insert(
         orderTable,
         {
@@ -143,7 +203,7 @@ class SQLite /*implements DatabaseConnectionInterface*/ {
 
   @override
   Future<void> delete(DateTime day, int orderID) {
-    return db.update(
+    return _db.update(
       orderTable,
       {
         'isDeleted': true,
@@ -154,52 +214,13 @@ class SQLite /*implements DatabaseConnectionInterface*/ {
   }
 
   @override
-  Future<bool> open() async {
-    // use ffi for windows and linux as base sqflite package only work on mobile platform
-    if (Platform.isWindows || Platform.isLinux) {
-      sqfliteFfiInit();
-      databaseFactory = databaseFactoryFfi;
-    }
-    if (kDebugMode) {
-      print('Initiating sqlite database at path: ${await getDatabasesPath()}');
-    }
-    db = await openDatabase(
-      join(path ?? await getDatabasesPath(), '$name.db'),
-      onCreate: (db, version) {
-        return db.execute(
-          '''
-            CREATE TABLE $orderTable(
-              ID           INTEGER PRIMARY KEY AUTOINCREMENT, 
-              date         TEXT, -- YYYYMMDD
-              time         TEXT, -- HH24:MM:SS
-              tableID      INTEGER, 
-              status       BOOLEAN,
-              discountRate REAL,
-              isDeleted    TINYINT
-            );
-            CREATE INDEX ${orderTable}Idx ON $orderTable (date, ID);
-
-            CREATE TABLE $lineItemTable(
-              orderID        INTEGER,
-              dishID         INT,
-              dishName       TEXT,
-              price          REAL,
-              quantity       INT,
-              FOREIGN KEY(orderID) REFERENCES $orderTable(ID)
-            );
-          ''',
-        );
-      },
-      version: 1,
-    );
-    return db.isOpen;
-  }
+  Future<bool> open() => _completer.future;
 
   @override
-  void close() => db.close();
+  Future<void> close() => _db.close();
 
   @override
-  Future<void> destroy() => deleteDatabase(db.path);
+  Future<void> destroy() => deleteDatabase(_db.path);
 
 //   //---Menu---
 
