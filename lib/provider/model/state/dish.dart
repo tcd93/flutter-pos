@@ -1,17 +1,16 @@
 import 'dart:typed_data';
 import 'package:flutter/widgets.dart';
 
-@immutable
 class Dish {
   final int id;
 
-  final double price;
+  double price;
 
   /// Dish name
-  final String dish;
+  String dish;
 
   /// A "view" to the underlying image (can be from asset or from raw bytes)
-  late final ImageProvider imgProvider;
+  late ImageProvider imgProvider;
 
   /// image bytes data
   final Uint8List? _imageBytes;

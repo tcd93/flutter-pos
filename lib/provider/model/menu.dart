@@ -12,7 +12,12 @@ class Menu extends Iterable<Dish> {
 
   void add(Dish dish) => _list.add(dish);
 
-  void set(Dish dish) => _list[_list.indexOf(dish)] = dish;
+  void set(Dish dish) {
+    _list[_list.indexOf(dish)]
+      ..dish = dish.dish
+      ..price = dish.price
+      ..imgProvider = dish.imgProvider;
+  }
 
   void remove(Dish dish) => _list.remove(dish);
 

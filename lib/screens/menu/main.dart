@@ -30,7 +30,6 @@ class MenuScreen extends StatelessWidget {
           itemCount: menuSupplier.menu.length,
           itemBuilder: (context, index) {
             final dish = menuSupplier.getDish(index);
-            final lineItem = model.putIfAbsent(dish);
             // there's some inefficiency here as we're replacing the whole state when calling `revert()`
             // everything in this listview is going to be updated
             final supplier = Provider.of<Supplier>(context);
@@ -38,13 +37,13 @@ class MenuScreen extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: Counter(
-                model.putIfAbsent(dish).quantity,
+                model.getByDish(dish)?.quantity ?? 0,
                 onIncrement: (_) {
-                  lineItem.addOne();
+                  model.putIfAbsent(dish).addOne();
                   supplier.setTableStatus(model, TableStatus.incomplete);
                 },
                 onDecrement: (_) {
-                  lineItem.substractOne();
+                  model.putIfAbsent(dish).substractOne();
                   // If there are not a single item in this order left,
                   // Then set status to "empty" to disable the [_ConfirmButton]
                   if (model.putIfAbsent(dish).quantity == 0 && model.totalMenuItemQuantity == 0) {

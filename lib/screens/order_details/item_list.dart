@@ -6,17 +6,16 @@ import '../../common/common.dart';
 import '../../provider/src.dart';
 
 class ItemList extends StatelessWidget {
-  final String? fromScreen;
   final TableModel order;
 
-  const ItemList(this.order, {this.fromScreen});
+  const ItemList(this.order);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         _Header(order),
-        _Items(order.activeLineItems, fromScreen),
+        _Items(order.activeLineItems),
       ],
     );
   }
@@ -58,9 +57,8 @@ class _Header extends StatelessWidget {
 
 class _Items extends StatelessWidget {
   final LineItemList orders;
-  final String? fromScreen;
 
-  const _Items(this.orders, this.fromScreen);
+  const _Items(this.orders);
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +67,6 @@ class _Items extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         itemCount: orders.length,
         itemBuilder: (context, index) {
-          final supplier = Provider.of<MenuSupplier>(context);
           final order = orders.elementAt(index);
           return Card(
             key: ObjectKey(order),
@@ -77,17 +74,8 @@ class _Items extends StatelessWidget {
               leading: CircleAvatar(
                 child: Text(order.quantity.toString()),
               ),
-              title: Text(
-                fromScreen == 'history'
-                    ? order.dishName
-                    : supplier.find(order.dishID)?.dish ??
-                        order.dishName + (AppLocalizations.of(context)?.details_liDeleted ?? ''),
-              ),
-              trailing: Text(
-                Money.format(fromScreen == 'history'
-                    ? order.price * order.quantity
-                    : supplier.find(order.dishID)?.price ?? order.price * order.quantity),
-              ),
+              title: Text(order.dishName),
+              trailing: Text(Money.format(order.price * order.quantity)),
             ),
           );
         },

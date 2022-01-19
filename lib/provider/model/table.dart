@@ -36,6 +36,11 @@ class TableModel {
     return s;
   }
 
+  LineItem? getByDish(Dish dish) {
+    final lines = currentOrder.lineItems.where((d) => d.associatedDish == dish);
+    return lines.isNotEmpty ? lines.first : null;
+  }
+
   /// Get a list of current items with quantity > 0
   LineItemList get activeLineItems => currentOrder.activeLines;
 
