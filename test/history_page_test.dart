@@ -407,7 +407,7 @@ void main() {
         //
         final tomorrow = checkoutTime.add(const Duration(days: 1));
         provider.selectedRange = DateTimeRange(start: checkoutTime, end: tomorrow);
-        await tester.pumpAndSettle();
+        await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
         expect(
           find.byWidgetPredicate(
@@ -427,6 +427,21 @@ void main() {
         );
         expect(
           find.text('(2020/11/12 - 2020/11/13)'),
+          findsOneWidget,
+          reason: 'Selected range is not 11/12',
+        );
+
+        // back to one day
+        provider.selectedRange = DateTimeRange(start: checkoutTime, end: checkoutTime);
+        await tester.pumpAndSettle(const Duration(milliseconds: 500));
+
+        expect(
+          find.widgetWithText(Wrap, '45,000'),
+          findsOneWidget,
+          reason: 'Summary price is not 45,000',
+        );
+        expect(
+          find.text('(2020/11/12 - 2020/11/12)'),
           findsOneWidget,
           reason: 'Selected range is not 11/12',
         );

@@ -13,9 +13,12 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var order = context.select<HistoryOrderSupplier, Order>(
-      (HistoryOrderSupplier supplier) => supplier.orders.elementAt(index),
+    // the 'order' is nullable here as the length of 'orders' array might change
+    var order = context.select<HistoryOrderSupplier, Order?>(
+      (HistoryOrderSupplier supplier) =>
+          (index < supplier.orders.length) ? supplier.orders.elementAt(index) : null,
     );
+    if (order == null) return const SizedBox.shrink();
 
     var discountFlag = context.select<HistoryOrderSupplier, bool>(
       (HistoryOrderSupplier supplier) => supplier.discountFlag,

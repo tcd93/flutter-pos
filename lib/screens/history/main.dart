@@ -53,11 +53,10 @@ class HistoryScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Selector<HistoryOrderSupplier, List<dynamic>>(
-        selector: (context, supplier) => [supplier.orders, supplier.loading],
-        builder: (context, tuple, _) {
-          final List<Order> orders = tuple[0];
-          final bool loading = tuple[1];
+      body: Selector<HistoryOrderSupplier, bool>(
+        selector: (context, supplier) => supplier.loading,
+        builder: (context, loading, _) {
+          final List<Order> orders = context.read<HistoryOrderSupplier>().orders;
           if (loading) {
             return const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
@@ -71,7 +70,7 @@ class HistoryScreen extends StatelessWidget {
             return TabBarView(
               physics: const NeverScrollableScrollPhysics(),
               children: [
-                HistoryOrderList(orders.length),
+                HistoryOrderList(),
                 HistoryOrderLineChart(),
               ],
             );
