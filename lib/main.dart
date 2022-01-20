@@ -48,7 +48,11 @@ class PosApp extends StatelessWidget {
             return MultiProvider(
               providers: [
                 ChangeNotifierProvider(create: (_) => Supplier(database: _storage)),
-                Provider(create: (_) => MenuSupplier(database: _storage)),
+                FutureProvider(
+                  create: (_) => MenuSupplier(database: _storage).init(),
+                  initialData: null,
+                  lazy: false,
+                ),
               ],
               child: screen,
             );

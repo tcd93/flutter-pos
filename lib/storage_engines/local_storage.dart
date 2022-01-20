@@ -82,7 +82,7 @@ class LocalStorage implements DatabaseConnectionInterface {
   //---Menu---
 
   @override
-  Menu? getMenu() {
+  Future<Menu?> getMenu() async {
     var storageData = ls.getItem('menu');
     if (storageData == null) {
       if (kDebugMode) {

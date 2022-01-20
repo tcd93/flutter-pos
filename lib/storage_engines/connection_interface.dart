@@ -30,7 +30,7 @@ class JournalIO {
 /// Specific CRUD operations on Menu
 class MenuIO {
   /// Get menu from storage
-  Menu? getMenu() => null;
+  Future<Menu?> getMenu() => throw 'Unimplemented Error';
 
   /// Overrides current menu in storage with new menu object
   Future<void> setMenu(Menu newMenu) => Future.value();
