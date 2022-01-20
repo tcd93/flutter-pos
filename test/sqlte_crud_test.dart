@@ -7,20 +7,8 @@ void main() {
   SQLite sqlite = SQLite('test');
   final checkOutTime = DateTime(2017, 9, 7, 17, 30);
   final checkOutTime2 = DateTime(2017, 9, 7, 19, 30);
-  late Order order;
-  late Order order2;
-
-  setUpAll(() async {
-    WidgetsFlutterBinding.ensureInitialized(); // must have this line for sqlite to work
-    expect(await sqlite.open(), true);
-  });
-
-  tearDownAll(() async {
-    await sqlite.destroy();
-    await sqlite.close();
-  });
-
-  order = Order.create(
+  final checkOutTime3 = DateTime(2017, 9, 8, 20, 30);
+  final Order order = Order.create(
     tableID: 0,
     checkoutTime: checkOutTime,
     lineItems: LineItemList([
@@ -34,8 +22,7 @@ void main() {
       ),
     ]),
   );
-
-  order2 = Order.create(
+  final Order order2 = Order.create(
     tableID: 0,
     checkoutTime: checkOutTime2,
     lineItems: LineItemList([
@@ -49,6 +36,30 @@ void main() {
       ),
     ]),
   );
+  final Order order3 = Order.create(
+    tableID: 0,
+    checkoutTime: checkOutTime3,
+    lineItems: LineItemList([
+      LineItem(
+        associatedDish: Dish(3, 'Test Dish 1', 6000),
+        quantity: 1,
+      ),
+      LineItem(
+        associatedDish: Dish(4, 'Test Dish 4', 6000),
+        quantity: 2,
+      ),
+    ]),
+  );
+
+  setUpAll(() async {
+    WidgetsFlutterBinding.ensureInitialized(); // must have this line for sqlite to work
+    expect(await sqlite.open(), true);
+  });
+
+  tearDownAll(() async {
+    await sqlite.destroy();
+    await sqlite.close();
+  });
 
   group('Insert', () {
     setUp(() async {
@@ -73,6 +84,17 @@ void main() {
       expect(result.length, 2);
       expect(result[0].toJson(), {...order.toJson(), 'orderID': 1});
       expect(result[1].toJson(), {...order2.toJson(), 'orderID': 2});
+    });
+
+    test('Should insert 3 rows', () async {
+      await sqlite.insert(order);
+      await sqlite.insert(order2);
+      await sqlite.insert(order3);
+
+      final result = (await sqlite.getRange(checkOutTime, checkOutTime3));
+      expect(result, isNotEmpty);
+      expect(result.length, 3);
+      expect(result[2].toJson(), {...order3.toJson(), 'orderID': 3});
     });
   });
 

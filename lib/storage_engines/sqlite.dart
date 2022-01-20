@@ -143,11 +143,15 @@ class SQLite /*implements DatabaseConnectionInterface*/ {
 
   @override
   Future<List<Order>> getRange(DateTime start, DateTime end) async {
-    final rawResults = await _db.query(
-      orderTable,
-      where: 'date BETWEEN ? AND ?',
-      whereArgs: [Common.extractYYYYMMDD(start), Common.extractYYYYMMDD(end)],
-    );
+    final rawResults = await _db.rawQuery('''
+      SELECT *
+        FROM $orderTable o
+        JOIN $lineItemTable l
+          ON o.ID = l.orderID
+       WHERE o.date BETWEEN ? AND ?
+       ORDER BY o.ID
+    ''', [Common.extractYYYYMMDD(start), Common.extractYYYYMMDD(end)]);
+
     if (rawResults.isEmpty) {
       return [];
     }
