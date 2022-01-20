@@ -81,9 +81,9 @@ class SQLite /*implements DatabaseConnectionInterface*/ {
               date         TEXT, -- YYYYMMDD
               time         TEXT, -- HH24:MM:SS
               tableID      INTEGER, 
-              status       BOOLEAN,
+              status       TINYINT,
               discountRate REAL,
-              isDeleted    TINYINT
+              isDeleted    BOOLEAN
             );
             CREATE INDEX ${orderTable}Idx ON $orderTable (date, ID);
 
@@ -95,6 +95,7 @@ class SQLite /*implements DatabaseConnectionInterface*/ {
               quantity       INT,
               FOREIGN KEY(orderID) REFERENCES $orderTable(ID)
             );
+            CREATE INDEX ${lineItemTable}Idx ON $lineItemTable (orderID);
             ''',
           );
         },
@@ -164,7 +165,7 @@ class SQLite /*implements DatabaseConnectionInterface*/ {
           'tableID': order.tableID,
           'status': order.status.index,
           'discountRate': order.discountRate,
-          'isDeleted': order.isDeleted.toString(),
+          'isDeleted': order.isDeleted ? 1 : 0,
         },
         conflictAlgorithm: ConflictAlgorithm.fail,
       );
@@ -202,14 +203,14 @@ class SQLite /*implements DatabaseConnectionInterface*/ {
   }
 
   @override
-  Future<void> delete(DateTime day, int orderID) {
+  Future<int> delete(DateTime day, int orderID) {
     return _db.update(
       orderTable,
       {
-        'isDeleted': true,
+        'isDeleted': 1,
       },
-      where: 'date = date(?) AND id = ?',
-      whereArgs: [day, orderID],
+      where: 'date = ? AND id = ?',
+      whereArgs: [Common.extractYYYYMMDD(day), orderID],
     );
   }
 

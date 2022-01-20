@@ -19,7 +19,6 @@ class Order extends StateObject {
   /// copy to a new instance
   Order.create({
     int? tableID,
-    int? id,
     bool? isDeleted,
     TableStatus? status,
     LineItemList? lineItems,
@@ -27,7 +26,7 @@ class Order extends StateObject {
     DateTime? checkoutTime,
     Order? fromBase,
   })  : tableID = tableID ?? fromBase?.tableID ?? -1,
-        _id = id ?? fromBase?.id ?? -1,
+        _id = fromBase?.id ?? -1,
         isDeleted = isDeleted ?? fromBase?.isDeleted ?? false,
         status = status ?? fromBase?.status ?? TableStatus.empty,
         super.create(
@@ -53,7 +52,9 @@ class Order extends StateObject {
         _id = json['orderID'] ?? json['ID'] ?? -1,
         isDeleted = json['isDeleted'] is bool
             ? json['isDeleted']
-            : bool.fromEnvironment(json['isDeleted'] ?? 'false', defaultValue: false),
+            : json['isDeleted'] is int
+                ? json['isDeleted'] == 1
+                : false,
         status = TableStatus.empty,
         super.create(
           LineItemList.fromJson(json['lineItems']),

@@ -15,6 +15,11 @@ void main() {
     expect(await sqlite.open(), true);
   });
 
+  tearDownAll(() async {
+    await sqlite.destroy();
+    await sqlite.close();
+  });
+
   order = Order.create(
     tableID: 0,
     checkoutTime: checkOutTime,
@@ -68,6 +73,21 @@ void main() {
       expect(result.length, 2);
       expect(result[0].toJson(), {...order.toJson(), 'orderID': 1});
       expect(result[1].toJson(), {...order2.toJson(), 'orderID': 2});
+    });
+  });
+
+  group('Delete', () {
+    setUp(() async {
+      await sqlite.truncateTables();
+    });
+
+    test('Should soft-delete a row', () async {
+      await sqlite.insert(order);
+      expect(await sqlite.delete(checkOutTime, 1), 1);
+
+      final result = (await sqlite.get(checkOutTime));
+      expect(result.length, 1);
+      expect(result[0].toJson(), {...order.toJson(), 'orderID': 1, 'isDeleted': true});
     });
   });
 }
