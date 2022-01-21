@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../provider/src.dart';
 
 class SupplierRepository with NodeIO, OrderIO, CoordinateIO {}
@@ -32,8 +34,10 @@ class MenuIO {
   /// Get menu from storage
   Future<Menu?> getMenu() => throw 'Unimplemented Error';
 
-  /// Overrides current menu in storage with new menu object
-  Future<void> setMenu(Menu newMenu) => Future.value();
+  /// Overrides current menu in storage with new menu object (localstorage)
+  ///
+  /// OR upsert a dish into storage (SQL), if [isDelete] is true, then instruct SQL to delete instead
+  Future<void> setMenu({Menu? menu, Dish? dish, bool isDelete = false}) => Future.value();
 }
 
 /// Operations on a more generic/global level, like retrieving the list of nodes
@@ -46,6 +50,9 @@ class NodeIO {
 
   /// Removes all items from database, should be wrapped in try/catch block
   Future<void> destroy() => Future.value();
+
+  @visibleForTesting
+  Future<void> truncate() => Future.value();
 
   List<int> tableIDs() => [];
 

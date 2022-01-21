@@ -1,3 +1,5 @@
+import 'package:posapp/storage_engines/sqlite.dart';
+
 import 'storage_engines/connection_interface.dart';
 import 'storage_engines/local_storage.dart';
 
@@ -8,7 +10,7 @@ class DatabaseFactory {
 
   DatabaseFactory._init();
 
-  /// Returns an [DatabaseConnectionInterface] instance, currently support `local-storage`
+  /// Returns an [DatabaseConnectionInterface] instance, currently support `local-storage`, 'sqlite'
   factory DatabaseFactory() {
     return _singleton;
   }
@@ -21,6 +23,9 @@ class DatabaseFactory {
   ]) {
     if (name == 'local-storage') {
       return LocalStorage(dbName ?? appName, path, initialData);
+    }
+    if (name == 'sqlite') {
+      return SQLite(dbName ?? appName, path);
     } else {
       throw UnimplementedError('$name is not implemented for database connection');
     }

@@ -8,9 +8,11 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../common/common.dart';
 import '../provider/src.dart';
+import 'connection_interface.dart';
 
 const String orderTable = 'orders';
 const String lineItemTable = 'lineItems';
+const String dishTable = 'dish';
 
 /// merge multi-line results of sqlite rawQuery into list of [Order] objects
 @visibleForTesting
@@ -53,7 +55,7 @@ List<Map<String, Object?>> mergeRaws(List<Map<String, Object?>> rawResults) {
   });
 }
 
-class SQLite /*implements DatabaseConnectionInterface*/ {
+class SQLite implements DatabaseConnectionInterface {
   final String name;
 
   /// Should be initialized if you do a [open] check beforehand
@@ -87,13 +89,22 @@ class SQLite /*implements DatabaseConnectionInterface*/ {
             );
             CREATE INDEX ${orderTable}Idx ON $orderTable (date, ID);
 
+            CREATE TABLE $dishTable(
+              ID             INTEGER PRIMARY KEY AUTOINCREMENT, 
+              price          REAL,
+              dish           TEXT,
+              imageBytes     BLOB,
+              asset          TEXT
+            );
+
             CREATE TABLE $lineItemTable(
               orderID        INTEGER,
               dishID         INT,
               dishName       TEXT,
               price          REAL,
               quantity       INT,
-              FOREIGN KEY(orderID) REFERENCES $orderTable(ID)
+              FOREIGN KEY(orderID) REFERENCES $orderTable(ID),
+              FOREIGN KEY(dishID) REFERENCES $dishTable(ID)
             );
             CREATE INDEX ${lineItemTable}Idx ON $lineItemTable (orderID);
             ''',
@@ -109,14 +120,16 @@ class SQLite /*implements DatabaseConnectionInterface*/ {
     });
   }
 
-  @visibleForTesting
-  Future<void> truncateTables() {
+  @override
+  Future<void> truncate() {
     if (_db.isOpen) {
       return _db.execute('''
         DELETE FROM $orderTable;
         DELETE FROM $lineItemTable;
+        DELETE FROM $dishTable;
         DELETE FROM sqlite_sequence WHERE name='$orderTable';
         DELETE FROM sqlite_sequence WHERE name='$lineItemTable';
+        DELETE FROM sqlite_sequence WHERE name='$dishTable';
       ''');
     }
     throw 'Database is not opened';
@@ -227,102 +240,80 @@ class SQLite /*implements DatabaseConnectionInterface*/ {
   @override
   Future<void> destroy() => deleteDatabase(_db.path);
 
-//   //---Menu---
+  //Menu (the entire thing is pretty hacky here as it adapts to key-value storage's find & replace
+  //style of execution)
 
-//   @override
-//   Menu? getMenu() {
-//     var storageData = ls.getItem('menu');
-//     if (storageData == null) {
-//       print('\x1B[94mmenu not found in localstorage\x1B[0m');
-//       return null;
-//     }
-//     return Menu.fromJson(storageData as Map<String, dynamic>);
-//   }
+  @override
+  Future<Menu?> getMenu() async {
+    var menu = await _db.query(dishTable);
+    if (menu.isEmpty) {
+      if (kDebugMode) print('\x1B[94mmenu not found in sqlite\x1B[0m');
+      return null;
+    }
+    return Menu.fromJson({'list': menu.map((d) => Dish.fromJson(d)).toList()});
+  }
 
-//   @override
-//   Future<void> setMenu(Menu newMenu) {
-//     // to set items to local storage
-//     return ls.setItem('menu', newMenu);
-//   }
+  @override
+  Future<void> setMenu({Menu? menu, Dish? dish, bool isDelete = false}) async {
+    if (dish == null) throw '[SQLite] setMenu() is only supported with `dish` parameter';
+    if (!isDelete) {
+      // upsert
+      await _db.insert(dishTable, dish.toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+    } else {
+      int c = await _db.delete(dishTable, where: 'ID = ?', whereArgs: [dish.id]);
+      if (c == 0) {
+        throw 'Unable to delete menu item as id ${dish.id} does not exist';
+      }
+    }
+    return;
+  }
 
-// //---Node---
+//---Node---
 
-//   @override
-//   Future<int> nextUID() async {
-//     // if empty, starts from -1
-//     int current = ls.getItem('order_id_highkey') ?? -1;
-//     await ls.setItem('order_id_highkey', ++current);
-//     return current;
-//   }
+  @override
+  List<int> tableIDs() {
+    return [];
+  }
 
-//   @override
-//   List<int> tableIDs() {
-//     final List<dynamic> l = ls.getItem('table_list') ?? [];
-//     return l.cast<int>();
-//   }
+  @override
+  Future<List<int>> addTable(int tableID) async {
+    return [];
+  }
 
-//   @override
-//   Future<List<int>> addTable(int tableID) async {
-//     final list = tableIDs();
-//     list.add(tableID);
-//     await ls.setItem('table_list', list);
-//     return list;
-//   }
+  @override
+  Future<List<int>> removeTable(int tableID) async {
+    return [];
+  }
 
-//   @override
-//   Future<List<int>> removeTable(int tableID) async {
-//     final list = tableIDs();
-//     list.remove(tableID);
-//     await ls.setItem('table_list', list);
-//     return list;
-//   }
+  @override
+  Future<void> setCoordinate(int tableID, double x, double y) async {
+    return;
+  }
 
-//   @override
-//   Future<void> setCoordinate(int tableID, double x, double y) {
-//     return Future.wait(
-//       [ls.setItem('${tableID}_coord_x', x), ls.setItem('${tableID}_coord_y', y)],
-//       eagerError: true,
-//     );
-//   }
+  @override
+  double getX(int tableID) {
+    return 0;
+  }
 
-//   @override
-//   double getX(int tableID) {
-//     return ls.getItem('${tableID}_coord_x') ?? 0;
-//   }
+  @override
+  double getY(int tableID) {
+    return 0;
+  }
 
-//   @override
-//   double getY(int tableID) {
-//     return ls.getItem('${tableID}_coord_y') ?? 0;
-//   }
+  //---Journal---
 
-//   //---Journal---
+  @override
+  List<Journal> getJournal(DateTime day) {
+    return [];
+  }
 
-//   @override
-//   List<Journal> getJournal(DateTime day) {
-//     List<dynamic>? storageData = ls.getItem('j${Common.extractYYYYMMDD(day)}');
-//     if (storageData == null) return [];
-//     return storageData.map((i) => Journal.fromJson(i)).toList();
-//   }
+  @override
+  List<Journal> getJournals(DateTime start, DateTime end) {
+    return [];
+  }
 
-//   @override
-//   List<Journal> getJournals(DateTime start, DateTime end) {
-//     return List.generate(
-//       end.difference(start).inDays + 1,
-//       (i) => getJournal(DateTime(start.year, start.month, start.day + i)),
-//     ).expand((e) => e).toList();
-//   }
-
-//   @override
-//   Future<void> insertJournal(Journal journal) {
-//     if (journal.id < 0) throw 'Invalid order ID';
-//     final dateTime = Common.extractYYYYMMDD(journal.dateTime);
-
-//     var journals = ls.getItem('j$dateTime');
-//     if (journals != null) {
-//       journals.add(journal.toJson());
-//     } else {
-//       journals = [journal.toJson()];
-//     }
-//     return ls.setItem('j$dateTime', journals);
-//   }
+  @override
+  Future<void> insertJournal(Journal journal) async {
+    return;
+  }
 }

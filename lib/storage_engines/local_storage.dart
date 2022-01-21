@@ -34,8 +34,6 @@ class LocalStorage implements DatabaseConnectionInterface {
 
   @override
   Future<void> insert(Order order) async {
-    if (order.id >= 0) throw 'This is not a new order, id = ${order.id}';
-
     final checkoutTime = Common.extractYYYYMMDD(order.checkoutTime);
     final orderWithID = {
       ...order.toJson(),
@@ -79,6 +77,9 @@ class LocalStorage implements DatabaseConnectionInterface {
   @override
   Future<void> destroy() => ls.clear();
 
+  @override
+  Future<void> truncate() => ls.clear();
+
   //---Menu---
 
   @override
@@ -90,20 +91,21 @@ class LocalStorage implements DatabaseConnectionInterface {
       }
       return null;
     }
-    return Menu.fromJson(storageData as Map<String, dynamic>);
+    return Menu.fromJson(storageData);
   }
 
   @override
-  Future<void> setMenu(Menu newMenu) {
+  Future<void> setMenu({Menu? menu, Dish? dish, bool isDelete = false}) {
+    if (menu == null) throw '[localstorage] setMenu() is only supported with `menu` parameter';
     // to set items to local storage
-    return ls.setItem('menu', newMenu);
+    return ls.setItem('menu', menu);
   }
 
 //---Node---
 
   Future<int> _nextUID() async {
-    // if empty, starts from -1
-    int current = ls.getItem('order_id_highkey') ?? -1;
+    // if empty, starts from 1
+    int current = ls.getItem('order_id_highkey') ?? 0;
     await ls.setItem('order_id_highkey', ++current);
     return current;
   }

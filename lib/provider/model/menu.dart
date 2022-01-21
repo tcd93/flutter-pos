@@ -21,14 +21,11 @@ class Menu extends Iterable<Dish> {
 
   void remove(Dish dish) => _list.remove(dish);
 
-  Menu.fromJson(Map<String, dynamic> json)
-      : _list = (json['list'] as List<dynamic>).map((d) => Dish.fromJson(d)).toList();
+  Menu.fromJson(Map<String, dynamic> json) : _list = json['list'];
 
   // will be called implicitly
   // ignore: unused_element
-  Map<String, dynamic> toJson() {
-    return {'list': _list};
-  }
+  Map<String, dynamic> toJson() => {'list': _list};
 
   @override
   Iterator<Dish> get iterator => _list.iterator;

@@ -63,7 +63,7 @@ void main() {
 
   group('Insert', () {
     setUp(() async {
-      await sqlite.truncateTables();
+      await sqlite.truncate();
     });
 
     test('Should insert a row', () async {
@@ -100,7 +100,7 @@ void main() {
 
   group('Delete', () {
     setUp(() async {
-      await sqlite.truncateTables();
+      await sqlite.truncate();
     });
 
     test('Should soft-delete a row', () async {

@@ -53,7 +53,7 @@ class MenuSupplier {
     assert(!_m.contains(newDish));
 
     _m.add(newDish);
-    return database?.setMenu(_m);
+    return database?.setMenu(menu: _m, dish: newDish);
   }
 
   Future<void>? updateDish(Dish dish) async {
@@ -62,14 +62,14 @@ class MenuSupplier {
     assert(_m.contains(dish));
 
     _m.set(dish);
-    return database?.setMenu(_m);
+    return database?.setMenu(menu: _m, dish: dish);
   }
 
   Future<void>? removeDish(Dish dish) {
     assert(_m.contains(dish));
 
     _m.remove(dish);
-    return database?.setMenu(_m);
+    return database?.setMenu(menu: _m, dish: dish);
   }
 }
 

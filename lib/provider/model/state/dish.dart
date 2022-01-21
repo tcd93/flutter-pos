@@ -40,7 +40,7 @@ class Dish {
 
   // will be called implicitly
   Dish.fromJson(Map<String, dynamic> json)
-      : id = json['id'],
+      : id = json['id'] ?? json['ID'],
         dish = json['dish'],
         price = json['price'],
         _imageBytes = json['imageBytes'] != null

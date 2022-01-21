@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/database_factory.dart';
@@ -11,47 +10,40 @@ import 'package:provider/provider.dart';
 
 void main() {
   late DatabaseConnectionInterface storage;
-  // late MenuSupplier supplier;
-  // final dish1 = Dish(1, 'dish 1', 1000);
-  // final dish2 = Dish(2, 'dish 2', 2000);
+  const _db = String.fromEnvironment('database', defaultValue: 'sqlite');
 
   setUpAll(() async {
-    storage = DatabaseFactory().create('local-storage', 'test', {'test': 1}, 'menu_test');
+    storage = DatabaseFactory().create(_db, 'test', {}, 'menu_test');
     await storage.open();
     // supplier = MenuSupplier(database: storage, mockMenu: Menu([dish1, dish2]));
   });
 
-  tearDown(() async {
-    try {
-      await storage.destroy();
-    } on Exception catch (e) {
-      if (kDebugMode) {
-        print('\x1B[94m $e\x1B[0m');
-      }
+  tearDownAll(() async {
+    await storage.destroy();
+    storage.close();
+    // .close() is async, but lib does not await...
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (_db == 'local-storage') {
+      File('test/menu_test').deleteSync();
     }
   });
 
-  tearDownAll(() async {
-    storage.close();
-    await Future.delayed(const Duration(milliseconds: 500));
-    try {
-      File('test/menu_test').deleteSync();
-    } on Exception catch (e) {
-      if (kDebugMode) {
-        print('\x1B[94mtearDownAll (test/menu-test): $e\x1B[0m');
-      }
-    }
+  setUp(() async {
+    await storage.truncate();
   });
 
   testWidgets('Expect default items', (tester) async {
     await tester.pumpWidget(MaterialApp(
       builder: (_, __) {
-        return Provider(
-          create: (_) => MenuSupplier(),
+        return FutureProvider(
+          create: (_) => MenuSupplier().init(),
+          initialData: null,
           child: EditMenuScreen(),
         );
       },
     ));
+    await tester.runAsync(() => Future.delayed(const Duration(milliseconds: 200)));
+    await tester.pumpAndSettle();
 
     expect(
       find.byWidgetPredicate(
@@ -62,24 +54,27 @@ void main() {
     );
   });
 
-  // this test is not working on Windows machine?
-  //
-  // testWidgets('Expect persisting to storage', (tester) async {
-  //   await tester.pumpWidget(MaterialApp(
-  //     builder: (_, __) {
-  //       return Provider(
-  //         create: (_) => supplier,
-  //         child: EditMenuScreen(),
-  //       );
-  //     },
-  //   ));
+  testWidgets('Expect persisting to storage', (tester) async {
+    final supplier = MenuSupplier(database: storage, mockMenu: Menu());
 
-  //   final newDish = Dish(3, 'new name', 200);
-  //   await supplier.addDish(newDish);
-  //   final menu = storage.getMenu()!;
+    await tester.pumpWidget(MaterialApp(
+      builder: (_, __) {
+        return FutureProvider(
+          create: (_) => supplier.init(),
+          initialData: null,
+          child: EditMenuScreen(),
+        );
+      },
+    ));
+    await tester.runAsync(() => Future.delayed(const Duration(milliseconds: 200)));
 
-  //   expect(menu, isNotEmpty);
-  //   expect(menu.list[2].dish, 'new name');
-  //   expect(menu.list[2].price, 200);
-  // });
+    final dish = Dish(1, 'new dish', 200);
+    await tester.runAsync<void>(() => supplier.addDish(dish)!);
+    final menu = await tester.runAsync(() => storage.getMenu());
+
+    expect(menu, isNotNull);
+    expect(menu, isNotEmpty);
+    expect(menu!.length, 1);
+    expect(menu.elementAt(0), dish);
+  });
 }
