@@ -8,6 +8,7 @@ import '../src.dart';
 @immutable
 class TableModel {
   final int id;
+
   final Coordinate _coord;
 
   final SlidingWindow<Order> _s;

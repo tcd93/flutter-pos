@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:localstorage/localstorage.dart' as lib;
 
@@ -111,25 +113,26 @@ class LocalStorage implements DatabaseConnectionInterface {
   }
 
   @override
-  List<int> tableIDs() {
+  Future<List<int>> tableIDs() async {
     final List<dynamic> l = ls.getItem('table_list') ?? [];
     return l.cast<int>();
   }
 
   @override
-  Future<List<int>> addTable(int tableID) async {
-    final list = tableIDs();
-    list.add(tableID);
+  Future<int> addTable() async {
+    final list = await tableIDs();
+    final nextID = list.fold<int>(0, max) + 1;
+    list.add(nextID);
     await ls.setItem('table_list', list);
-    return list;
+    return nextID;
   }
 
   @override
-  Future<List<int>> removeTable(int tableID) async {
-    final list = tableIDs();
+  Future<void> removeTable(int tableID) async {
+    final list = await tableIDs();
     list.remove(tableID);
     await ls.setItem('table_list', list);
-    return list;
+    return;
   }
 
   @override

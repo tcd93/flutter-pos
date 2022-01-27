@@ -10,6 +10,7 @@ import '../common/common.dart';
 import '../provider/src.dart';
 import 'connection_interface.dart';
 
+const String nodeTable = 'nodes';
 const String orderTable = 'orders';
 const String lineItemTable = 'lineItems';
 const String dishTable = 'dish';
@@ -78,6 +79,12 @@ class SQLite implements DatabaseConnectionInterface {
         onCreate: (db, version) {
           return db.execute(
             '''
+            CREATE TABLE $nodeTable(
+              ID           INTEGER PRIMARY KEY AUTOINCREMENT, 
+              coordX       REAL DEFAULT 0,
+              coordY       REAL DEFAULT 0
+            );
+
             CREATE TABLE $orderTable(
               ID           INTEGER PRIMARY KEY AUTOINCREMENT, 
               date         TEXT, -- YYYYMMDD
@@ -127,9 +134,11 @@ class SQLite implements DatabaseConnectionInterface {
         DELETE FROM $orderTable;
         DELETE FROM $lineItemTable;
         DELETE FROM $dishTable;
+        DELETE FROM $nodeTable;
         DELETE FROM sqlite_sequence WHERE name='$orderTable';
         DELETE FROM sqlite_sequence WHERE name='$lineItemTable';
         DELETE FROM sqlite_sequence WHERE name='$dishTable';
+        DELETE FROM sqlite_sequence WHERE name='$nodeTable';
       ''');
     }
     throw 'Database is not opened';
@@ -271,18 +280,24 @@ class SQLite implements DatabaseConnectionInterface {
 //---Node---
 
   @override
-  List<int> tableIDs() {
-    return [];
+  Future<List<int>> tableIDs() async {
+    var idMap = await _db.query(nodeTable, columns: ['ID']);
+    return idMap.map<int>((m) => m['ID'] as int).toList();
   }
 
   @override
-  Future<List<int>> addTable(int tableID) async {
-    return [];
+  Future<int> addTable() {
+    return _db.insert(
+      nodeTable,
+      {},
+      nullColumnHack: 'coordX',
+      conflictAlgorithm: ConflictAlgorithm.fail,
+    );
   }
 
   @override
-  Future<List<int>> removeTable(int tableID) async {
-    return [];
+  Future<void> removeTable(int tableID) async {
+    await _db.delete(nodeTable, where: 'ID = ?', whereArgs: [tableID]);
   }
 
   @override

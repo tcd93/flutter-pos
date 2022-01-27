@@ -36,14 +36,13 @@ class Order extends StateObject {
         );
 
   Order({
-    required int id,
     required this.tableID,
     required LineItemList lineItems,
     DateTime? checkoutTime,
     double discountRate = 1.0,
     this.status = TableStatus.empty,
     this.isDeleted = false,
-  })  : _id = id,
+  })  : _id = -1,
         assert(discountRate > 0.0 && discountRate <= 1.0),
         super.create(LineItemList.copy(lineItems), discountRate, checkoutTime);
 

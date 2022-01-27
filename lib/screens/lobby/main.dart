@@ -17,7 +17,7 @@ class LobbyScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Tooltip(
-              message: AppLocalizations.of(context)!.lobby_report,
+              message: AppLocalizations.of(context)?.lobby_report ?? 'Report',
               child: MaterialButton(
                 onPressed: () {
                   showBottomSheetMenu(context);
@@ -28,7 +28,7 @@ class LobbyScreen extends StatelessWidget {
               ),
             ),
             Tooltip(
-              message: AppLocalizations.of(context)!.lobby_menuEdit,
+              message: AppLocalizations.of(context)?.lobby_menuEdit ?? 'Edit Menu',
               child: MaterialButton(
                 onPressed: () => Navigator.pushNamed(context, '/edit-menu'),
                 minWidth: MediaQuery.of(context).size.width / 2,

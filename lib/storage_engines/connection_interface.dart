@@ -54,11 +54,11 @@ class NodeIO {
   @visibleForTesting
   Future<void> truncate() => Future.value();
 
-  List<int> tableIDs() => [];
+  Future<List<int>> tableIDs() => Future.value([]);
 
-  Future<List<int>> addTable(int tableID) => Future.value([]);
+  Future<int> addTable() => Future.value(-1);
 
-  Future<List<int>> removeTable(int tableID) => Future.value([]);
+  Future<void> removeTable(int tableID) => Future.value();
 }
 
 class CoordinateIO {

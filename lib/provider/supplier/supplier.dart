@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import '../../storage_engines/connection_interface.dart';
@@ -6,34 +6,48 @@ import '../../storage_engines/connection_interface.dart';
 import '../src.dart';
 
 class Supplier extends ChangeNotifier {
-  List<TableModel> tables = [];
+  late List<TableModel> _tables = [];
+  List<TableModel> get tables => _tables;
+
+  bool _loading = false;
+  bool get loading => _loading;
+
   final SupplierRepository? database;
 
   Supplier({
     this.database,
     List<TableModel>? mockModels,
   }) {
-    final l = database?.tableIDs();
-    Coordinate? startingCoord(int id) => database != null ? Coordinate.fromDB(id, database!) : null;
-    tables = mockModels ?? l?.map((id) => TableModel(id, startingCoord(id))).toList() ?? [];
+    if (mockModels != null) {
+      _tables = mockModels;
+      _loading = false;
+      return;
+    }
+    _loading = true;
+    Future(() async {
+      final l = await database?.tableIDs();
+      _tables = l?.map((id) => TableModel(id, _startingCoord(id))).toList() ?? [];
+      _loading = false;
+      notifyListeners();
+    });
   }
+
+  Coordinate? _startingCoord(int id) => database != null ? Coordinate.fromDB(id, database!) : null;
 
   TableModel getTable(int id) {
     return tables.firstWhere((t) => t.id == id);
   }
 
-  /// Returns new table's id
-  int addTable() {
-    final nextID = tables.map((t) => t.id).fold<int>(0, max) + 1;
-    tables.add(TableModel(nextID));
-    database?.addTable(nextID);
+  Future<int?> addTable() async {
+    final _nextID = await database?.addTable();
+    tables.add(TableModel(_nextID ?? -1));
     notifyListeners();
-    return nextID;
+    return _nextID;
   }
 
-  void removeTable(int tableID) {
+  Future<void> removeTable(int tableID) async {
+    await database?.removeTable(tableID);
     tables.removeWhere((table) => table.id == tableID);
-    database?.removeTable(tableID);
     notifyListeners();
     return;
   }
