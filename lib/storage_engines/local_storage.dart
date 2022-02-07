@@ -24,12 +24,10 @@ class LocalStorage implements DatabaseConnectionInterface {
 
   @override
   Future<List<Order>> getRange(DateTime start, DateTime end) async {
-    return (await Future.wait(
-      List.generate(
-        end.difference(start).inDays + 1,
-        (i) => get(DateTime(start.year, start.month, start.day + i)),
-      ),
-    ))
+    return (await Future.wait([
+      for (int i = 0; i < end.difference(start).inDays; i++)
+        get(DateTime(start.year, start.month, start.day + i))
+    ]))
         .expand((e) => e)
         .toList();
   }
@@ -156,18 +154,20 @@ class LocalStorage implements DatabaseConnectionInterface {
   //---Journal---
 
   @override
-  List<Journal> getJournal(DateTime day) {
+  Future<List<Journal>> getJournal(DateTime day) async {
     List<dynamic>? storageData = ls.getItem('j${Common.extractYYYYMMDD(day)}');
     if (storageData == null) return [];
     return storageData.map((i) => Journal.fromJson(i)).toList();
   }
 
   @override
-  List<Journal> getJournals(DateTime start, DateTime end) {
-    return List.generate(
-      end.difference(start).inDays + 1,
-      (i) => getJournal(DateTime(start.year, start.month, start.day + i)),
-    ).expand((e) => e).toList();
+  Future<List<Journal>> getJournals(DateTime start, DateTime end) async {
+    return (await Future.wait([
+      for (int i = 0; i < end.difference(start).inDays; i++)
+        getJournal(DateTime(start.year, start.month, start.day + i))
+    ]))
+        .expand((dailyJournal) => dailyJournal)
+        .toList();
   }
 
   @override

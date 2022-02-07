@@ -5,10 +5,14 @@ import '../../storage_engines/connection_interface.dart';
 /// A provider specifically for [ExpenseJournalScreen]
 class ExpenseSupplier extends ChangeNotifier {
   final JournalIO? database;
-  late List<Journal> _list;
   late DateTimeRange _selectedRange;
 
+  bool _loading = false;
+  bool get loading => _loading;
+
+  List<Journal> _list = [];
   List<Journal> get data => _list;
+
   DateTimeRange get selectedRange => _selectedRange;
 
   /// total amount over the [_selectedRange]
@@ -18,8 +22,7 @@ class ExpenseSupplier extends ChangeNotifier {
 
   ExpenseSupplier({this.database, DateTimeRange? range}) {
     _selectedRange = range ?? DateTimeRange(start: DateTime.now(), end: DateTime.now());
-    _list = database?.getJournals(_selectedRange.start, _selectedRange.end) ?? [];
-    _sumAmount = _calcTotalAmount(_list);
+    _retrieveJournals();
   }
 
   /// Add a new journal entry to the list, note that it still refresh & display newly added
@@ -35,9 +38,7 @@ class ExpenseSupplier extends ChangeNotifier {
   set selectedRange(DateTimeRange newRange) {
     if (_selectedRange != newRange) {
       _selectedRange = newRange;
-      _list = database?.getJournals(_selectedRange.start, _selectedRange.end) ?? [];
-      _sumAmount = _calcTotalAmount(data);
-      notifyListeners();
+      _retrieveJournals();
     }
   }
 
@@ -52,4 +53,15 @@ class ExpenseSupplier extends ChangeNotifier {
   }
 
   DateTime trunc(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  void _retrieveJournals() {
+    _loading = true;
+    notifyListeners();
+    database?.getJournals(_selectedRange.start, _selectedRange.end).then((value) {
+      _list = value;
+      _sumAmount = _calcTotalAmount(_list);
+      _loading = false;
+      notifyListeners();
+    });
+  }
 }

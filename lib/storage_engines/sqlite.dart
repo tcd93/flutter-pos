@@ -14,6 +14,7 @@ const String nodeTable = 'nodes';
 const String orderTable = 'orders';
 const String lineItemTable = 'lineItems';
 const String dishTable = 'dish';
+const String journalTable = 'journal';
 
 /// merge multi-line results of sqlite rawQuery into list of [Order] objects
 @visibleForTesting
@@ -29,7 +30,7 @@ List<Map<String, Object?>> mergeRaws(List<Map<String, Object?>> rawResults) {
           'tableID': element['tableID'],
           'status': element['status'],
           'discountRate': element['discountRate'],
-          'isDeleted': element['isDeleted'],
+          'isDeleted': element['isDeleted'] == 1,
           'lineItems': [
             {
               'orderID': element['orderID'],
@@ -114,6 +115,15 @@ class SQLite implements DatabaseConnectionInterface {
               FOREIGN KEY(dishID) REFERENCES $dishTable(ID)
             );
             CREATE INDEX ${lineItemTable}Idx ON $lineItemTable (orderID);
+
+            CREATE TABLE $journalTable(
+              ID           INTEGER PRIMARY KEY AUTOINCREMENT, 
+              date         TEXT, -- YYYYMMDD
+              time         TEXT, -- HH24:MM:SS
+              entry        TEXT, 
+              amount       REAL
+            );
+            CREATE INDEX ${journalTable}Idx ON $journalTable (date, ID);
             ''',
           );
         },
@@ -135,10 +145,12 @@ class SQLite implements DatabaseConnectionInterface {
         DELETE FROM $lineItemTable;
         DELETE FROM $dishTable;
         DELETE FROM $nodeTable;
+        DELETE FROM $journalTable;
         DELETE FROM sqlite_sequence WHERE name='$orderTable';
         DELETE FROM sqlite_sequence WHERE name='$lineItemTable';
         DELETE FROM sqlite_sequence WHERE name='$dishTable';
         DELETE FROM sqlite_sequence WHERE name='$nodeTable';
+        DELETE FROM sqlite_sequence WHERE name='$journalTable';
       ''');
     }
     throw 'Database is not opened';
@@ -328,17 +340,60 @@ class SQLite implements DatabaseConnectionInterface {
   //---Journal---
 
   @override
-  List<Journal> getJournal(DateTime day) {
-    return [];
+  Future<List<Journal>> getJournal(DateTime day) async {
+    final rawResults = await _db.query(
+      journalTable,
+      where: 'date = ?',
+      whereArgs: [Common.extractYYYYMMDD(day)],
+    );
+
+    if (rawResults.isEmpty) {
+      return [];
+    }
+    return rawResults.map((j) {
+      final json = {
+        'ID': j['ID'],
+        'dateTime': (j['date']! as String) + ' ' + (j['time']! as String),
+        'entry': j['entry'],
+        'amount': j['amount'],
+      };
+      return Journal.fromJson(json);
+    }).toList();
   }
 
   @override
-  List<Journal> getJournals(DateTime start, DateTime end) {
-    return [];
+  Future<List<Journal>> getJournals(DateTime start, DateTime end) async {
+    final rawResults = await _db.query(
+      journalTable,
+      where: 'date BETWEEN ? AND ?',
+      whereArgs: [Common.extractYYYYMMDD(start), Common.extractYYYYMMDD(end)],
+    );
+
+    if (rawResults.isEmpty) {
+      return [];
+    }
+    return rawResults.map((j) {
+      final json = {
+        'ID': j['ID'],
+        'dateTime': (j['date']! as String) + ' ' + (j['time']! as String),
+        'entry': j['entry'],
+        'amount': j['amount'],
+      };
+      return Journal.fromJson(json);
+    }).toList();
   }
 
   @override
-  Future<void> insertJournal(Journal journal) async {
-    return;
+  Future<int> insertJournal(Journal journal) async {
+    return _db.insert(
+      journalTable,
+      {
+        'date': Common.extractYYYYMMDD(journal.dateTime),
+        'time': Common.extractTime(journal.dateTime),
+        'entry': journal.entry,
+        'amount': journal.amount,
+      },
+      conflictAlgorithm: ConflictAlgorithm.fail,
+    );
   }
 }

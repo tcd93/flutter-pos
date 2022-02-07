@@ -22,9 +22,9 @@ class OrderIO {
 
 /// Operations with the journal entries
 class JournalIO {
-  List<Journal> getJournal(DateTime day) => [];
+  Future<List<Journal>> getJournal(DateTime day) => Future.value([]);
 
-  List<Journal> getJournals(DateTime from, DateTime to) => [];
+  Future<List<Journal>> getJournals(DateTime from, DateTime to) => Future.value([]);
 
   Future<void> insertJournal(Journal journal) => Future.value();
 }

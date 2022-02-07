@@ -15,7 +15,7 @@ class Journal {
         _id = -1;
 
   Journal.fromJson(Map<String, dynamic> json)
-      : _id = json['journalID'] ?? -1,
+      : _id = json['journalID'] ?? json['ID'] ?? -1,
         dateTime = DateTime.parse(json['dateTime']),
         entry = json['entry'],
         amount = json['amount'];

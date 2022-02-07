@@ -49,11 +49,7 @@ class Order extends StateObject {
   Order.fromJson(Map<String, dynamic> json)
       : tableID = json['tableID'] ?? -1,
         _id = json['orderID'] ?? json['ID'] ?? -1,
-        isDeleted = json['isDeleted'] is bool
-            ? json['isDeleted']
-            : json['isDeleted'] is int
-                ? json['isDeleted'] == 1
-                : false,
+        isDeleted = json['isDeleted'] ?? false,
         status = TableStatus.empty,
         super.create(
           LineItemList.fromJson(json['lineItems']),

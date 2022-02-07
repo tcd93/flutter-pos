@@ -7,10 +7,10 @@ import 'journal_card.dart';
 class ExpenseJournalList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final data = context.select((ExpenseSupplier provider) => provider.data);
+    final length = context.select((ExpenseSupplier provider) => provider.data.length);
     return ListView.builder(
       physics: const BouncingScrollPhysics(),
-      itemCount: data.length,
+      itemCount: length,
       itemBuilder: (context, index) {
         return JournalCard(index);
       },
