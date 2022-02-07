@@ -25,14 +25,15 @@ class Supplier extends ChangeNotifier {
     }
     _loading = true;
     Future(() async {
-      final l = await database?.tableIDs();
-      _tables = l?.map((id) => TableModel(id, _startingCoord(id))).toList() ?? [];
+      final ids = (await database?.tableIDs()) ?? [];
+      _tables = [for (final _id in ids) TableModel(_id, await _startingCoord(_id))];
       _loading = false;
       notifyListeners();
     });
   }
 
-  Coordinate? _startingCoord(int id) => database != null ? Coordinate.fromDB(id, database!) : null;
+  Future<Coordinate?> _startingCoord(int id) async =>
+      database != null ? await Coordinate.fromDB(id, database!) : null;
 
   TableModel getTable(int id) {
     return tables.firstWhere((t) => t.id == id);

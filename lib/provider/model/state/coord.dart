@@ -6,8 +6,9 @@ class Coordinate {
 
   Coordinate(this.x, this.y);
 
-  Coordinate.fromDB(int tableID, CoordinateIO database) {
-    x = database.getX(tableID);
-    y = database.getY(tableID);
+  static Future<Coordinate> fromDB(int tableID, CoordinateIO database) async {
+    final _x = await database.getX(tableID);
+    final _y = await database.getY(tableID);
+    return Coordinate(_x, _y);
   }
 }

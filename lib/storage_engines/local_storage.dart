@@ -144,12 +144,12 @@ class LocalStorage implements DatabaseConnectionInterface {
   }
 
   @override
-  double getX(int tableID) {
+  Future<double> getX(int tableID) async {
     return ls.getItem('${tableID}_coord_x') ?? 0;
   }
 
   @override
-  double getY(int tableID) {
+  Future<double> getY(int tableID) {
     return ls.getItem('${tableID}_coord_y') ?? 0;
   }
 

@@ -66,8 +66,8 @@ class CoordinateIO {
   Future<void> setCoordinate(int tableID, double x, double y) => Future.value();
 
   /// Get position X of table node on screen
-  double getX(int tableID) => 0;
+  Future<double> getX(int tableID) async => 0;
 
   /// Get position Y of table node on screen
-  double getY(int tableID) => 0;
+  Future<double> getY(int tableID) async => 0;
 }

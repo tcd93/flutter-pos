@@ -301,18 +301,28 @@ class SQLite implements DatabaseConnectionInterface {
   }
 
   @override
-  Future<void> setCoordinate(int tableID, double x, double y) async {
-    return;
+  Future<int> setCoordinate(int tableID, double x, double y) async {
+    return _db.update(
+      nodeTable,
+      {
+        'coordX': x,
+        'coordY': y,
+      },
+      where: 'ID = ?',
+      whereArgs: [tableID],
+    );
   }
 
   @override
-  double getX(int tableID) {
-    return 0;
+  Future<double> getX(int tableID) async {
+    return (await _db.query(nodeTable, columns: ['coordX'], where: 'ID = ?', whereArgs: [tableID]))
+        .first['coordX'] as double;
   }
 
   @override
-  double getY(int tableID) {
-    return 0;
+  Future<double> getY(int tableID) async {
+    return (await _db.query(nodeTable, columns: ['coordY'], where: 'ID = ?', whereArgs: [tableID]))
+        .first['coordY'] as double;
   }
 
   //---Journal---

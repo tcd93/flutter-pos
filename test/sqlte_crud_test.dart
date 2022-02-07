@@ -112,4 +112,22 @@ void main() {
       expect(result[0].toJson(), {...order.toJson(), 'orderID': 1, 'isDeleted': true});
     });
   });
+
+  group('Node Op', () {
+    setUp(() async {
+      await sqlite.truncate();
+    });
+    test('Setting coords of a table', () async {
+      var newID = await sqlite.addTable();
+      expect(newID, 1);
+
+      await sqlite.setCoordinate(newID, 100, 155.5);
+      expect(await sqlite.getX(1), 100);
+      expect(await sqlite.getY(1), 155.5);
+
+      await sqlite.setCoordinate(newID, 10, 15.5);
+      expect(await sqlite.getX(1), 10);
+      expect(await sqlite.getY(1), 15.5);
+    });
+  });
 }
