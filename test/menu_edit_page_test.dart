@@ -20,9 +20,7 @@ void main() {
 
   tearDownAll(() async {
     await storage.destroy();
-    storage.close();
-    // .close() is async, but lib does not await...
-    await Future.delayed(const Duration(milliseconds: 300));
+    await storage.close();
     if (_db == 'local-storage') {
       File('test/menu_test').deleteSync();
     }

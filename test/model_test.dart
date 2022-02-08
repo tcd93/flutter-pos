@@ -1,34 +1,30 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/database_factory.dart';
 import 'package:posapp/provider/src.dart';
 
 void main() {
+  late Supplier mockTracker;
+  const _db = String.fromEnvironment('database', defaultValue: 'sqlite');
   var mockTable = TableModel(-1);
   var storage = DatabaseFactory().create(
-    const String.fromEnvironment('database', defaultValue: 'sqlite'),
+    _db,
     'test',
     {},
     'model_test',
   );
-  var mockTracker = Supplier(database: storage);
 
   setUpAll(() async {
     await storage.open();
+    mockTracker = Supplier(database: storage);
   });
 
   tearDownAll(() async {
     await storage.destroy();
-    storage.close();
-    try {
-      await Future.delayed(const Duration(milliseconds: 500));
-      File('test/model_test').deleteSync(); // delete the newly created storage file
-    } on Exception catch (e) {
-      if (kDebugMode) {
-        print('\x1B[94mtearDownAll (test/model_test): $e\x1B[0m');
-      }
+    await storage.close();
+    if (_db == 'local-storage') {
+      File('test/model_test').deleteSync();
     }
   });
 

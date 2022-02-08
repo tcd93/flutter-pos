@@ -21,8 +21,7 @@ void main() {
   });
   tearDownAll(() async {
     await storage.destroy();
-    storage.close();
-    await Future.delayed(const Duration(milliseconds: 300));
+    await storage.close();
     if (_db == 'local-storage') {
       File('test/journal-test-1').deleteSync();
     }

@@ -44,9 +44,7 @@ class MenuIO {
 class NodeIO {
   Future<dynamic> open() => Future.value();
 
-  void close() {
-    return;
-  }
+  Future<void> close() => Future.value();
 
   /// Removes all items from database, should be wrapped in try/catch block
   Future<void> destroy() => Future.value();

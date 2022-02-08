@@ -72,7 +72,10 @@ class LocalStorage implements DatabaseConnectionInterface {
   Future<bool> open() => ls.ready;
 
   @override
-  void close() => ls.dispose();
+  Future<void> close() async {
+    ls.dispose();
+    await Future.delayed(const Duration(milliseconds: 200));
+  }
 
   @override
   Future<void> destroy() => ls.clear();

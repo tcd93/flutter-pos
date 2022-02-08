@@ -25,9 +25,7 @@ void main() {
     });
     tearDownAll(() async {
       await storage.destroy();
-      storage.close();
-      // .close() is async, but lib does not await...
-      await Future.delayed(const Duration(milliseconds: 300));
+      await storage.close();
       if (_db == 'local-storage') {
         File('test/test-group-1').deleteSync();
       }
@@ -107,8 +105,7 @@ void main() {
 
     tearDownAll(() async {
       await storage.destroy();
-      storage.close();
-      await Future.delayed(const Duration(milliseconds: 300));
+      await storage.close();
       if (_db == 'local-storage') {
         File('test/test-group-2').deleteSync();
       }
@@ -201,8 +198,7 @@ void main() {
 
     tearDownAll(() async {
       await storage.destroy();
-      storage.close();
-      await Future.delayed(const Duration(milliseconds: 300));
+      await storage.close();
       if (_db == 'local-storage') {
         File('test/test-group-3').deleteSync();
       }
@@ -254,8 +250,7 @@ void main() {
 
     tearDownAll(() async {
       await storage.destroy();
-      storage.close();
-      await Future.delayed(const Duration(milliseconds: 300));
+      await storage.close();
       if (_db == 'local-storage') {
         File('test/test-group-4').deleteSync();
       }
