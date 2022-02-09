@@ -10,10 +10,12 @@ import 'package:provider/provider.dart';
 
 void main() {
   late DatabaseConnectionInterface storage;
-  const _db = String.fromEnvironment('database', defaultValue: 'sqlite');
+  late RIUDRepository<Dish> repo;
+  const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
 
   setUpAll(() async {
     storage = DatabaseFactory().create(_db, 'test', {}, 'menu_test');
+    repo = DatabaseFactory().createRIUDRepository(storage);
     await storage.open();
     // supplier = MenuSupplier(database: storage, mockMenu: Menu([dish1, dish2]));
   });
@@ -53,7 +55,7 @@ void main() {
   });
 
   testWidgets('Expect persisting to storage', (tester) async {
-    final supplier = MenuSupplier(database: storage, mockMenu: Menu());
+    final supplier = MenuSupplier(database: repo, mockMenu: Menu());
 
     await tester.pumpWidget(MaterialApp(
       builder: (_, __) {
@@ -66,13 +68,29 @@ void main() {
     ));
     await tester.runAsync(() => Future.delayed(const Duration(milliseconds: 200)));
 
-    final dish = Dish(1, 'new dish', 200);
-    await tester.runAsync<void>(() => supplier.addDish(dish)!);
-    final menu = await tester.runAsync(() => storage.getMenu());
+    var dish = await tester.runAsync<Dish>(() => supplier.addDish('new dish', 200));
+    var menu = await tester.runAsync(() => repo.get());
 
     expect(menu, isNotNull);
     expect(menu, isNotEmpty);
     expect(menu!.length, 1);
-    expect(menu.elementAt(0), dish);
+    expect(menu.elementAt(0).toJson(), dish!.toJson());
+
+    var dish2 = await tester.runAsync<Dish>(() => supplier.addDish('new dish 2', 300));
+    menu = await tester.runAsync(() => repo.get());
+    expect(menu!.length, 2);
+    expect(menu.elementAt(1).toJson(), dish2!.toJson());
+
+    await tester.runAsync<void>(() => supplier.updateDish(dish, 'XXX', 100));
+    menu = await tester.runAsync(() => repo.get());
+    expect(menu!.elementAt(0).id, 1);
+    expect(menu.elementAt(0).dish, 'XXX');
+    expect(menu.elementAt(0).price, 100);
+
+    await tester.runAsync<void>(() => supplier.removeDish(dish2));
+    menu = await tester.runAsync(() => repo.get());
+    expect(menu!.length, 1);
+    expect(menu.elementAt(0).dish, 'XXX');
+    expect(menu.elementAt(0).price, 100);
   });
 }

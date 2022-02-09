@@ -15,11 +15,13 @@ void main() {
   Supplier supplier;
   var checkedOutTable = TableModel(-1);
   late DatabaseConnectionInterface storage;
-  const _db = String.fromEnvironment('database', defaultValue: 'sqlite');
+  late RIDRepository<Order> repo;
+  const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
 
   group('Same day report:', () {
     setUpAll(() async {
       storage = DatabaseFactory().create(_db, 'test', {}, 'test-group-1');
+      repo = DatabaseFactory().createRIDRepository<Order>(storage);
       debugPrint('Testing database: $_db');
       await storage.open();
     });
@@ -38,13 +40,14 @@ void main() {
       const testTableID = 1;
       supplier = Supplier(
         database: storage,
+        repo: repo,
         mockModels: [
           TableModel(0),
           TableModel.withOrder(
             Order.create(
               tableID: 1,
               lineItems: LineItemList([
-                LineItem(associatedDish: Dish(1, 'Test Dish 1', 120000), quantity: 1),
+                LineItem(associatedDish: Dish('Test Dish 1', 120000), quantity: 1),
               ]),
             ),
           ),
@@ -65,7 +68,7 @@ void main() {
           builder: (_, __) => ChangeNotifierProvider(
             create: (_) {
               return HistoryOrderSupplier(
-                database: storage,
+                database: repo,
                 range: DateTimeRange(start: checkoutTime, end: checkoutTime),
               );
             },
@@ -100,6 +103,7 @@ void main() {
   group('Cross day report:', () {
     setUpAll(() async {
       storage = DatabaseFactory().create(_db, 'test', {}, 'test-group-2');
+      repo = DatabaseFactory().createRIDRepository<Order>(storage);
       await storage.open();
     });
 
@@ -119,9 +123,9 @@ void main() {
         'checkoutTime': '2020-11-12 01:31:32.840',
         'discountRate': 1.0,
         'lineItems': [
-          {'dishID': 0, 'dishName': 'Rice Noodles', 'quantity': 1, 'price': 10000.0},
-          {'dishID': 1, 'dishName': 'Lime Juice', 'quantity': 1, 'price': 20000.0},
-          {'dishID': 2, 'dishName': 'Vegan Noodle', 'quantity': 1, 'price': 30000.0}
+          {'dishID': 0, 'dish': 'Rice Noodles', 'quantity': 1, 'price': 10000.0},
+          {'dishID': 1, 'dish': 'Lime Juice', 'quantity': 1, 'price': 20000.0},
+          {'dishID': 2, 'dish': 'Vegan Noodle', 'quantity': 1, 'price': 30000.0}
         ]
       });
       final order2 = Order.fromJson(const {
@@ -129,9 +133,9 @@ void main() {
         'checkoutTime': '2020-11-13 01:31:47.658',
         'discountRate': 1.0,
         'lineItems': [
-          {'dishID': 0, 'dishName': 'Rice Noodles', 'quantity': 1, 'price': 10000.0},
-          {'dishID': 4, 'dishName': 'Fried Chicken with Egg', 'quantity': 1, 'price': 50000.0},
-          {'dishID': 5, 'dishName': 'Kimchi', 'quantity': 1, 'price': 60000.0}
+          {'dishID': 0, 'dish': 'Rice Noodles', 'quantity': 1, 'price': 10000.0},
+          {'dishID': 4, 'dish': 'Fried Chicken with Egg', 'quantity': 1, 'price': 50000.0},
+          {'dishID': 5, 'dish': 'Kimchi', 'quantity': 1, 'price': 60000.0}
         ]
       });
       final order3 = Order.fromJson(const {
@@ -139,13 +143,13 @@ void main() {
         'checkoutTime': '2020-11-14 01:31:59.936',
         'discountRate': 1.0,
         'lineItems': [
-          {'dishID': 6, 'dishName': 'Coffee', 'quantity': 1, 'price': 70000.0}
+          {'dishID': 6, 'dish': 'Coffee', 'quantity': 1, 'price': 70000.0}
         ]
       });
 
-      await storage.insert(order1);
-      await storage.insert(order2);
-      await storage.insert(order3);
+      await repo.insert(order1);
+      await repo.insert(order2);
+      await repo.insert(order3);
     });
     testWidgets(
       'Should have 2 line in History page, price = 180,000',
@@ -155,7 +159,7 @@ void main() {
           builder: (_, __) => ChangeNotifierProvider(
             create: (_) {
               return HistoryOrderSupplier(
-                database: storage,
+                database: repo,
                 range: DateTimeRange(
                     start: checkoutTime, end: checkoutTime.add(const Duration(days: 1))),
               );
@@ -191,8 +195,11 @@ void main() {
   });
 
   group('Soft delete order test:', () {
+    late Order order1, order2;
+
     setUpAll(() async {
       storage = DatabaseFactory().create(_db, 'test', {}, 'test-group-3');
+      repo = DatabaseFactory().createRIDRepository<Order>(storage);
       await storage.open();
     });
 
@@ -207,35 +214,35 @@ void main() {
     setUp(() async {
       await storage.truncate();
 
-      final order1 = Order.fromJson(const {
+      order1 = Order.fromJson(const {
         'orderID': 1,
         'checkoutTime': '2020-11-12 01:31:32.840',
         'discountRate': 1.0,
         'lineItems': [
-          {'dishID': 0, 'dishName': 'Rice Noodles', 'quantity': 1, 'price': 10000.0},
-          {'dishID': 1, 'dishName': 'Lime Juice', 'quantity': 1, 'price': 20000.0},
+          {'dishID': 0, 'dish': 'Rice Noodles', 'quantity': 1, 'price': 10000.0},
+          {'dishID': 1, 'dish': 'Lime Juice', 'quantity': 1, 'price': 20000.0},
         ],
         'isDeleted': false,
       });
-      final order2 = Order.fromJson(const {
+      order2 = Order.fromJson(const {
         'orderID': 2,
         'checkoutTime': '2020-11-12 02:31:32.840',
         'discountRate': 1.0,
         'lineItems': [
-          {'dishID': 1, 'dishName': 'Lime Juice', 'quantity': 2, 'price': 40000.0},
-          {'dishID': 2, 'dishName': 'Vegan Noodle', 'quantity': 1, 'price': 30000.0}
+          {'dishID': 1, 'dish': 'Lime Juice', 'quantity': 2, 'price': 40000.0},
+          {'dishID': 2, 'dish': 'Vegan Noodle', 'quantity': 1, 'price': 30000.0}
         ],
         'isDeleted': false,
       });
 
-      await storage.insert(order1);
-      await storage.insert(order2);
+      await repo.insert(order1);
+      await repo.insert(order2);
     });
 
     test('Should be able to set isDeleted to true', () async {
-      await storage.delete(DateTime.parse('2020-11-12'), 2);
+      await repo.delete(order2);
 
-      var order = await storage.get(DateTime.parse('2020-11-12'));
+      var order = await repo.get(DateTime.parse('2020-11-12'));
 
       expect(order[0].isDeleted, false);
       expect(order[1].isDeleted, true);
@@ -245,6 +252,7 @@ void main() {
   group('Soft delete order widget test:', () {
     setUpAll(() async {
       storage = DatabaseFactory().create(_db, 'test', {}, 'test-group-4');
+      repo = DatabaseFactory().createRIDRepository<Order>(storage);
       await storage.open();
     });
 
@@ -264,8 +272,8 @@ void main() {
         'checkoutTime': '2020-11-12 01:31:32.840',
         'discountRate': 1.0,
         'lineItems': [
-          {'dishID': 0, 'dishName': 'Rice Noodles', 'quantity': 2, 'price': 20000.0},
-          {'dishID': 1, 'dishName': 'Egg', 'quantity': 1, 'price': 5000.0},
+          {'dishID': 0, 'dish': 'Rice Noodles', 'quantity': 2, 'price': 20000.0},
+          {'dishID': 1, 'dish': 'Egg', 'quantity': 1, 'price': 5000.0},
         ],
         'isDeleted': false,
       });
@@ -274,7 +282,7 @@ void main() {
         'checkoutTime': '2020-11-12 02:31:32.840',
         'discountRate': 1.0,
         'lineItems': [
-          {'dishID': 1, 'dishName': 'Lime Juice', 'quantity': 2, 'price': 40000.0},
+          {'dishID': 1, 'dish': 'Lime Juice', 'quantity': 2, 'price': 40000.0},
         ],
         'isDeleted': true,
       });
@@ -283,7 +291,7 @@ void main() {
         'checkoutTime': '2020-11-13 01:31:32.840',
         'discountRate': 0.1,
         'lineItems': [
-          {'dishID': 0, 'dishName': 'Rice Noodles', 'quantity': 5, 'price': 50000.0},
+          {'dishID': 0, 'dish': 'Rice Noodles', 'quantity': 5, 'price': 50000.0},
         ],
         'isDeleted': false,
       });
@@ -292,15 +300,15 @@ void main() {
         'checkoutTime': '2020-11-13 01:31:32.840',
         'discountRate': 0.5,
         'lineItems': [
-          {'dishID': 0, 'dishName': "Royce da 5'9", 'quantity': 1, 'price': 1000.0},
+          {'dishID': 0, 'dish': "Royce da 5'9", 'quantity': 1, 'price': 1000.0},
         ],
         'isDeleted': false,
       });
 
-      await storage.insert(order1);
-      await storage.insert(order2);
-      await storage.insert(order3);
-      await storage.insert(order4);
+      await repo.insert(order1);
+      await repo.insert(order2);
+      await repo.insert(order3);
+      await repo.insert(order4);
     });
 
     testWidgets(
@@ -310,7 +318,7 @@ void main() {
           builder: (_, __) => ChangeNotifierProvider(
             create: (_) {
               return HistoryOrderSupplier(
-                database: storage,
+                database: repo,
                 range: DateTimeRange(start: checkoutTime, end: checkoutTime), //view by same day,
               );
             },
@@ -343,7 +351,7 @@ void main() {
       'Exclude deleted item in the summary price (appbar)',
       (tester) async {
         final provider = HistoryOrderSupplier(
-          database: storage,
+          database: repo,
           range: DateTimeRange(start: checkoutTime, end: checkoutTime), //view by same day,
         );
 

@@ -34,11 +34,10 @@ class EditMenuScreenState extends State<EditMenuScreen> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-      onAddDish: (Dish newDish) {
+      onAddDish: (name, price, [image]) {
         final supplier = context.read<MenuSupplier>();
-        supplier.addDish(newDish);
-        setState(() {
-          filteredDishes?.add(newDish);
+        setState(() async {
+          filteredDishes?.add(await supplier.addDish(name, price, image));
         });
       },
       body: SafeArea(
@@ -73,13 +72,6 @@ class EditMenuScreenState extends State<EditMenuScreen> {
                   itemBuilder: (_, index) {
                     return _ListItem(
                       filteredDishes![index],
-                      onEdit: (editedDish) {
-                        final supplier = context.read<MenuSupplier>();
-                        supplier.updateDish(editedDish);
-                        setState(() {
-                          filteredDishes![index] = editedDish;
-                        });
-                      },
                       onShow: (keyOfExpandedWidget) {
                         final ctx = keyOfExpandedWidget.currentContext!;
                         // ensure visibility of this widget after expanded (so it is not obscured by the appbar),
@@ -95,8 +87,6 @@ class EditMenuScreenState extends State<EditMenuScreen> {
                         });
                       },
                       onDelete: () {
-                        final supplier = context.read<MenuSupplier>();
-                        supplier.removeDish(filteredDishes![index]);
                         setState(() {
                           filteredDishes!.removeAt(index);
                         });
@@ -137,12 +127,11 @@ class _MenuList extends StatelessWidget {
 }
 
 class _ListItem extends StatefulWidget {
-  final Function(Dish) onEdit;
   final Function(GlobalKey keyOfExpandedWidget) onShow;
   final VoidCallback onDelete;
   final Dish dish;
 
-  const _ListItem(this.dish, {required this.onEdit, required this.onDelete, required this.onShow});
+  const _ListItem(this.dish, {required this.onDelete, required this.onShow});
 
   @override
   __ListItemState createState() => __ListItemState();
@@ -162,13 +151,13 @@ class __ListItemState extends State<_ListItem> {
       child: AnimatedCrossFade(
         duration: _animDuration,
         crossFadeState: currentState,
-        firstChild: collapsed(context),
-        secondChild: expanded(context, widget.dish, widget.onEdit),
+        firstChild: collapsed(context, widget.dish),
+        secondChild: expanded(context, widget.dish),
       ),
     );
   }
 
-  Widget collapsed(BuildContext context) {
+  Widget collapsed(BuildContext context, Dish dish) {
     return InkWell(
       onTap: () {
         setState(() {
@@ -179,7 +168,9 @@ class __ListItemState extends State<_ListItem> {
       onLongPress: () async {
         var delete = await popUpDelete(context);
         if (delete != null && delete) {
-          widget.onDelete.call();
+          final supplier = context.read<MenuSupplier>();
+          supplier.removeDish(dish);
+          widget.onDelete();
         }
       },
       child: Padding(
@@ -199,7 +190,7 @@ class __ListItemState extends State<_ListItem> {
     );
   }
 
-  Widget expanded(BuildContext context, Dish dish, Function(Dish) onEdit) {
+  Widget expanded(BuildContext context, Dish dish) {
     final dishNameController = TextEditingController(text: dish.dish);
     final priceController = TextEditingController(text: Money.format(dish.price));
 
@@ -218,8 +209,9 @@ class __ListItemState extends State<_ListItem> {
         buttonMinWidth: 70.0,
         onSubmit: () {
           if (priceController.text.isNotEmpty && dishNameController.text.isNotEmpty) {
-            final edittedDish = Dish(
-              dish.id,
+            final supplier = context.read<MenuSupplier>();
+            supplier.updateDish(
+              dish,
               dishNameController.text,
               Money.unformat(priceController.text).toDouble(),
               pickedImage,
@@ -227,7 +219,6 @@ class __ListItemState extends State<_ListItem> {
             setState(() {
               currentState = CrossFadeState.showFirst;
             });
-            onEdit(edittedDish);
           }
         },
         onCancel: () {

@@ -13,11 +13,11 @@ void main() {
     checkoutTime: checkOutTime,
     lineItems: LineItemList([
       LineItem(
-        associatedDish: Dish(0, 'Test Dish 0', 5000),
+        associatedDish: Dish('Test Dish 0', 5000),
         quantity: 1,
       ),
       LineItem(
-        associatedDish: Dish(1, 'Test Dish 1', 6000),
+        associatedDish: Dish('Test Dish 1', 6000),
         quantity: 2,
       ),
     ]),
@@ -27,11 +27,11 @@ void main() {
     checkoutTime: checkOutTime2,
     lineItems: LineItemList([
       LineItem(
-        associatedDish: Dish(3, 'Test Dish 3', 5000),
+        associatedDish: Dish('Test Dish 3', 5000),
         quantity: 1,
       ),
       LineItem(
-        associatedDish: Dish(4, 'Test Dish 4', 6000),
+        associatedDish: Dish('Test Dish 4', 6000),
         quantity: 2,
       ),
     ]),
@@ -41,11 +41,11 @@ void main() {
     checkoutTime: checkOutTime3,
     lineItems: LineItemList([
       LineItem(
-        associatedDish: Dish(3, 'Test Dish 1', 6000),
+        associatedDish: Dish('Test Dish 1', 6000),
         quantity: 1,
       ),
       LineItem(
-        associatedDish: Dish(4, 'Test Dish 4', 6000),
+        associatedDish: Dish('Test Dish 4', 6000),
         quantity: 2,
       ),
     ]),

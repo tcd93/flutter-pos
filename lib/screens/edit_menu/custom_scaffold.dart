@@ -2,11 +2,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../common/common.dart';
 import '../../theme/rally.dart';
-import '../../provider/src.dart';
 import '../avatar.dart';
 import 'menu_form.dart';
 
@@ -21,7 +19,7 @@ class CustomScaffold extends StatefulWidget {
   final Widget body;
 
   /// called when user press the central FAB in bottom appbar
-  final void Function(Dish newDish) onAddDish;
+  final void Function(String name, double price, [Uint8List? image]) onAddDish;
 
   const CustomScaffold({required this.body, required this.onAddDish});
 
@@ -86,14 +84,11 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
                 inputs: buildInputs(context, dishNameController, priceController),
                 onSubmit: () {
                   if (priceController.text.isNotEmpty && dishNameController.text.isNotEmpty) {
-                    final supplier = context.read<MenuSupplier>();
-                    final newDish = Dish(
-                      supplier.nextID(),
+                    widget.onAddDish(
                       dishNameController.text,
                       Money.unformat(priceController.text).toDouble(),
                       pickedImage,
                     );
-                    widget.onAddDish(newDish);
                     expanded.value = false;
                   }
                 },

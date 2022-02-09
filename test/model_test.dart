@@ -6,18 +6,14 @@ import 'package:posapp/provider/src.dart';
 
 void main() {
   late Supplier mockTracker;
-  const _db = String.fromEnvironment('database', defaultValue: 'sqlite');
+  const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
   var mockTable = TableModel(-1);
-  var storage = DatabaseFactory().create(
-    _db,
-    'test',
-    {},
-    'model_test',
-  );
+  var storage = DatabaseFactory().create(_db, 'test', {}, 'model_test');
+  var repo = DatabaseFactory().createRIRepository<Order>(storage);
 
   setUpAll(() async {
     await storage.open();
-    mockTracker = Supplier(database: storage);
+    mockTracker = Supplier(database: storage, repo: repo);
   });
 
   tearDownAll(() async {
@@ -33,11 +29,12 @@ void main() {
 
     mockTracker = Supplier(
       database: storage,
+      repo: repo,
       mockModels: [
         TableModel(0)
-          ..putIfAbsent(Dish(1, 'test1', 100)).quantity = 5
-          ..putIfAbsent(Dish(5, 'test5', 500)).quantity = 10
-          ..putIfAbsent(Dish(3, 'test3', 300)).quantity = 15,
+          ..putIfAbsent(Dish('test1', 100)).quantity = 5
+          ..putIfAbsent(Dish('test5', 500)).quantity = 10
+          ..putIfAbsent(Dish('test3', 300)).quantity = 15,
       ],
     );
     mockTable = mockTracker.getTable(0);
@@ -57,7 +54,7 @@ void main() {
   test('Order should persist to storage after checkout', () async {
     await mockTracker.checkout(mockTable, DateTime.parse('20200201 11:00:00'));
     await mockTable.printClear();
-    var items = await storage.get(DateTime.parse('20200201 11:00:00'));
+    var items = await repo.get(DateTime.parse('20200201 11:00:00'));
     expect(items, isNotNull);
     expect(items[0].checkoutTime, DateTime.parse('20200201 11:00:00'));
     expect(items[0].id, 1);
@@ -69,12 +66,12 @@ void main() {
     await mockTable.printClear();
 
     // create new order
-    final mockTable2 = TableModel(0)..putIfAbsent(Dish(1, 'test1', 100)).quantity = 5;
+    final mockTable2 = TableModel(0)..putIfAbsent(Dish('test1', 100)).quantity = 5;
 
     await mockTracker.checkout(mockTable2, DateTime.parse('20200201 13:00:00'));
     await mockTable2.printClear();
 
-    var items = await storage.get(DateTime.parse('20200201 13:00:00'));
+    var items = await repo.get(DateTime.parse('20200201 13:00:00'));
     expect(items.length, 2);
     expect(items[0].id, 1);
     expect(items[1].id, 2);

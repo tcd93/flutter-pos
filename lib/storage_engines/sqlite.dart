@@ -271,7 +271,7 @@ class SQLite implements DatabaseConnectionInterface {
       if (kDebugMode) print('\x1B[94mmenu not found in sqlite\x1B[0m');
       return null;
     }
-    return Menu.fromJson({'list': menu.map((d) => Dish.fromJson(d)).toList()});
+    return Menu.fromJson(menu.map((e) => Dish.fromJson(e)).toList());
   }
 
   @override

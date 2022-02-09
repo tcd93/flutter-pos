@@ -5,7 +5,7 @@ import '../src.dart';
 
 /// A provider specifically for [HistoryScreen]
 class HistoryOrderSupplier extends ChangeNotifier {
-  final OrderIO? database;
+  final RIDRepository<Order>? database;
   late DateTimeRange _selectedRange;
   bool _discountFlag = true;
 
@@ -39,7 +39,7 @@ class HistoryOrderSupplier extends ChangeNotifier {
 
   /// Mark an order from history list as 'ignored'
   void ignoreOrder(Order order) async {
-    await database?.delete(order.checkoutTime, order.id);
+    await database?.delete(order);
     final copy = Order.create(fromBase: order, isDeleted: true);
     orders[orders.indexOf(order)] = copy;
     notifyListeners();
@@ -89,7 +89,7 @@ class HistoryOrderSupplier extends ChangeNotifier {
   void _retrieveOrders() {
     _loading = true;
     notifyListeners();
-    database?.getRange(_selectedRange.start, _selectedRange.end).then((value) {
+    database?.get(_selectedRange.start, _selectedRange.end).then((value) {
       _orders = value;
       _loading = false;
       notifyListeners();

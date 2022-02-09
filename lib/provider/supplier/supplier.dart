@@ -12,12 +12,19 @@ class Supplier extends ChangeNotifier {
   bool _loading = false;
   bool get loading => _loading;
 
-  final SupplierRepository? database;
+  final NodeIO? database;
+  final RIRepository<Order>? repo;
 
   Supplier({
     this.database,
+    this.repo,
     List<TableModel>? mockModels,
-  }) {
+  }) : assert(() {
+          if (database != null) {
+            return repo != null;
+          }
+          return true;
+        }()) {
     if (mockModels != null) {
       _tables = mockModels;
       _loading = false;
@@ -54,7 +61,7 @@ class Supplier extends ChangeNotifier {
   }
 
   Future<void> checkout(TableModel table, [DateTime? atTime]) async {
-    await database?.insert(Order.create(
+    await repo?.insert(Order.create(
       fromBase: table.currentOrder,
       checkoutTime: atTime ?? DateTime.now(),
     ));

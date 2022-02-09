@@ -32,11 +32,11 @@ class LineItem {
   LineItem({required this.associatedDish, int quantity = 0}) : _quantity = quantity;
 
   LineItem.fromJson(Map<String, dynamic> json)
-      : associatedDish = Dish(json['dishID'], json['dishName'], json['price']),
+      : associatedDish = Dish.fromJson(json),
         _quantity = json['quantity'];
 
   Map<String, dynamic> toJson() {
-    return {'dishID': dishID, 'dishName': dishName, 'quantity': quantity, 'price': price};
+    return {'dishID': dishID, 'dish': dishName, 'price': price, 'quantity': quantity};
   }
 
   @override

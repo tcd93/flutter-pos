@@ -59,7 +59,7 @@ class Order extends StateObject {
 
   Map<String, dynamic> toJson() {
     return {
-      'orderID': _id,
+      'ID': _id,
       'tableID': tableID,
       'lineItems': activeLines.toJson(),
       'checkoutTime': checkoutTime.toString(),

@@ -13,10 +13,12 @@ final DateTime time = DateTime.parse('20201112 13:00:00');
 
 void main() {
   late DatabaseConnectionInterface storage;
-  const _db = String.fromEnvironment('database', defaultValue: 'sqlite');
+  late RIRepository<Journal> repo;
+  const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
 
   setUpAll(() async {
     storage = DatabaseFactory().create(_db, 'test', {}, 'journal-test-1');
+    repo = DatabaseFactory().createRIRepository(storage);
     await storage.open();
   });
   tearDownAll(() async {
@@ -35,7 +37,7 @@ void main() {
     'Should have 1 line in Expense page',
     (tester) async {
       await tester.runAsync(
-        () => storage.insertJournal(Journal(
+        () => repo.insert(Journal(
           entry: 'test entry',
           entryTime: time,
           amount: 1000,
@@ -46,7 +48,7 @@ void main() {
         builder: (_, __) => ChangeNotifierProvider(
           create: (_) {
             return ExpenseSupplier(
-              database: storage,
+              database: repo,
               range: DateTimeRange(start: time, end: time),
             );
           },
