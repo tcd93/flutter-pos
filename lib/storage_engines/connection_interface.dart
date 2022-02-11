@@ -65,17 +65,6 @@ class JournalIO {
   Future<void> insertJournal(Journal journal) => Future.value();
 }
 
-/// Specific CRUD operations on Menu
-class MenuIO {
-  /// Get menu from storage
-  Future<Menu?> getMenu() => throw 'Unimplemented Error';
-
-  /// Overrides current menu in storage with new menu object (localstorage)
-  ///
-  /// OR upsert a dish into storage (SQL), if [isDelete] is true, then instruct SQL to delete instead
-  Future<void> setMenu({Menu? menu, Dish? dish, bool isDelete = false}) => Future.value();
-}
-
 class TableIO {
   Future<List<int>> tableIDs() => Future.value([]);
 

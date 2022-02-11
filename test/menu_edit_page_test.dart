@@ -55,7 +55,7 @@ void main() {
   });
 
   testWidgets('Expect persisting to storage', (tester) async {
-    final supplier = MenuSupplier(database: repo, mockMenu: Menu());
+    final supplier = MenuSupplier(database: repo, mockMenu: []);
 
     await tester.pumpWidget(MaterialApp(
       builder: (_, __) {

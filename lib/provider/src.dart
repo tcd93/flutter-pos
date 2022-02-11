@@ -1,6 +1,5 @@
 export 'model/table.dart';
 export 'model/state/dish.dart';
-export 'model/menu.dart';
 export 'model/state/line_item.dart';
 export 'model/line_item_list.dart';
 export 'model/state/coord.dart';

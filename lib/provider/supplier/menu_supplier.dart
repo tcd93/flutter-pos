@@ -9,23 +9,22 @@ import '../../storage_engines/connection_interface.dart';
 import '../src.dart';
 
 class MenuSupplier {
-  late Menu _m;
+  late List<Dish> _m;
 
   /// must call [init] beforehand
-  Menu get menu => _m;
+  List<Dish> get menu => _m;
   final Completer<MenuSupplier> _completer = Completer();
 
   final RIUDRepository<Dish>? database;
 
-  MenuSupplier({this.database, Menu? mockMenu}) {
+  MenuSupplier({this.database, List<Dish>? mockMenu}) {
     if (mockMenu != null) {
       _m = mockMenu;
       _completer.complete(this);
       return;
     }
     Future(() async {
-      final _l = await database?.get() ?? [];
-      _m = _l.isNotEmpty ? Menu(_l) : _defaultMenu();
+      _m = (await database?.get()) ?? _defaultMenu();
       // in case getMenu() too fast causing screen rebuilt twice in a row -> weird janky effect ->
       // delay completion by 500 milliseconds
       Future.delayed(const Duration(milliseconds: 500), () => _completer.complete(this));
@@ -71,8 +70,8 @@ class MenuSupplier {
   }
 }
 
-Menu _defaultMenu() {
-  return Menu([
+List<Dish> _defaultMenu() {
+  return [
     Dish.fromAsset(
       'Rice Noodles',
       10000,
@@ -108,5 +107,5 @@ Menu _defaultMenu() {
       70000,
       'assets/coffee.png',
     ),
-  ]);
+  ];
 }

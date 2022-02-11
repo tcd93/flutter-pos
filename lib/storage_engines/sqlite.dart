@@ -265,17 +265,17 @@ class SQLite implements DatabaseConnectionInterface {
   //style of execution)
 
   @override
-  Future<Menu?> getMenu() async {
+  Future<List<Dish>?> getMenu() async {
     var menu = await _db.query(dishTable);
     if (menu.isEmpty) {
       if (kDebugMode) print('\x1B[94mmenu not found in sqlite\x1B[0m');
       return null;
     }
-    return Menu.fromJson(menu.map((e) => Dish.fromJson(e)).toList());
+    return (menu.map((e) => Dish.fromJson(e)).toList());
   }
 
   @override
-  Future<void> setMenu({Menu? menu, Dish? dish, bool isDelete = false}) async {
+  Future<void> setMenu({List<Dish>? menu, Dish? dish, bool isDelete = false}) async {
     if (dish == null) throw '[SQLite] setMenu() is only supported with `dish` parameter';
     if (!isDelete) {
       // upsert
