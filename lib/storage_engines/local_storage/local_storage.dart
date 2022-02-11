@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:localstorage/localstorage.dart' as lib;
 
@@ -29,49 +27,6 @@ class LocalStorage implements DatabaseConnectionInterface {
 
   @override
   Future<void> truncate() => ls.clear();
-
-//---Node---
-
-  @override
-  Future<List<int>> tableIDs() async {
-    final List<dynamic> l = ls.getItem('table_list') ?? [];
-    return l.cast<int>();
-  }
-
-  @override
-  Future<int> addTable() async {
-    final list = await tableIDs();
-    final nextID = list.fold<int>(0, max) + 1;
-    list.add(nextID);
-    await ls.setItem('table_list', list);
-    return nextID;
-  }
-
-  @override
-  Future<void> removeTable(int tableID) async {
-    final list = await tableIDs();
-    list.remove(tableID);
-    await ls.setItem('table_list', list);
-    return;
-  }
-
-  @override
-  Future<void> setCoordinate(int tableID, double x, double y) {
-    return Future.wait(
-      [ls.setItem('${tableID}_coord_x', x), ls.setItem('${tableID}_coord_y', y)],
-      eagerError: true,
-    );
-  }
-
-  @override
-  Future<double> getX(int tableID) async {
-    return ls.getItem('${tableID}_coord_x') ?? 0;
-  }
-
-  @override
-  Future<double> getY(int tableID) async {
-    return ls.getItem('${tableID}_coord_y') ?? 0;
-  }
 }
 
 class OrderLS extends RIDRepository<Order>
@@ -150,6 +105,25 @@ class MenuLS extends RIUDRepository<Dish>
 
   @override
   String get _idHighkey => 'dish_id_highkey';
+
+  @override
+  int _getKeyFromObject(value) => value.id;
+}
+
+class NodeLS extends RIUDRepository<Node>
+    with _ReadableImpl<Node>, _UpdatableImpl<Node>, _InsertableImpl<Node>, _DeletableImpl<Node> {
+  final lib.LocalStorage _ls;
+
+  @override
+  String get fixedKeyString => 'node';
+
+  NodeLS(this._ls);
+
+  @override
+  lib.LocalStorage get ls => _ls;
+
+  @override
+  String get _idHighkey => 'node_id_highkey';
 
   @override
   int _getKeyFromObject(value) => value.id;

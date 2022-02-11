@@ -7,12 +7,12 @@ import '../src.dart';
 
 class Supplier extends ChangeNotifier {
   late List<TableModel> _tables = [];
-  List<TableModel> get tables => _tables;
+  List<TableModel> get tables => List.unmodifiable(_tables);
 
   bool _loading = false;
   bool get loading => _loading;
 
-  final NodeIO? database;
+  final RIUDRepository<Node>? database;
 
   Supplier({
     this.database,
@@ -25,30 +25,25 @@ class Supplier extends ChangeNotifier {
     }
     _loading = true;
     Future(() async {
-      final ids = (await database?.tableIDs()) ?? [];
-      _tables = [for (final _id in ids) TableModel(_id, await _startingCoord(_id))];
+      final nodes = (await database?.get()) ?? [];
+      _tables = [for (final n in nodes) TableModel(n)];
       _loading = false;
       notifyListeners();
     });
   }
 
-  Future<Coordinate?> _startingCoord(int id) async =>
-      database != null ? await Coordinate.fromDB(id, database!) : null;
-
-  TableModel getTable(int id) {
-    return tables.firstWhere((t) => t.id == id);
-  }
-
   Future<int?> addTable() async {
-    final _nextID = await database?.addTable();
-    tables.add(TableModel(_nextID ?? -1));
+    final n = await database?.insert(Node());
+    _tables.add(TableModel(n));
     notifyListeners();
-    return _nextID;
+    return n?.id;
   }
 
-  Future<void> removeTable(int tableID) async {
-    await database?.removeTable(tableID);
-    tables.removeWhere((table) => table.id == tableID);
+  Future<void> removeTable(TableModel table) async {
+    assert(_tables.contains(table));
+
+    await database?.delete(table.node);
+    _tables.remove(table);
     notifyListeners();
     return;
   }

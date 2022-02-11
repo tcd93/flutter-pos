@@ -13,7 +13,7 @@ final DateTime checkoutTime = DateTime.parse('20201112 13:00:00');
 
 void main() {
   Supplier supplier;
-  var checkedOutTable = TableModel(-1);
+  var checkedOutTable = TableModel();
   late DatabaseConnectionInterface storage;
   late RIDRepository<Order> repo;
   const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
@@ -37,22 +37,20 @@ void main() {
     setUp(() async {
       await storage.truncate();
 
-      const testTableID = 1;
+      final checkedOutTable = TableModel.withOrder(
+        Order.create(
+          tableID: 1,
+          lineItems: LineItemList([
+            LineItem(associatedDish: Dish('Test Dish 1', 120000), quantity: 1),
+          ]),
+        ),
+      );
       supplier = Supplier(
-        database: storage,
         mockModels: [
-          TableModel(0),
-          TableModel.withOrder(
-            Order.create(
-              tableID: 1,
-              lineItems: LineItemList([
-                LineItem(associatedDish: Dish('Test Dish 1', 120000), quantity: 1),
-              ]),
-            ),
-          ),
+          TableModel(),
+          checkedOutTable,
         ],
       );
-      checkedOutTable = supplier.getTable(testTableID);
 
       await supplier.checkout(checkedOutTable, repo, checkoutTime);
       await checkedOutTable.printClear();

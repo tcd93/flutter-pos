@@ -7,13 +7,13 @@ import 'package:posapp/provider/src.dart';
 void main() {
   late Supplier mockTracker;
   const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
-  var mockTable = TableModel(-1);
+  var mockTable = TableModel();
   var storage = DatabaseFactory().create(_db, 'test', {}, 'model_test');
   var repo = DatabaseFactory().createRIRepository<Order>(storage);
 
   setUpAll(() async {
     await storage.open();
-    mockTracker = Supplier(database: storage);
+    mockTracker = Supplier();
   });
 
   tearDownAll(() async {
@@ -26,17 +26,13 @@ void main() {
 
   setUp(() async {
     await storage.truncate();
-
+    mockTable = TableModel()
+      ..putIfAbsent(Dish('test1', 100)).quantity = 5
+      ..putIfAbsent(Dish('test5', 500)).quantity = 10
+      ..putIfAbsent(Dish('test3', 300)).quantity = 15;
     mockTracker = Supplier(
-      database: storage,
-      mockModels: [
-        TableModel(0)
-          ..putIfAbsent(Dish('test1', 100)).quantity = 5
-          ..putIfAbsent(Dish('test5', 500)).quantity = 10
-          ..putIfAbsent(Dish('test3', 300)).quantity = 15,
-      ],
+      mockModels: [mockTable],
     );
-    mockTable = mockTracker.getTable(0);
   });
 
   test('mockTable total quantity should be 30', () {
@@ -65,7 +61,7 @@ void main() {
     await mockTable.printClear();
 
     // create new order
-    final mockTable2 = TableModel(0)..putIfAbsent(Dish('test1', 100)).quantity = 5;
+    final mockTable2 = TableModel()..putIfAbsent(Dish('test1', 100)).quantity = 5;
 
     await mockTracker.checkout(mockTable2, repo, DateTime.parse('20200201 13:00:00'));
     await mockTable2.printClear();

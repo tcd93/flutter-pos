@@ -5,7 +5,7 @@ import '../provider/src.dart';
 class NodeIO = TableIO with CoordinateIO;
 
 /// Represents a storage engine, like "localstorage", "sqlite", or "aws-s3"...
-class DatabaseConnectionInterface = NodeIO with Control;
+typedef DatabaseConnectionInterface = Control;
 
 /// Readable & Insertable
 abstract class RIRepository<T> = Readable<T> with Insertable<T>;

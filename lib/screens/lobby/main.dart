@@ -98,12 +98,12 @@ class _InteractiveBody extends StatelessWidget {
           Container(key: bgKey),
           for (var model in supplier.tables)
             DraggableWidget(
-              x: model.getOffset().x,
-              y: model.getOffset().y,
+              x: model.getOffset()['x']!,
+              y: model.getOffset()['y']!,
               containerKey: bgKey,
               transformController: transformController,
               onDragEnd: (x, y) {
-                model.setOffset(Coordinate(x, y), supplier.database);
+                model.setOffset(x, y, supplier.database);
               },
               key: ObjectKey(model),
               child: TableIcon(table: model),

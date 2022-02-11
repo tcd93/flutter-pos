@@ -2,7 +2,7 @@ export 'model/table.dart';
 export 'model/state/dish.dart';
 export 'model/state/line_item.dart';
 export 'model/line_item_list.dart';
-export 'model/state/coord.dart';
+export 'model/state/node.dart';
 export 'model/state/order.dart';
 export 'model/state/journal.dart';
 export 'model/state/state_object.dart';

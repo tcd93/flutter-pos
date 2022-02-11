@@ -24,6 +24,7 @@ mixin _ReadableImpl<T> implements Readable<T> {
     Order: (_JsonMap json) => Order.fromJson(json),
     Journal: (_JsonMap json) => Journal.fromJson(json),
     Dish: (_JsonMap json) => Dish.fromJson(json),
+    Node: (_JsonMap json) => Node.fromJson(json),
   };
 
   Future<List<T>> _get(QueryKey key) async {
@@ -92,8 +93,14 @@ mixin _InsertableImpl<T> on _ReadableImpl<T> implements Insertable<T> {
     }
 
     var list = ls.getItem(key);
+
     if (list != null) {
-      list.add(objectWithID);
+      // type checking as explained in [_get]
+      if (list is List<T>) {
+        list.add(_factories[T]!(objectWithID));
+      } else {
+        list.add(objectWithID);
+      }
     } else {
       list = [objectWithID];
     }

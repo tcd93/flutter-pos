@@ -49,12 +49,14 @@ class PosApp extends StatelessWidget {
               providers: [
                 Provider.value(value: _storage),
                 ChangeNotifierProvider(
-                  create: (_) => Supplier(database: _storage),
+                  create: (_) => Supplier(
+                    database: DatabaseFactory().createRIUDRepository<Node>(_storage),
+                  ),
                 ),
                 FutureProvider(
-                  create: (_) =>
-                      MenuSupplier(database: DatabaseFactory().createRIUDRepository<Dish>(_storage))
-                          .init(),
+                  create: (_) => MenuSupplier(
+                    database: DatabaseFactory().createRIUDRepository<Dish>(_storage),
+                  ).init(),
                   initialData: null,
                   lazy: false,
                 ),
