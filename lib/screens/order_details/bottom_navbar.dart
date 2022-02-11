@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../database_factory.dart';
+import '../../storage_engines/connection_interface.dart';
 import '../../common/common.dart' show Money, MoneyFormatter, NumberEL100Formatter;
 import '../../theme/rally.dart';
-import '../../provider/src.dart' show Supplier, TableModel;
+import '../../provider/src.dart' show Order, Supplier, TableModel;
 
 class BottomNavBar extends StatelessWidget {
   final String fromScreen;
@@ -59,7 +61,11 @@ class _CheckoutButton extends StatelessWidget {
           } else {
             final customerPaid = await _popUpPayment(context, order.totalPriceAfterDiscount);
             if (customerPaid != null) {
-              await context.read<Supplier>().checkout(order);
+              final database = context.read<DatabaseConnectionInterface?>();
+              await context.read<Supplier>().checkout(
+                    order,
+                    database != null ? DatabaseFactory().createRIRepository<Order>(database) : null,
+                  );
               await order.printClear(
                 context: context,
                 customerPayAmount: customerPaid,

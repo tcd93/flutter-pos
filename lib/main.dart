@@ -47,11 +47,9 @@ class PosApp extends StatelessWidget {
           if (dbSnapshot.hasData) {
             return MultiProvider(
               providers: [
+                Provider.value(value: _storage),
                 ChangeNotifierProvider(
-                  create: (_) => Supplier(
-                    database: _storage,
-                    repo: DatabaseFactory().createRIRepository<Order>(_storage),
-                  ),
+                  create: (_) => Supplier(database: _storage),
                 ),
                 FutureProvider(
                   create: (_) =>

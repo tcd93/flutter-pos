@@ -40,7 +40,6 @@ void main() {
       const testTableID = 1;
       supplier = Supplier(
         database: storage,
-        repo: repo,
         mockModels: [
           TableModel(0),
           TableModel.withOrder(
@@ -55,7 +54,7 @@ void main() {
       );
       checkedOutTable = supplier.getTable(testTableID);
 
-      await supplier.checkout(checkedOutTable, checkoutTime);
+      await supplier.checkout(checkedOutTable, repo, checkoutTime);
       await checkedOutTable.printClear();
     });
 

@@ -64,6 +64,15 @@ class TableModel {
     _s.slideRight(copy);
   }
 
+  Future<void> checkout([RIRepository<Order>? repo, DateTime? atTime]) async {
+    final _t = Order.create(
+      fromBase: currentOrder,
+      checkoutTime: atTime ?? DateTime.now(),
+    ); // without ID
+    final order = await repo?.insert(_t) ?? _t;
+    _s.replaceFirst(order);
+  }
+
   Future<void> _printReceipt(BuildContext context, [double? customerPayAmount]) async {
     return Printer.print(context, currentOrder, customerPayAmount);
   }

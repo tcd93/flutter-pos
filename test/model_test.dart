@@ -13,7 +13,7 @@ void main() {
 
   setUpAll(() async {
     await storage.open();
-    mockTracker = Supplier(database: storage, repo: repo);
+    mockTracker = Supplier(database: storage);
   });
 
   tearDownAll(() async {
@@ -29,7 +29,6 @@ void main() {
 
     mockTracker = Supplier(
       database: storage,
-      repo: repo,
       mockModels: [
         TableModel(0)
           ..putIfAbsent(Dish('test1', 100)).quantity = 5
@@ -52,7 +51,7 @@ void main() {
   });
 
   test('Order should persist to storage after checkout', () async {
-    await mockTracker.checkout(mockTable, DateTime.parse('20200201 11:00:00'));
+    await mockTracker.checkout(mockTable, repo, DateTime.parse('20200201 11:00:00'));
     await mockTable.printClear();
     var items = await repo.get(DateTime.parse('20200201 11:00:00'));
     expect(items, isNotNull);
@@ -62,13 +61,13 @@ void main() {
   });
 
   test('OrderID increase by 1 after first order', () async {
-    await mockTracker.checkout(mockTable, DateTime.parse('20200201 11:00:00'));
+    await mockTracker.checkout(mockTable, repo, DateTime.parse('20200201 11:00:00'));
     await mockTable.printClear();
 
     // create new order
     final mockTable2 = TableModel(0)..putIfAbsent(Dish('test1', 100)).quantity = 5;
 
-    await mockTracker.checkout(mockTable2, DateTime.parse('20200201 13:00:00'));
+    await mockTracker.checkout(mockTable2, repo, DateTime.parse('20200201 13:00:00'));
     await mockTable2.printClear();
 
     var items = await repo.get(DateTime.parse('20200201 13:00:00'));
