@@ -12,8 +12,8 @@ void main() {
 
   setUpAll(() async {
     storage = DatabaseFactory().create(_db, 'test', {}, 'node_test');
-    repo = DatabaseFactory().createRIUDRepository(storage);
     await storage.open();
+    repo = DatabaseFactory().createRIUDRepository(storage);
   });
 
   tearDownAll(() async {

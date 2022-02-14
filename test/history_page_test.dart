@@ -21,9 +21,9 @@ void main() {
   group('Same day report:', () {
     setUpAll(() async {
       storage = DatabaseFactory().create(_db, 'test', {}, 'test-group-1');
+      await storage.open();
       repo = DatabaseFactory().createRIDRepository<Order>(storage);
       debugPrint('Testing database: $_db');
-      await storage.open();
     });
     tearDownAll(() async {
       await storage.destroy();
@@ -100,8 +100,8 @@ void main() {
   group('Cross day report:', () {
     setUpAll(() async {
       storage = DatabaseFactory().create(_db, 'test', {}, 'test-group-2');
-      repo = DatabaseFactory().createRIDRepository<Order>(storage);
       await storage.open();
+      repo = DatabaseFactory().createRIDRepository<Order>(storage);
     });
 
     tearDownAll(() async {
@@ -196,8 +196,8 @@ void main() {
 
     setUpAll(() async {
       storage = DatabaseFactory().create(_db, 'test', {}, 'test-group-3');
-      repo = DatabaseFactory().createRIDRepository<Order>(storage);
       await storage.open();
+      repo = DatabaseFactory().createRIDRepository<Order>(storage);
     });
 
     tearDownAll(() async {
@@ -249,8 +249,8 @@ void main() {
   group('Soft delete order widget test:', () {
     setUpAll(() async {
       storage = DatabaseFactory().create(_db, 'test', {}, 'test-group-4');
-      repo = DatabaseFactory().createRIDRepository<Order>(storage);
       await storage.open();
+      repo = DatabaseFactory().createRIDRepository<Order>(storage);
     });
 
     tearDownAll(() async {

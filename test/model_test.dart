@@ -3,16 +3,18 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/database_factory.dart';
 import 'package:posapp/provider/src.dart';
+import 'package:posapp/storage_engines/connection_interface.dart';
 
 void main() {
   late Supplier mockTracker;
   const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
   var mockTable = TableModel();
   var storage = DatabaseFactory().create(_db, 'test', {}, 'model_test');
-  var repo = DatabaseFactory().createRIRepository<Order>(storage);
+  late RIRepository<Order> repo;
 
   setUpAll(() async {
     await storage.open();
+    repo = DatabaseFactory().createRIRepository<Order>(storage);
     mockTracker = Supplier();
   });
 

@@ -15,8 +15,8 @@ void main() {
 
   setUpAll(() async {
     storage = DatabaseFactory().create(_db, 'test', {}, 'menu_test');
-    repo = DatabaseFactory().createRIUDRepository(storage);
     await storage.open();
+    repo = DatabaseFactory().createRIUDRepository(storage);
     // supplier = MenuSupplier(database: storage, mockMenu: Menu([dish1, dish2]));
   });
 

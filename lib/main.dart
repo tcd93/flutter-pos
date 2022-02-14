@@ -15,9 +15,8 @@ import 'screens/menu/main.dart';
 import 'storage_engines/connection_interface.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-
   final storage = DatabaseFactory().create('local-storage');
+  WidgetsFlutterBinding.ensureInitialized();
 
   runApp(PosApp(storage));
 }

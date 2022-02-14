@@ -18,8 +18,8 @@ void main() {
 
   setUpAll(() async {
     storage = DatabaseFactory().create(_db, 'test', {}, 'journal-test-1');
-    repo = DatabaseFactory().createRIRepository(storage);
     await storage.open();
+    repo = DatabaseFactory().createRIRepository(storage);
   });
   tearDownAll(() async {
     await storage.destroy();

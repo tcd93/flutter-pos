@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:posapp/storage_engines/sqlite.dart';
+import 'package:posapp/storage_engines/sqlite/sqlite.dart';
 
 void main() {
   test('Should merge rawResults into a list of one object', () {
