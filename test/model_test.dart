@@ -3,21 +3,19 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/database_factory.dart';
 import 'package:posapp/provider/src.dart';
+import 'package:posapp/storage_engines/connection_interface.dart';
 
 void main() {
   late Supplier mockTracker;
-  const _db = String.fromEnvironment('database', defaultValue: 'sqlite');
-  var mockTable = TableModel(-1);
-  var storage = DatabaseFactory().create(
-    _db,
-    'test',
-    {},
-    'model_test',
-  );
+  const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
+  var mockTable = TableModel();
+  var storage = DatabaseFactory().create(_db, 'test', {}, 'model_test');
+  late RIRepository<Order> repo;
 
   setUpAll(() async {
     await storage.open();
-    mockTracker = Supplier(database: storage);
+    repo = DatabaseFactory().createRIRepository<Order>(storage);
+    mockTracker = Supplier();
   });
 
   tearDownAll(() async {
@@ -30,17 +28,13 @@ void main() {
 
   setUp(() async {
     await storage.truncate();
-
+    mockTable = TableModel()
+      ..putIfAbsent(Dish('test1', 100)).quantity = 5
+      ..putIfAbsent(Dish('test5', 500)).quantity = 10
+      ..putIfAbsent(Dish('test3', 300)).quantity = 15;
     mockTracker = Supplier(
-      database: storage,
-      mockModels: [
-        TableModel(0)
-          ..putIfAbsent(Dish(1, 'test1', 100)).quantity = 5
-          ..putIfAbsent(Dish(5, 'test5', 500)).quantity = 10
-          ..putIfAbsent(Dish(3, 'test3', 300)).quantity = 15,
-      ],
+      mockModels: [mockTable],
     );
-    mockTable = mockTracker.getTable(0);
   });
 
   test('mockTable total quantity should be 30', () {
@@ -55,9 +49,9 @@ void main() {
   });
 
   test('Order should persist to storage after checkout', () async {
-    await mockTracker.checkout(mockTable, DateTime.parse('20200201 11:00:00'));
+    await mockTracker.checkout(mockTable, repo, DateTime.parse('20200201 11:00:00'));
     await mockTable.printClear();
-    var items = await storage.get(DateTime.parse('20200201 11:00:00'));
+    var items = await repo.get(DateTime.parse('20200201 11:00:00'));
     expect(items, isNotNull);
     expect(items[0].checkoutTime, DateTime.parse('20200201 11:00:00'));
     expect(items[0].id, 1);
@@ -65,16 +59,16 @@ void main() {
   });
 
   test('OrderID increase by 1 after first order', () async {
-    await mockTracker.checkout(mockTable, DateTime.parse('20200201 11:00:00'));
+    await mockTracker.checkout(mockTable, repo, DateTime.parse('20200201 11:00:00'));
     await mockTable.printClear();
 
     // create new order
-    final mockTable2 = TableModel(0)..putIfAbsent(Dish(1, 'test1', 100)).quantity = 5;
+    final mockTable2 = TableModel()..putIfAbsent(Dish('test1', 100)).quantity = 5;
 
-    await mockTracker.checkout(mockTable2, DateTime.parse('20200201 13:00:00'));
+    await mockTracker.checkout(mockTable2, repo, DateTime.parse('20200201 13:00:00'));
     await mockTable2.printClear();
 
-    var items = await storage.get(DateTime.parse('20200201 13:00:00'));
+    var items = await repo.get(DateTime.parse('20200201 13:00:00'));
     expect(items.length, 2);
     expect(items[0].id, 1);
     expect(items[1].id, 2);

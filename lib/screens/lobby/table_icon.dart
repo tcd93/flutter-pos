@@ -86,7 +86,7 @@ class TableIcon extends StatelessWidget {
         child: FloatingActionButton(
           mini: true,
           heroTag: 'delete-subtag-table-${table.id}',
-          onPressed: () => _removeTable(context, table.id),
+          onPressed: () => _removeTable(context, table),
           child: const Icon(Icons.delete),
         ),
       ),
@@ -151,10 +151,10 @@ class _RadialButton extends StatelessWidget {
 
 // ******************************* //
 
-void _removeTable(BuildContext context, int id) async {
+void _removeTable(BuildContext context, TableModel table) async {
   final supplier = Provider.of<Supplier>(context, listen: false);
   var delete = await popUpDelete(context);
   if (delete != null && delete) {
-    supplier.removeTable(id);
+    supplier.removeTable(table);
   }
 }

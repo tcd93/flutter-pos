@@ -22,7 +22,7 @@ class Journal {
 
   Map<String, dynamic> toJson() {
     return {
-      'journalID': _id,
+      'ID': _id,
       'dateTime': dateTime.toString(),
       'entry': entry,
       'amount': amount,
@@ -32,7 +32,7 @@ class Journal {
   @override
   String toString() {
     return '{ '
-        'journalID: $_id, '
+        'ID: $_id, '
         'dateTime: ${dateTime.toString()}, '
         'entry: $entry, '
         'amount: $amount '

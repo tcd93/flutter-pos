@@ -7,11 +7,13 @@ import 'package:posapp/storage_engines/connection_interface.dart';
 
 void main() {
   late DatabaseConnectionInterface storage;
-  const _db = String.fromEnvironment('database', defaultValue: 'sqlite');
+  late RIUDRepository<Node> repo;
+  const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
 
   setUpAll(() async {
     storage = DatabaseFactory().create(_db, 'test', {}, 'node_test');
     await storage.open();
+    repo = DatabaseFactory().createRIUDRepository(storage);
   });
 
   tearDownAll(() async {
@@ -27,33 +29,29 @@ void main() {
   });
 
   testWidgets('Create/edit a table node', (tester) async {
-    final supplier = Supplier(database: storage);
+    final supplier = Supplier(database: repo);
     await tester.pumpAndSettle();
 
     var newID = await tester.runAsync<int?>(() => supplier.addTable());
     expect(newID, 1);
-    var table = supplier.getTable(1);
-    expect(table.id, 1);
 
-    var ids = await tester.runAsync(() => storage.tableIDs());
+    var ids = await tester.runAsync(() => repo.get());
     expect(ids!.length, 1);
-    expect(ids[0], 1);
+    expect(ids[0].id, 1);
 
     // add second node
     newID = await tester.runAsync<int?>(() => supplier.addTable());
     expect(newID, 2);
-    table = supplier.getTable(2);
-    expect(table.id, 2);
 
-    ids = await tester.runAsync(() => storage.tableIDs());
+    ids = await tester.runAsync(() => repo.get());
     expect(ids!.length, 2);
-    expect(ids[1], 2);
+    expect(ids[1].id, 2);
 
     // remove first node
-    await tester.runAsync(() => supplier.removeTable(1));
-    expect(() => supplier.getTable(1), throwsStateError);
+    await tester.runAsync(() => supplier.removeTable(supplier.tables.first));
+    expect(() => supplier.tables.firstWhere((t) => t.id == 1), throwsStateError);
 
-    ids = await tester.runAsync(() => storage.tableIDs());
+    ids = await tester.runAsync(() => repo.get());
     expect(ids!.length, 1);
   });
 }

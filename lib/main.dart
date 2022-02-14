@@ -15,9 +15,8 @@ import 'screens/menu/main.dart';
 import 'storage_engines/connection_interface.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-
   final storage = DatabaseFactory().create('local-storage');
+  WidgetsFlutterBinding.ensureInitialized();
 
   runApp(PosApp(storage));
 }
@@ -47,9 +46,16 @@ class PosApp extends StatelessWidget {
           if (dbSnapshot.hasData) {
             return MultiProvider(
               providers: [
-                ChangeNotifierProvider(create: (_) => Supplier(database: _storage)),
+                Provider.value(value: _storage),
+                ChangeNotifierProvider(
+                  create: (_) => Supplier(
+                    database: DatabaseFactory().createRIUDRepository<Node>(_storage),
+                  ),
+                ),
                 FutureProvider(
-                  create: (_) => MenuSupplier(database: _storage).init(),
+                  create: (_) => MenuSupplier(
+                    database: DatabaseFactory().createRIUDRepository<Dish>(_storage),
+                  ).init(),
                   initialData: null,
                   lazy: false,
                 ),
@@ -94,7 +100,9 @@ class PosApp extends StatelessWidget {
               DefaultTabController(
                 length: 2,
                 child: ChangeNotifierProvider(
-                  create: (_) => HistoryOrderSupplier(database: _storage),
+                  create: (_) => HistoryOrderSupplier(
+                    database: DatabaseFactory().createRIDRepository<Order>(_storage),
+                  ),
                   child: HistoryScreen(),
                 ),
               ),
@@ -103,7 +111,9 @@ class PosApp extends StatelessWidget {
             return routeBuilder(
               ChangeNotifierProvider(
                 create: (_) {
-                  return ExpenseSupplier(database: _storage);
+                  return ExpenseSupplier(
+                    database: DatabaseFactory().createRIRepository<Journal>(_storage),
+                  );
                 },
                 child: ExpenseJournalScreen(),
               ),

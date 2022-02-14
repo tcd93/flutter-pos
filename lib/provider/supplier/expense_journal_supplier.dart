@@ -4,7 +4,7 @@ import '../../storage_engines/connection_interface.dart';
 
 /// A provider specifically for [ExpenseJournalScreen]
 class ExpenseSupplier extends ChangeNotifier {
-  final JournalIO? database;
+  final RIRepository<Journal>? database;
   late DateTimeRange _selectedRange;
 
   bool _loading = false;
@@ -31,7 +31,7 @@ class ExpenseSupplier extends ChangeNotifier {
   void addJournal(Journal journal) {
     _list = [..._list, journal]; // don't use .add() because it does not work with 'select'
     _sumAmount = _calcTotalAmount(data);
-    database?.insertJournal(journal);
+    database?.insert(journal);
     notifyListeners();
   }
 
@@ -57,7 +57,7 @@ class ExpenseSupplier extends ChangeNotifier {
   void _retrieveJournals() {
     _loading = true;
     notifyListeners();
-    database?.getJournals(_selectedRange.start, _selectedRange.end).then((value) {
+    database?.get(_selectedRange.start, _selectedRange.end).then((value) {
       _list = value;
       _sumAmount = _calcTotalAmount(_list);
       _loading = false;
