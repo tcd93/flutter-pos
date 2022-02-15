@@ -7,7 +7,9 @@ import '../src.dart';
 
 class Supplier extends ChangeNotifier {
   late List<TableModel> _tables = [];
-  List<TableModel> get tables => List.unmodifiable(_tables);
+  List<TableModel> tables(int page) {
+    return List.unmodifiable(_tables.where((t) => t.node.page == page));
+  }
 
   bool _loading = false;
   bool get loading => _loading;
@@ -32,8 +34,8 @@ class Supplier extends ChangeNotifier {
     });
   }
 
-  Future<int?> addTable() async {
-    final n = await database?.insert(Node());
+  Future<int?> addTable(int page) async {
+    final n = await database?.insert(Node(page: page));
     _tables.add(TableModel(n));
     notifyListeners();
     return n?.id;

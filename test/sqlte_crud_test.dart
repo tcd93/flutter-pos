@@ -137,7 +137,7 @@ void main() {
       await sqlite.truncate();
     });
     test('Setting coords of a table', () async {
-      var node = await repo.insert(Node());
+      var node = await repo.insert(Node(page: 0));
       expect(node.id, 1);
 
       node.x = 100;

@@ -19,11 +19,11 @@ class TableModel {
 
   TableModel([Node? node])
       : _s = SlidingWindow([Order.create(), Order.create()]),
-        node = node ?? Node();
+        node = node ?? Node(page: 0);
 
   TableModel.withOrder(Order order, [Node? node])
       : _s = SlidingWindow([Order.create(fromBase: order), Order.create(fromBase: order)]),
-        node = node ?? Node();
+        node = node ?? Node(page: 0);
 
   TableStatus get status => _currentOrder.status;
 

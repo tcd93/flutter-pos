@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -25,7 +23,7 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
   void initState() {
     _controller = TabController(length: maxTab, vsync: this);
     _tabs = [for (int i = 1; i <= maxTab; i++) Tab(text: i.toString())];
-    _views = [for (int i = 1; i <= maxTab; i++) _InteractiveBody()];
+    _views = [for (int i = 1; i <= maxTab; i++) _InteractiveBody(i - 1)];
     super.initState();
   }
 
@@ -66,7 +64,7 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
         ),
       ),
       floatingActionButton: AnimatedLongClickableFAB(
-        onLongPress: () => _addTable(context),
+        onLongPress: () => context.read<Supplier>().addTable(_controller.index),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       appBar: AppBar(
@@ -74,6 +72,7 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
           controller: _controller,
           isScrollable: true,
           tabs: _tabs,
+          key: ObjectKey(maxTab), // see issue #20292 for dynamic tabbar length bug
         ),
         actions: [
           IconButton(
@@ -84,10 +83,8 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
 
               setState(() {
                 ++maxTab;
-                // do not use List.add() here to change state
-                // it'll throw Index out of range error, maybe due to a cache stored internally somewhere
-                _tabs = [..._tabs, Tab(text: maxTab.toString())];
-                _views = [..._views, _InteractiveBody()];
+                _tabs.add(Tab(text: maxTab.toString()));
+                _views.add(_InteractiveBody(maxTab - 1));
                 _controller = TabController(length: maxTab, vsync: this);
                 _controller.index = currIdx;
                 _controller.animateTo(maxTab - 1);
@@ -100,6 +97,7 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
         physics: const NeverScrollableScrollPhysics(),
         controller: _controller,
         children: _views,
+        key: ObjectKey(maxTab), // see issue #20292 for dynamic tabbar length bug
       ),
     );
   }
@@ -136,15 +134,27 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
 
 /// Allow panning & dragging widgets inside...
 class _InteractiveBody extends StatefulWidget {
+  final int page;
+
+  _InteractiveBody(this.page) : super(key: ObjectKey(page));
+
   @override
   State<_InteractiveBody> createState() => _InteractiveBodyState();
 }
 
-class _InteractiveBodyState extends State<_InteractiveBody> {
+class _InteractiveBodyState extends State<_InteractiveBody>
+    with AutomaticKeepAliveClientMixin<_InteractiveBody> {
   /// The key to container (1), must be passed into all DraggableWidget widgets in Stack
-  final GlobalKey bgKey = GlobalKey();
+  late GlobalKey bgKey;
 
-  final TransformationController transformController = TransformationController();
+  late TransformationController transformController;
+
+  @override
+  void initState() {
+    bgKey = GlobalKey();
+    transformController = TransformationController();
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -154,6 +164,7 @@ class _InteractiveBodyState extends State<_InteractiveBody> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final supplier = Provider.of<Supplier>(context, listen: true);
     return InteractiveViewer(
       maxScale: 2.0,
@@ -164,7 +175,7 @@ class _InteractiveBodyState extends State<_InteractiveBody> {
           // pan & scale effect from InteractiveViewer will actually interact with this container
           // thus also easily scale & pan all widgets inside the stack
           Container(key: bgKey),
-          for (var model in supplier.tables)
+          for (var model in supplier.tables(widget.page))
             DraggableWidget(
               x: model.getOffset()['x']!,
               y: model.getOffset()['y']!,
@@ -180,11 +191,7 @@ class _InteractiveBodyState extends State<_InteractiveBody> {
       ),
     );
   }
-}
 
-// ******************************* //
-
-void _addTable(BuildContext context) {
-  var supplier = Provider.of<Supplier>(context, listen: false);
-  supplier.addTable();
+  @override
+  bool get wantKeepAlive => true;
 }
