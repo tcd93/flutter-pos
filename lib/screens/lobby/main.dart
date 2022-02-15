@@ -135,11 +135,22 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
 }
 
 /// Allow panning & dragging widgets inside...
-class _InteractiveBody extends StatelessWidget {
+class _InteractiveBody extends StatefulWidget {
+  @override
+  State<_InteractiveBody> createState() => _InteractiveBodyState();
+}
+
+class _InteractiveBodyState extends State<_InteractiveBody> {
   /// The key to container (1), must be passed into all DraggableWidget widgets in Stack
   final GlobalKey bgKey = GlobalKey();
 
   final TransformationController transformController = TransformationController();
+
+  @override
+  void dispose() {
+    transformController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
