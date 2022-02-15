@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -8,7 +10,31 @@ import '../../theme/rally.dart';
 import '../../provider/src.dart';
 import 'anim_longclick_fab.dart';
 
-class LobbyScreen extends StatelessWidget {
+class LobbyScreen extends StatefulWidget {
+  @override
+  State<LobbyScreen> createState() => _LobbyScreenState();
+}
+
+class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin {
+  late TabController _controller;
+  late List<Tab> _tabs;
+  late List<_InteractiveBody> _views;
+  int maxTab = 1;
+
+  @override
+  void initState() {
+    _controller = TabController(length: maxTab, vsync: this);
+    _tabs = [for (int i = 1; i <= maxTab; i++) Tab(text: i.toString())];
+    _views = [for (int i = 1; i <= maxTab; i++) _InteractiveBody()];
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +69,38 @@ class LobbyScreen extends StatelessWidget {
         onLongPress: () => _addTable(context),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      body: _InteractiveBody(),
+      appBar: AppBar(
+        title: TabBar(
+          controller: _controller,
+          isScrollable: true,
+          tabs: _tabs,
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              int currIdx = _controller.index;
+              _controller.dispose();
+
+              setState(() {
+                ++maxTab;
+                // do not use List.add() here to change state
+                // it'll throw Index out of range error, maybe due to a cache stored internally somewhere
+                _tabs = [..._tabs, Tab(text: maxTab.toString())];
+                _views = [..._views, _InteractiveBody()];
+                _controller = TabController(length: maxTab, vsync: this);
+                _controller.index = currIdx;
+                _controller.animateTo(maxTab - 1);
+              });
+            },
+          ),
+        ],
+      ),
+      body: TabBarView(
+        physics: const NeverScrollableScrollPhysics(),
+        controller: _controller,
+        children: _views,
+      ),
     );
   }
 
