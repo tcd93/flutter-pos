@@ -25,7 +25,10 @@ class MenuSupplier {
     }
     Future(() async {
       _m = (await database?.get()) ?? [];
-      if (_m.isEmpty) _m = _defaultMenu();
+      if (_m.isEmpty) {
+        _m = _defaultMenu();
+        if (database != null) _m.forEach(database!.insert);
+      }
       // in case getMenu() too fast causing screen rebuilt twice in a row -> weird janky effect ->
       // delay completion by 500 milliseconds
       Future.delayed(const Duration(milliseconds: 500), () => _completer.complete(this));

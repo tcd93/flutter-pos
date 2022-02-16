@@ -34,10 +34,11 @@ class EditMenuScreenState extends State<EditMenuScreen> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-      onAddDish: (name, price, [image]) {
+      onAddDish: (name, price, [image]) async {
         final supplier = context.read<MenuSupplier>();
-        setState(() async {
-          filteredDishes?.add(await supplier.addDish(name, price, image));
+        final dish = await supplier.addDish(name, price, image);
+        setState(() {
+          filteredDishes?.add(dish);
         });
       },
       body: SafeArea(
