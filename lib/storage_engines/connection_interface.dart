@@ -41,6 +41,8 @@ abstract class Deletable<T> {
 
 abstract class Updatable<T> {
   Future<void> update(T value);
+
+  Future<void> upsert(T value) => throw UnimplementedError();
 }
 
 /// Specific operations on table nodes, like inserting an order

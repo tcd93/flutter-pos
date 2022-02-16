@@ -25,6 +25,7 @@ mixin _ReadableImpl<T> implements Readable<T> {
     Journal: (_JsonMap json) => Journal.fromJson(json),
     Dish: (_JsonMap json) => Dish.fromJson(json),
     Node: (_JsonMap json) => Node.fromJson(json),
+    Config: (_JsonMap json) => Config.fromJson(json),
   };
 
   Future<List<T>> _get(QueryKey key) async {
@@ -121,6 +122,24 @@ mixin _UpdatableImpl<T> on _ReadableImpl<T> implements Updatable<T> {
         (e) => _getKeyFromObject(e).compareTo(keyObj) == 0,
       );
       list[idx] = value;
+      return ls.setItem(key, list);
+    }
+  }
+
+  @override
+  Future<void> upsert(T value) async {
+    final keyObj = _getKeyFromObject(value);
+    final key = _getKeyString(keyObj);
+
+    List<T> list = await _get(key);
+    if (list.isNotEmpty) {
+      final idx = list.indexWhere(
+        (e) => _getKeyFromObject(e).compareTo(keyObj) == 0,
+      );
+      list[idx] = value;
+      return ls.setItem(key, list);
+    } else {
+      list.add(value);
       return ls.setItem(key, list);
     }
   }

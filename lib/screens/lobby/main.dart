@@ -15,16 +15,14 @@ class LobbyScreen extends StatefulWidget {
 
 class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin {
   late TabController _controller;
-  late List<Tab> _tabs;
-  late List<_InteractiveBody> _views;
-  int maxTab = 1;
+  // int _maxTab = 0;
+  List<Tab> _tabs = [];
+  List<_InteractiveBody> _views = [];
 
   @override
-  void initState() {
-    _controller = TabController(length: maxTab, vsync: this);
-    _tabs = [for (int i = 1; i <= maxTab; i++) Tab(text: i.toString())];
-    _views = [for (int i = 1; i <= maxTab; i++) _InteractiveBody(i - 1)];
-    super.initState();
+  void didChangeDependencies() {
+    _applyStates();
+    super.didChangeDependencies();
   }
 
   @override
@@ -33,8 +31,16 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
     super.dispose();
   }
 
+  void _applyStates() {
+    final _maxTab = context.read<ConfigSupplier?>()?.maxTab ?? 0;
+    _controller = TabController(length: _maxTab, vsync: this);
+    _tabs = [for (int i = 1; i <= _maxTab; i++) Tab(text: i.toString())];
+    _views = [for (int i = 0; i < _maxTab; i++) _InteractiveBody(i)];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final _maxTab = context.select((ConfigSupplier? supplier) => supplier?.maxTab ?? 0);
     return Scaffold(
       bottomNavigationBar: BottomAppBar(
         child: Row(
@@ -72,22 +78,18 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
           controller: _controller,
           isScrollable: true,
           tabs: _tabs,
-          key: ObjectKey(maxTab), // see issue #20292 for dynamic tabbar length bug
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
+            onPressed: () async {
               int currIdx = _controller.index;
-              _controller.dispose();
-
+              await context.read<ConfigSupplier>().addTab();
               setState(() {
-                ++maxTab;
-                _tabs.add(Tab(text: maxTab.toString()));
-                _views.add(_InteractiveBody(maxTab - 1));
-                _controller = TabController(length: maxTab, vsync: this);
+                _controller.dispose();
+                _applyStates();
                 _controller.index = currIdx;
-                _controller.animateTo(maxTab - 1);
+                _controller.animateTo(_maxTab);
               });
             },
           ),
@@ -97,7 +99,6 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
         physics: const NeverScrollableScrollPhysics(),
         controller: _controller,
         children: _views,
-        key: ObjectKey(maxTab), // see issue #20292 for dynamic tabbar length bug
       ),
     );
   }

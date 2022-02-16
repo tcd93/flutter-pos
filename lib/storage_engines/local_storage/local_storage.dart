@@ -128,3 +128,26 @@ class NodeLS extends RIUDRepository<Node>
   @override
   int _getKeyFromObject(value) => value.id;
 }
+
+class ConfigLS extends RIUDRepository<Config>
+    with
+        _ReadableImpl<Config>,
+        _UpdatableImpl<Config>,
+        _InsertableImpl<Config>,
+        _DeletableImpl<Config> {
+  final lib.LocalStorage _ls;
+
+  @override
+  String get fixedKeyString => 'config';
+
+  ConfigLS(this._ls);
+
+  @override
+  lib.LocalStorage get ls => _ls;
+
+  @override
+  String get _idHighkey => 'config_id_highkey';
+
+  @override
+  String _getKeyFromObject(value) => value.key;
+}

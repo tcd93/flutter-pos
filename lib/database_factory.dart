@@ -89,6 +89,8 @@ class DatabaseFactory {
           return MenuLS(connectionType.ls) as RIUDRepository<T>;
         case Node:
           return NodeLS(connectionType.ls) as RIUDRepository<T>;
+        case Config:
+          return ConfigLS(connectionType.ls) as RIUDRepository<T>;
         case dynamic:
           throw 'Do not use createRIUDRepository() without specifying an object type';
         default:
