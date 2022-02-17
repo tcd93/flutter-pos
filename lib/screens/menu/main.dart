@@ -30,10 +30,7 @@ class MenuScreen extends StatelessWidget {
             itemCount: menu.length,
             itemBuilder: (context, index) {
               final dish = menu[index];
-              // there's some inefficiency here as we're replacing the whole state when calling `revert()`
-              // everything in this listview is going to be updated
-              final supplier = Provider.of<Supplier>(context);
-
+              final supplier = Provider.of<Supplier>(context, listen: false);
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: Counter(

@@ -1,11 +1,12 @@
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import '../avatar.dart';
 
 const double height = 85.0;
 
 @immutable
-class Counter extends StatefulWidget {
+class Counter extends HookWidget {
   final _memoizer = AsyncMemoizer();
   final int startingValue;
 
@@ -13,7 +14,6 @@ class Counter extends StatefulWidget {
 
   final String title;
   final String subtitle;
-  final TextEditingController textEditingController;
   final void Function(int currentValue) onIncrement;
   final void Function(int currentValue) onDecrement;
 
@@ -25,61 +25,54 @@ class Counter extends StatefulWidget {
     required this.title,
     required this.subtitle,
     Key? key,
-  })  : textEditingController = TextEditingController(
-          text: startingValue.toString(),
-        ),
-        super(key: key);
+  }) : super(key: key);
 
-  @override
-  _CounterState createState() => _CounterState();
-}
-
-class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
-  late AnimationController animController;
-
-  _CounterState() {
-    animController = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
-  }
-
-  @override
-  void dispose() {
-    animController.dispose();
-    super.dispose();
-  }
-
-  int add(AnimationController animController, int value) {
+  int add(
+    AnimationController animController,
+    TextEditingController textEditingController,
+    int value,
+  ) {
     if (value == 0) animController.forward();
 
     value++;
-    widget.textEditingController.text = (value).toString();
-    widget.onIncrement.call(value);
+    textEditingController.text = (value).toString();
+    onIncrement(value);
     return value;
   }
 
-  int sub(AnimationController animationController, int value) {
+  int sub(
+    AnimationController animController,
+    TextEditingController textEditingController,
+    int value,
+  ) {
     // animate to "start" color when back to 0
     if (value == 1) animController.reverse();
 
     if (value <= 0) return 0;
 
     value--;
-    widget.textEditingController.text = (value).toString();
-    widget.onDecrement.call(value);
+    textEditingController.text = (value).toString();
+    onDecrement(value);
     return value;
   }
 
   @override
   Widget build(BuildContext context) {
-    var value = int.parse(widget.textEditingController.text);
+    // controllers
+    final textEditingController = useTextEditingController(text: startingValue.toString());
+    // "subscribe" to prop changes
+    useEffect(() {
+      textEditingController.text = startingValue.toString();
+    }, [startingValue]);
+
+    final animController = useAnimationController(duration: const Duration(milliseconds: 500));
+    var value = int.parse(textEditingController.text);
 
     return AnimatedBuilder(
       animation: animController,
       builder: (context, child) {
-        if (widget.startingValue != 0) {
-          widget._memoizer.runOnce(() {
+        if (startingValue != 0) {
+          _memoizer.runOnce(() {
             animController.forward();
           });
         }
@@ -99,7 +92,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                 color: colorTween.animate(animController).value,
                 child: GestureDetector(
                   behavior: HitTestBehavior.translucent,
-                  onTap: () => value = add(animController, value),
+                  onTap: () => value = add(animController, textEditingController, value),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
                     child: Row(
@@ -112,25 +105,26 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                             horizontalTitleGap: 2.0,
                             contentPadding: const EdgeInsets.symmetric(horizontal: 2.0),
                             title: Text(
-                              widget.title,
+                              title,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 2,
                             ),
-                            subtitle: Text(widget.subtitle),
+                            subtitle: Text(subtitle),
                           ),
                         ),
                         Expanded(
                           child: FloatingActionButton(
                             // decrease
                             heroTag: null,
-                            onPressed: () => value = sub(animController, value),
+                            onPressed: () =>
+                                value = sub(animController, textEditingController, value),
                             child: const Icon(Icons.remove),
                           ),
                         ),
                         Expanded(
                           flex: 2,
                           child: TextField(
-                            controller: widget.textEditingController,
+                            controller: textEditingController,
                             enabled: false,
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.headline5,
@@ -140,7 +134,8 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
                           child: FloatingActionButton(
                             // increase
                             heroTag: null,
-                            onPressed: () => value = add(animController, value),
+                            onPressed: () =>
+                                value = add(animController, textEditingController, value),
                             child: const Icon(Icons.add),
                           ),
                         ),
@@ -170,7 +165,7 @@ class _CounterState extends State<Counter> with SingleTickerProviderStateMixin {
           ],
         );
       },
-      child: Avatar(imgProvider: widget.imgProvider),
+      child: Avatar(imgProvider: imgProvider),
     );
   }
 }

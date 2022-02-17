@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -8,39 +9,41 @@ import '../../theme/rally.dart';
 import '../../provider/src.dart';
 import 'anim_longclick_fab.dart';
 
-class LobbyScreen extends StatefulWidget {
-  @override
-  State<LobbyScreen> createState() => _LobbyScreenState();
-}
-
-class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin {
-  late TabController _controller;
-  // int _maxTab = 0;
-  List<Tab> _tabs = [];
-  List<_InteractiveBody> _views = [];
-
-  @override
-  void didChangeDependencies() {
-    _applyStates();
-    super.didChangeDependencies();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _applyStates() {
-    final _maxTab = context.read<ConfigSupplier?>()?.maxTab ?? 0;
-    _controller = TabController(length: _maxTab, vsync: this);
-    _tabs = [for (int i = 1; i <= _maxTab; i++) Tab(text: i.toString())];
-    _views = [for (int i = 0; i < _maxTab; i++) _InteractiveBody(i)];
-  }
-
+class LobbyScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
-    final _maxTab = context.select((ConfigSupplier? supplier) => supplier?.maxTab ?? 0);
+    // store previous index when adding tab
+    final _prevIdx = useRef<int?>(null);
+
+    // states
+    final _maxTab = useState(0);
+    _maxTab.value = context
+        .select((ConfigSupplier? cs) => cs?.maxTab ?? 0); // "sync" internal state with repo changes
+
+    // computed values
+    final _tabs = useMemoized(
+      () => [for (int i = 1; i <= _maxTab.value; i++) Tab(text: i.toString())],
+      [_maxTab.value],
+    );
+    final _views = useMemoized(
+      () => [for (int i = 0; i < _maxTab.value; i++) _InteractiveBody(i)],
+      [_maxTab.value],
+    );
+    final _ticker = useSingleTickerProvider(keys: [_maxTab.value]);
+    // for dynamic tab length to work, new controller need to be created every time a tab is added
+    final _controller = useMemoized(
+      () => TabController(length: _maxTab.value, vsync: _ticker),
+      [_maxTab.value],
+    );
+
+    useEffect(() {
+      // animate to new tab with the new controller
+      if (_prevIdx.value != null) {
+        _controller.index = _prevIdx.value!;
+        _controller.animateTo(_maxTab.value - 1);
+      }
+    }, [_maxTab.value]);
+
     return Scaffold(
       bottomNavigationBar: BottomAppBar(
         child: Row(
@@ -82,15 +85,11 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () async {
-              int currIdx = _controller.index;
-              await context.read<ConfigSupplier>().addTab();
-              setState(() {
-                _controller.dispose();
-                _applyStates();
-                _controller.index = currIdx;
-                _controller.animateTo(_maxTab);
-              });
+            onPressed: () {
+              _maxTab.value++;
+              context.read<ConfigSupplier>().addTab();
+              _prevIdx.value = _controller.index;
+              _controller.dispose();
             },
           ),
         ],
