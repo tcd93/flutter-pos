@@ -32,6 +32,12 @@ class EditMenuScreenState extends State<EditMenuScreen> {
   final ScrollController _scrollController = ScrollController();
 
   @override
+  dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return CustomScaffold(
       onAddDish: (name, price, [image]) async {
