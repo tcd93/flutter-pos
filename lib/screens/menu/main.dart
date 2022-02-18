@@ -31,28 +31,32 @@ class MenuScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final dish = menu[index];
               final supplier = Provider.of<Supplier>(context, listen: false);
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: Counter(
-                  model.getByDish(dish)?.quantity ?? 0,
-                  onIncrement: (_) {
-                    model.putIfAbsent(dish).addOne();
-                    supplier.setTableStatus(model, TableStatus.incomplete);
-                  },
-                  onDecrement: (_) {
-                    model.putIfAbsent(dish).substractOne();
-                    // If there are not a single item in this order left,
-                    // Then set status to "empty" to disable the [_ConfirmButton]
-                    if (model.putIfAbsent(dish).quantity == 0 && model.totalMenuItemQuantity == 0) {
-                      supplier.setTableStatus(model, TableStatus.empty);
-                    } else {
+              return Selector<Supplier, int>(
+                selector: (_, __) => model.getByDish(dish)?.quantity ?? 0,
+                builder: (context, quantity, _) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Counter(
+                    quantity,
+                    onIncrement: (_) {
+                      model.putIfAbsent(dish).addOne();
                       supplier.setTableStatus(model, TableStatus.incomplete);
-                    }
-                  },
-                  imgProvider: dish.imgProvider,
-                  title: dish.dish,
-                  subtitle: '(${Money.format(dish.price)})',
-                  key: ObjectKey(model),
+                    },
+                    onDecrement: (_) {
+                      model.putIfAbsent(dish).substractOne();
+                      // If there are not a single item in this order left,
+                      // Then set status to "empty" to disable the [_ConfirmButton]
+                      if (model.putIfAbsent(dish).quantity == 0 &&
+                          model.totalMenuItemQuantity == 0) {
+                        supplier.setTableStatus(model, TableStatus.empty);
+                      } else {
+                        supplier.setTableStatus(model, TableStatus.incomplete);
+                      }
+                    },
+                    imgProvider: dish.imgProvider,
+                    title: dish.dish,
+                    subtitle: '(${Money.format(dish.price)})',
+                    key: ObjectKey(model),
+                  ),
                 ),
               );
             }),
