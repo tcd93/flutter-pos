@@ -110,7 +110,7 @@ class PosApp extends StatelessWidget {
                 length: 2,
                 child: ChangeNotifierProvider(
                   create: (_) => HistoryOrderSupplier(
-                    database: DatabaseFactory().createRIUDRepository<Order>(_storage),
+                    database: DatabaseFactory().createRIDRepository<Order>(_storage),
                   ),
                   child: HistoryScreen(),
                 ),

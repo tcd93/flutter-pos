@@ -94,7 +94,7 @@ class DatabaseFactory {
         case dynamic:
           throw 'Do not use createRIUDRepository() without specifying an object type';
         default:
-          throw UnimplementedError('createRIDRepository: unrecognized Object type');
+          throw UnimplementedError('createRIUDRepository: unrecognized Object type');
       }
     }
     if (connectionType is SQLite) {
@@ -106,7 +106,7 @@ class DatabaseFactory {
         case dynamic:
           throw 'Do not use createRIUDRepository() without specifying an object type';
         default:
-          throw UnimplementedError('createRIDRepository: unrecognized Object type');
+          throw UnimplementedError('createRIUDRepository: unrecognized Object type');
       }
     }
     throw UnimplementedError('createRIUDRepository: unsupported storage type');
