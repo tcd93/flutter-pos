@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../common/common.dart';
+import '../../provider/src.dart';
 import 'journal_list.dart';
 import 'add_new_entry_button.dart';
 import 'date_picker.dart';
-import '../../common/common.dart';
-import '../../provider/supplier/expense_journal_supplier.dart';
 
 class ExpenseJournalScreen extends StatelessWidget {
   @override
@@ -27,7 +28,25 @@ class ExpenseJournalScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ExpenseJournalList(),
+      body: Selector<ExpenseSupplier, bool>(
+        selector: (context, supplier) => supplier.loading,
+        builder: (context, loading, _) {
+          if (loading) {
+            return const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+            );
+          }
+
+          final List<Journal> journals = context.read<ExpenseSupplier>().data;
+          if (journals.isEmpty) {
+            return Center(
+              child: Text(AppLocalizations.of(context)?.generic_empty ?? 'No data found'),
+            );
+          } else {
+            return ExpenseJournalList();
+          }
+        },
+      ),
       floatingActionButton: AddNewEntryButton(),
     );
   }

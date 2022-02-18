@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/database_factory.dart';
@@ -11,47 +10,40 @@ import 'package:provider/provider.dart';
 
 void main() {
   late DatabaseConnectionInterface storage;
-  // late MenuSupplier supplier;
-  // final dish1 = Dish(1, 'dish 1', 1000);
-  // final dish2 = Dish(2, 'dish 2', 2000);
+  late RIUDRepository<Dish> repo;
+  const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
 
   setUpAll(() async {
-    storage = DatabaseFactory().create('local-storage', 'test', {'test': 1}, 'menu_test');
+    storage = DatabaseFactory().create(_db, 'test', {}, 'menu_test');
     await storage.open();
+    repo = DatabaseFactory().createRIUDRepository(storage);
     // supplier = MenuSupplier(database: storage, mockMenu: Menu([dish1, dish2]));
   });
 
-  tearDown(() async {
-    try {
-      await storage.destroy();
-    } on Exception catch (e) {
-      if (kDebugMode) {
-        print('\x1B[94m $e\x1B[0m');
-      }
+  tearDownAll(() async {
+    await storage.destroy();
+    await storage.close();
+    if (_db == 'local-storage') {
+      File('test/menu_test').deleteSync();
     }
   });
 
-  tearDownAll(() async {
-    storage.close();
-    await Future.delayed(const Duration(milliseconds: 500));
-    try {
-      File('test/menu_test').deleteSync();
-    } on Exception catch (e) {
-      if (kDebugMode) {
-        print('\x1B[94mtearDownAll (test/menu-test): $e\x1B[0m');
-      }
-    }
+  setUp(() async {
+    await storage.truncate();
   });
 
   testWidgets('Expect default items', (tester) async {
     await tester.pumpWidget(MaterialApp(
       builder: (_, __) {
-        return Provider(
-          create: (_) => MenuSupplier(),
+        return FutureProvider(
+          create: (_) => MenuSupplier().init(),
+          initialData: null,
           child: EditMenuScreen(),
         );
       },
     ));
+    await tester.runAsync(() => Future.delayed(const Duration(milliseconds: 200)));
+    await tester.pumpAndSettle();
 
     expect(
       find.byWidgetPredicate(
@@ -62,24 +54,43 @@ void main() {
     );
   });
 
-  // this test is not working on Windows machine?
-  //
-  // testWidgets('Expect persisting to storage', (tester) async {
-  //   await tester.pumpWidget(MaterialApp(
-  //     builder: (_, __) {
-  //       return Provider(
-  //         create: (_) => supplier,
-  //         child: EditMenuScreen(),
-  //       );
-  //     },
-  //   ));
+  testWidgets('Expect persisting to storage', (tester) async {
+    final supplier = MenuSupplier(database: repo, mockMenu: []);
 
-  //   final newDish = Dish(3, 'new name', 200);
-  //   await supplier.addDish(newDish);
-  //   final menu = storage.getMenu()!;
+    await tester.pumpWidget(MaterialApp(
+      builder: (_, __) {
+        return FutureProvider(
+          create: (_) => supplier.init(),
+          initialData: null,
+          child: EditMenuScreen(),
+        );
+      },
+    ));
+    await tester.runAsync(() => Future.delayed(const Duration(milliseconds: 200)));
 
-  //   expect(menu, isNotEmpty);
-  //   expect(menu.list[2].dish, 'new name');
-  //   expect(menu.list[2].price, 200);
-  // });
+    var dish = await tester.runAsync<Dish>(() => supplier.addDish('new dish', 200));
+    var menu = await tester.runAsync(() => repo.get());
+
+    expect(menu, isNotNull);
+    expect(menu, isNotEmpty);
+    expect(menu!.length, 1);
+    expect(menu.elementAt(0).toJson(), dish!.toJson());
+
+    var dish2 = await tester.runAsync<Dish>(() => supplier.addDish('new dish 2', 300));
+    menu = await tester.runAsync(() => repo.get());
+    expect(menu!.length, 2);
+    expect(menu.elementAt(1).toJson(), dish2!.toJson());
+
+    await tester.runAsync<void>(() => supplier.updateDish(dish, 'XXX', 100));
+    menu = await tester.runAsync(() => repo.get());
+    expect(menu!.elementAt(0).id, 1);
+    expect(menu.elementAt(0).dish, 'XXX');
+    expect(menu.elementAt(0).price, 100);
+
+    await tester.runAsync<void>(() => supplier.removeDish(dish2));
+    menu = await tester.runAsync(() => repo.get());
+    expect(menu!.length, 1);
+    expect(menu.elementAt(0).dish, 'XXX');
+    expect(menu.elementAt(0).price, 100);
+  });
 }

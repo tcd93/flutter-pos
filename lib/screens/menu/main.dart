@@ -14,7 +14,6 @@ class MenuScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final menuSupplier = Provider.of<MenuSupplier>(context);
     return Scaffold(
       bottomNavigationBar: BottomAppBar(
         child: Row(
@@ -25,43 +24,67 @@ class MenuScreen extends StatelessWidget {
           ],
         ),
       ),
-      body: ListView.builder(
-          physics: const BouncingScrollPhysics(),
-          itemCount: menuSupplier.menu.length,
-          itemBuilder: (context, index) {
-            final dish = menuSupplier.getDish(index);
-            final lineItem = model.putIfAbsent(dish);
-            // there's some inefficiency here as we're replacing the whole state when calling `revert()`
-            // everything in this listview is going to be updated
-            final supplier = Provider.of<Supplier>(context);
-
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Counter(
-                model.putIfAbsent(dish).quantity,
-                onIncrement: (_) {
-                  lineItem.addOne();
-
-                  model.setTableStatus(TableStatus.incomplete, supplier);
-                },
-                onDecrement: (_) {
-                  lineItem.substractOne();
-                  // If there are not a single item in this order left,
-                  // Then set status to "empty" to disable the [_ConfirmButton]
-                  if (model.putIfAbsent(dish).quantity == 0 && model.totalMenuItemQuantity == 0) {
-                    model.setTableStatus(TableStatus.empty, supplier);
-                  } else {
-                    model.setTableStatus(TableStatus.incomplete, supplier);
-                  }
-                },
-                imgProvider: dish.imgProvider,
-                title: dish.dish,
-                subtitle: '(${Money.format(dish.price)})',
-                key: ObjectKey(model),
-              ),
-            );
-          }),
+      body: _MenuList(
+        builder: (context, menu) => ListView.builder(
+            physics: const BouncingScrollPhysics(),
+            itemCount: menu.length,
+            itemBuilder: (context, index) {
+              final dish = menu[index];
+              final supplier = Provider.of<Supplier>(context, listen: false);
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Counter(
+                  model.getByDish(dish)?.quantity ?? 0,
+                  onIncrement: (_) {
+                    model.putIfAbsent(dish).addOne();
+                    supplier.setTableStatus(model, TableStatus.incomplete);
+                  },
+                  onDecrement: (_) {
+                    model.putIfAbsent(dish).substractOne();
+                    // If there are not a single item in this order left,
+                    // Then set status to "empty" to disable the [_ConfirmButton]
+                    if (model.putIfAbsent(dish).quantity == 0 && model.totalMenuItemQuantity == 0) {
+                      supplier.setTableStatus(model, TableStatus.empty);
+                    } else {
+                      supplier.setTableStatus(model, TableStatus.incomplete);
+                    }
+                  },
+                  imgProvider: dish.imgProvider,
+                  title: dish.dish,
+                  subtitle: '(${Money.format(dish.price)})',
+                  key: ObjectKey(model),
+                ),
+              );
+            }),
+      ),
     );
+  }
+}
+
+class _MenuList extends StatelessWidget {
+  final Widget Function(BuildContext, List<Dish>) builder;
+
+  /// Return generic text 'No data found' or build a list of [_ListItem]
+  const _MenuList({required this.builder});
+
+  @override
+  Widget build(BuildContext context) {
+    final dishes = context.select<MenuSupplier?, List<Dish>?>((value) {
+      return value?.menu.toList();
+    });
+    if (dishes == null) {
+      return const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+        ),
+      );
+    }
+    if (dishes.isEmpty) {
+      return Center(
+        child: Text(AppLocalizations.of(context)?.generic_empty ?? 'No data found'),
+      );
+    }
+    return builder(context, dishes);
   }
 }
 
@@ -84,8 +107,7 @@ class _ConfirmButton extends StatelessWidget {
               minWidth: MediaQuery.of(context).size.width / 2,
               onPressed: status == TableStatus.incomplete
                   ? () {
-                      final supplier = context.read<Supplier>();
-                      model.setTableStatus(TableStatus.occupied, supplier);
+                      context.read<Supplier>().setTableStatus(model, TableStatus.occupied);
                       model.memorizePreviousState();
                       Navigator.pop(context); // Go back to Lobby Screen
                     }
@@ -116,8 +138,7 @@ class _UndoButton extends StatelessWidget {
             minWidth: MediaQuery.of(context).size.width / 2,
             onPressed: status == TableStatus.incomplete
                 ? () {
-                    final supplier = context.read<Supplier>();
-                    model.revert(supplier);
+                    context.read<Supplier>().revert(model);
                   }
                 : null,
             child: const Icon(Icons.undo),

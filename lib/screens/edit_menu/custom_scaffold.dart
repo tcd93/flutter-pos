@@ -2,11 +2,10 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../common/common.dart';
 import '../../theme/rally.dart';
-import '../../provider/src.dart';
 import '../avatar.dart';
 import 'menu_form.dart';
 
@@ -17,61 +16,32 @@ const Duration _animDuration = Duration(milliseconds: 600);
 ///
 /// When FAB's clicked, the entire bottom appbar will animate up (like a bottom sheet)
 /// showing a menu-add form.
-class CustomScaffold extends StatefulWidget {
+class CustomScaffold extends HookWidget {
   final Widget body;
 
   /// called when user press the central FAB in bottom appbar
-  final void Function(Dish newDish) onAddDish;
+  final void Function(String name, double price, [Uint8List? image]) onAddDish;
 
   const CustomScaffold({required this.body, required this.onAddDish});
 
   @override
-  _CustomScaffoldState createState() => _CustomScaffoldState();
-}
-
-class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProviderStateMixin {
-  final expanded = ValueNotifier(false);
-  final dishNameController = TextEditingController();
-  final priceController = TextEditingController();
-  late AnimationController animController;
-  Uint8List? pickedImage;
-
-  @override
-  void initState() {
-    animController = AnimationController(vsync: this, duration: _animDuration);
-
-    // link animation with the "state" of value listenable
-    expanded.addListener(() {
-      if (expanded.value == true) {
-        animController.forward();
-      } else {
-        animController.reverse();
-      }
-    });
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    animController.dispose();
-    expanded.dispose();
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(covariant CustomScaffold oldWidget) {
-    dishNameController.clear();
-    priceController.clear();
-    super.didUpdateWidget(oldWidget);
-  }
-
-  Future<bool> _preventNavPop() async {
-    expanded.value = false;
-    return false;
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // controllers
+    final animController = useAnimationController(duration: _animDuration);
+    final expanded = useValueNotifier(false);
+    useEffect(() {
+      expanded.value ? animController.forward() : animController.reverse();
+    }, [expanded.value]);
+    final dishNameController = useTextEditingController();
+    final priceController = useTextEditingController();
+
+    // state
+    final pickedImage = useState<Uint8List?>(null);
+    useEffect(() {
+      dishNameController.clear();
+      priceController.clear();
+    }, [pickedImage.value]);
+
     return Scaffold(
       extendBody: true,
       bottomNavigationBar: BottomAppBar(
@@ -81,19 +51,19 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
           child: Padding(
             padding: const EdgeInsets.only(top: 70.0, left: 70.0, right: 70.0),
             child: WillPopScope(
-              onWillPop: _preventNavPop,
+              onWillPop: () async {
+                expanded.value = false;
+                return false;
+              },
               child: FormContent(
                 inputs: buildInputs(context, dishNameController, priceController),
                 onSubmit: () {
                   if (priceController.text.isNotEmpty && dishNameController.text.isNotEmpty) {
-                    final supplier = context.read<MenuSupplier>();
-                    final newDish = Dish(
-                      supplier.nextID(),
+                    onAddDish(
                       dishNameController.text,
                       Money.unformat(priceController.text).toDouble(),
-                      pickedImage,
+                      pickedImage.value,
                     );
-                    widget.onAddDish(newDish);
                     expanded.value = false;
                   }
                 },
@@ -105,8 +75,8 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: _CenterDockedButton(
         expanded,
-        onNewAvatar: (img) => setState(() => pickedImage = img),
-        pickedImage: pickedImage,
+        onNewAvatar: (img) => pickedImage.value = img,
+        pickedImage: pickedImage.value,
         animation: animController,
       ),
       body: ValueListenableBuilder(
@@ -124,7 +94,7 @@ class _CustomScaffoldState extends State<CustomScaffold> with SingleTickerProvid
             ),
           );
         },
-        child: widget.body,
+        child: body,
       ),
     );
   }

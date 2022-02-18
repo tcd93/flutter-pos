@@ -13,13 +13,9 @@ import 'date_picker.dart';
 class HistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final future = context.select(
-      (HistorySupplierByDate provider) => provider.retrieveOrders(),
-    );
-
     return Scaffold(
       appBar: AppBar(
-        title: _LeadingTitle(future),
+        title: _LeadingTitle(),
         bottomOpacity: 0.5,
         bottom: const TabBar(
           tabs: [
@@ -30,9 +26,14 @@ class HistoryScreen extends StatelessWidget {
         actions: [
           Column(
             children: [
-              Switch.adaptive(
-                value: context.select((HistorySupplierByDate s) => s.discountFlag),
-                onChanged: (s) => context.read<HistorySupplierByDate>().discountFlag = s,
+              Selector<HistoryOrderSupplier, bool>(
+                selector: (context, supplier) => supplier.discountFlag,
+                builder: (context, flag, _) {
+                  return Switch.adaptive(
+                    value: context.select((HistoryOrderSupplier s) => s.discountFlag),
+                    onChanged: (s) => context.read<HistoryOrderSupplier>().discountFlag = s,
+                  );
+                },
               ),
               Text(
                 AppLocalizations.of(context)?.history_toggleDiscount ?? 'Apply Discount Rate',
@@ -52,26 +53,26 @@ class HistoryScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: FutureBuilder(
-        future: future,
-        builder: (_, AsyncSnapshot<Iterable<Order>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.data != null && snapshot.data!.isNotEmpty) {
-              return TabBarView(
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  HistoryOrderList(snapshot.data!),
-                  HistoryOrderLineChart(snapshot.data!),
-                ],
-              );
-            } else {
-              return Center(
-                child: Text(AppLocalizations.of(context)?.generic_empty ?? 'No data found'),
-              );
-            }
-          } else {
+      body: Selector<HistoryOrderSupplier, bool>(
+        selector: (context, supplier) => supplier.loading,
+        builder: (context, loading, _) {
+          final List<Order> orders = context.read<HistoryOrderSupplier>().orders;
+          if (loading) {
             return const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+            );
+          }
+          if (orders.isEmpty) {
+            return Center(
+              child: Text(AppLocalizations.of(context)?.generic_empty ?? 'No data found'),
+            );
+          } else {
+            return TabBarView(
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                HistoryOrderList(),
+                HistoryOrderLineChart(),
+              ],
             );
           }
         },
@@ -81,37 +82,28 @@ class HistoryScreen extends StatelessWidget {
 }
 
 class _LeadingTitle extends StatelessWidget {
-  final Future<Iterable<Order>> future;
-
-  const _LeadingTitle(this.future);
-
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<HistorySupplierByDate>(context);
+    final provider = Provider.of<HistoryOrderSupplier>(context);
     final range = provider.selectedRange;
+    final orders = context.select((HistoryOrderSupplier supplier) => supplier.orders);
 
-    return FutureBuilder(
-      future: future,
-      builder: (_, AsyncSnapshot<Iterable<Order>> snapshot) {
-        return Wrap(
-          direction: Axis.vertical,
-          children: [
-            if (snapshot.data != null && snapshot.data!.isNotEmpty)
-              Text(
-                Money.format(provider.calculateTotalSalesAmount(snapshot.data!)),
-                style: const TextStyle(
-                  color: Colors.lightGreen,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                ),
-              ),
-            Text(
-              '(${Common.extractYYYYMMDD2(range.start)} - ${Common.extractYYYYMMDD2(range.end)})',
-              style: Theme.of(context).textTheme.caption,
-            ),
-          ],
-        );
-      },
+    return Wrap(
+      direction: Axis.vertical,
+      children: [
+        Text(
+          Money.format(provider.calculateTotalSalesAmount(orders)),
+          style: const TextStyle(
+            color: Colors.lightGreen,
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+          ),
+        ),
+        Text(
+          '(${Common.extractYYYYMMDD2(range.start)} - ${Common.extractYYYYMMDD2(range.end)})',
+          style: Theme.of(context).textTheme.caption,
+        ),
+      ],
     );
   }
 }

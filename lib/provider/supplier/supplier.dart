@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import '../../storage_engines/connection_interface.dart';
@@ -6,48 +6,71 @@ import '../../storage_engines/connection_interface.dart';
 import '../src.dart';
 
 class Supplier extends ChangeNotifier {
-  List<TableModel> tables = [];
-  final SupplierRepository? database;
+  late List<TableModel> _tables = [];
+  List<TableModel> tables(int page) {
+    return List.unmodifiable(_tables.where((t) => t.node.page == page));
+  }
+
+  bool _loading = false;
+  bool get loading => _loading;
+
+  final RIUDRepository<Node>? database;
 
   Supplier({
     this.database,
     List<TableModel>? mockModels,
   }) {
-    final l = database?.tableIDs();
-    Coordinate? startingCoord(int id) => database != null ? Coordinate.fromDB(id, database!) : null;
-    tables = mockModels ?? l?.map((id) => TableModel(id, startingCoord(id))).toList() ?? [];
+    if (mockModels != null) {
+      _tables = mockModels;
+      _loading = false;
+      return;
+    }
+    _loading = true;
+    Future(() async {
+      final nodes = (await database?.get()) ?? [];
+      _tables = [for (final n in nodes) TableModel(n)];
+      _loading = false;
+      notifyListeners();
+    });
   }
 
-  TableModel getTable(int id) {
-    return tables.firstWhere((t) => t.id == id);
-  }
-
-  /// Returns new table's id
-  int addTable() {
-    final nextID = tables.map((t) => t.id).fold<int>(0, max) + 1;
-    tables.add(TableModel(nextID));
-    database?.addTable(nextID);
+  Future<int?> addTable(int page) async {
+    final n = await database?.insert(Node(page: page));
+    _tables.add(TableModel(n));
     notifyListeners();
-    return nextID;
+    return n?.id;
   }
 
-  void removeTable(int tableID) {
-    tables.removeWhere((table) => table.id == tableID);
-    database?.removeTable(tableID);
+  Future<void> removeTable(TableModel table) async {
+    assert(_tables.contains(table));
+
+    await database?.delete(table.node);
+    _tables.remove(table);
     notifyListeners();
     return;
   }
 
-  Future<void> checkout(TableModel table, [DateTime? atTime]) async {
-    table.currentOrder.id = await _genNextID();
-    table.currentOrder.checkoutTime = atTime ?? DateTime.now();
-
-    await database?.insert(table.currentOrder);
-
+  Future<void> checkout(TableModel table, [RIRepository<Order>? repo, DateTime? atTime]) async {
+    await table.checkout(repo, atTime);
     notifyListeners();
   }
 
-  Future<int> _genNextID() async {
-    return (await database?.nextUID()) ?? -1;
+  void setTableStatus(TableModel table, TableStatus newStatus) {
+    table.applyStatus(newStatus);
+    notifyListeners();
+  }
+
+  void setTableDiscount(TableModel table, double discount) {
+    table.applyDiscount(discount);
+    notifyListeners();
+  }
+
+  void revert(TableModel table) {
+    table.revert();
+    notifyListeners();
+  }
+
+  void commit(TableModel table) {
+    table.memorizePreviousState();
   }
 }

@@ -7,13 +7,22 @@ import '../../../provider/src.dart';
 import '../../popup_del.dart';
 
 class OrderCard extends StatelessWidget {
-  final Order order;
+  final int index;
 
-  const OrderCard(this.order);
+  const OrderCard(this.index);
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<HistorySupplierByDate>(context);
+    // the 'order' is nullable here as the length of 'orders' array might change
+    var order = context.select<HistoryOrderSupplier, Order?>(
+      (HistoryOrderSupplier supplier) =>
+          (index < supplier.orders.length) ? supplier.orders.elementAt(index) : null,
+    );
+    if (order == null) return const SizedBox.shrink();
+
+    var discountFlag = context.select<HistoryOrderSupplier, bool>(
+      (HistoryOrderSupplier supplier) => supplier.discountFlag,
+    );
     var del = order.isDeleted;
     return Stack(
       alignment: Alignment.center,
@@ -40,25 +49,17 @@ class OrderCard extends StatelessWidget {
                             Text(AppLocalizations.of(context)?.history_delPopUpTitle ?? 'Ignore?'),
                       );
                       if (result == true) {
-                        provider.ignoreOrder(order);
+                        context.read<HistoryOrderSupplier>().ignoreOrder(order);
                       }
                     },
               onTap: () {
                 Navigator.pushNamed(context, '/order-details', arguments: {
-                  'state': TableModel.withOrder(
-                    Order.create(
-                      tableID: order.tableID,
-                      lineItems: order.lineItems,
-                      orderID: order.id,
-                      checkoutTime: order.checkoutTime,
-                      discountRate: order.discountRate,
-                    ),
-                  ),
+                  'state': TableModel.withOrder(order),
                   'from': 'history',
                 });
               },
               trailing: Text(
-                Money.format(provider.saleAmountOf(order)),
+                Money.format(order.saleAmount(discountFlag)),
                 style: TextStyle(
                   letterSpacing: 3,
                   color: del == true ? Colors.grey[200]!.withOpacity(0.5) : Colors.lightGreen,

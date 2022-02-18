@@ -85,11 +85,9 @@ Future<Journal?> _popUpNewJournal(BuildContext scaffoldCtx) {
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 final p = Money.unformat(m.text);
-                // too lazy to implement new method...
-                final nextID = await context.read<Supplier>().database?.nextUID();
                 Navigator.pop<Journal>(
                   context,
-                  Journal(id: nextID ?? 0, entry: t.text, entryTime: d, amount: p.toDouble()),
+                  Journal(entry: t.text, entryTime: d, amount: p.toDouble()),
                 );
               }
             },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -8,16 +9,48 @@ import '../../theme/rally.dart';
 import '../../provider/src.dart';
 import 'anim_longclick_fab.dart';
 
-class LobbyScreen extends StatelessWidget {
+class LobbyScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
+    // store previous index when adding tab
+    final _prevIdx = useRef<int?>(null);
+
+    // states
+    final _maxTab = useState(0);
+    _maxTab.value = context
+        .select((ConfigSupplier? cs) => cs?.maxTab ?? 0); // "sync" internal state with repo changes
+
+    // computed values
+    final _tabs = useMemoized(
+      () => [for (int i = 1; i <= _maxTab.value; i++) Tab(text: i.toString())],
+      [_maxTab.value],
+    );
+    final _views = useMemoized(
+      () => [for (int i = 0; i < _maxTab.value; i++) _InteractiveBody(i)],
+      [_maxTab.value],
+    );
+    final _ticker = useSingleTickerProvider(keys: [_maxTab.value]);
+    // for dynamic tab length to work, new controller need to be created every time a tab is added
+    final _controller = useMemoized(
+      () => TabController(length: _maxTab.value, vsync: _ticker),
+      [_maxTab.value],
+    );
+
+    useEffect(() {
+      // animate to new tab with the new controller
+      if (_prevIdx.value != null) {
+        _controller.index = _prevIdx.value!;
+        _controller.animateTo(_maxTab.value - 1);
+      }
+    }, [_maxTab.value]);
+
     return Scaffold(
       bottomNavigationBar: BottomAppBar(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Tooltip(
-              message: AppLocalizations.of(context)!.lobby_report,
+              message: AppLocalizations.of(context)?.lobby_report ?? 'Report',
               child: MaterialButton(
                 onPressed: () {
                   showBottomSheetMenu(context);
@@ -28,7 +61,7 @@ class LobbyScreen extends StatelessWidget {
               ),
             ),
             Tooltip(
-              message: AppLocalizations.of(context)!.lobby_menuEdit,
+              message: AppLocalizations.of(context)?.lobby_menuEdit ?? 'Edit Menu',
               child: MaterialButton(
                 onPressed: () => Navigator.pushNamed(context, '/edit-menu'),
                 minWidth: MediaQuery.of(context).size.width / 2,
@@ -40,10 +73,32 @@ class LobbyScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: AnimatedLongClickableFAB(
-        onLongPress: () => _addTable(context),
+        onLongPress: () => context.read<Supplier>().addTable(_controller.index),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      body: _InteractiveBody(),
+      appBar: AppBar(
+        title: TabBar(
+          controller: _controller,
+          isScrollable: true,
+          tabs: _tabs,
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              _maxTab.value++;
+              context.read<ConfigSupplier>().addTab();
+              _prevIdx.value = _controller.index;
+              _controller.dispose();
+            },
+          ),
+        ],
+      ),
+      body: TabBarView(
+        physics: const NeverScrollableScrollPhysics(),
+        controller: _controller,
+        children: _views,
+      ),
     );
   }
 
@@ -78,14 +133,38 @@ class LobbyScreen extends StatelessWidget {
 }
 
 /// Allow panning & dragging widgets inside...
-class _InteractiveBody extends StatelessWidget {
-  /// The key to container (1), must be passed into all DraggableWidget widgets in Stack
-  final GlobalKey bgKey = GlobalKey();
+class _InteractiveBody extends StatefulWidget {
+  final int page;
 
-  final TransformationController transformController = TransformationController();
+  _InteractiveBody(this.page) : super(key: ObjectKey(page));
+
+  @override
+  State<_InteractiveBody> createState() => _InteractiveBodyState();
+}
+
+class _InteractiveBodyState extends State<_InteractiveBody>
+    with AutomaticKeepAliveClientMixin<_InteractiveBody> {
+  /// The key to container (1), must be passed into all DraggableWidget widgets in Stack
+  late GlobalKey bgKey;
+
+  late TransformationController transformController;
+
+  @override
+  void initState() {
+    bgKey = GlobalKey();
+    transformController = TransformationController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    transformController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final supplier = Provider.of<Supplier>(context, listen: true);
     return InteractiveViewer(
       maxScale: 2.0,
@@ -96,14 +175,14 @@ class _InteractiveBody extends StatelessWidget {
           // pan & scale effect from InteractiveViewer will actually interact with this container
           // thus also easily scale & pan all widgets inside the stack
           Container(key: bgKey),
-          for (var model in supplier.tables)
+          for (var model in supplier.tables(widget.page))
             DraggableWidget(
-              x: model.getOffset().x,
-              y: model.getOffset().y,
+              x: model.getOffset()['x']!,
+              y: model.getOffset()['y']!,
               containerKey: bgKey,
               transformController: transformController,
               onDragEnd: (x, y) {
-                model.setOffset(Coordinate(x, y), supplier.database);
+                model.setOffset(x, y, supplier.database);
               },
               key: ObjectKey(model),
               child: TableIcon(table: model),
@@ -112,11 +191,7 @@ class _InteractiveBody extends StatelessWidget {
       ),
     );
   }
-}
 
-// ******************************* //
-
-void _addTable(BuildContext context) {
-  var supplier = Provider.of<Supplier>(context, listen: false);
-  supplier.addTable();
+  @override
+  bool get wantKeepAlive => true;
 }

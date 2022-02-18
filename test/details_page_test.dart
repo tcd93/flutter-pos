@@ -11,7 +11,7 @@ void main() {
       lineItems: LineItemList(List.generate(
         3,
         (index) => LineItem(
-          associatedDish: Dish(index + 1, 'Test Dish $index', 3333),
+          associatedDish: Dish('Test Dish $index', 3333),
           quantity: (index + 1) * 2,
         ),
       )),

@@ -1,19 +1,41 @@
-import 'dart:math';
+import 'dart:async';
+import 'dart:typed_data';
 
 // import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+
 import '../../storage_engines/connection_interface.dart';
 
 import '../src.dart';
 
 class MenuSupplier {
-  Menu _m = Menu();
-  Menu get menu => _m;
+  late List<Dish> _m;
 
-  final MenuIO? database;
+  /// must call [init] beforehand
+  List<Dish> get menu => _m;
+  final Completer<MenuSupplier> _completer = Completer();
 
-  MenuSupplier({this.database, Menu? mockMenu}) {
-    _m = mockMenu ?? database?.getMenu() ?? _defaultMenu();
+  final RIUDRepository<Dish>? database;
+
+  MenuSupplier({this.database, List<Dish>? mockMenu}) {
+    if (mockMenu != null) {
+      _m = mockMenu;
+      _completer.complete(this);
+      return;
+    }
+    Future(() async {
+      _m = (await database?.get()) ?? [];
+      if (_m.isEmpty) {
+        _m = _defaultMenu();
+        if (database != null) _m.forEach(database!.insert);
+      }
+      // in case getMenu() too fast causing screen rebuilt twice in a row -> weird janky effect ->
+      // delay completion by 500 milliseconds
+      Future.delayed(const Duration(milliseconds: 500), () => _completer.complete(this));
+    });
   }
+
+  Future<MenuSupplier> init() async => await _completer.future;
 
   Dish getDish(int index) {
     return _m.elementAt(index);
@@ -27,79 +49,67 @@ class MenuSupplier {
     return null;
   }
 
-  int nextID() {
-    return _m.map<int>((d) => d.id).reduce(max) + 1;
-  }
-
-  Future<void>? addDish(Dish newDish) {
-    assert(newDish.dish != '');
-    assert(newDish.price > 0);
-    assert(!_m.contains(newDish));
-
+  Future<Dish> addDish(String name, double price, [Uint8List? image]) async {
+    final _t = Dish(name, price, image); // _t has no ID yet
+    final newDish = (await database?.insert(_t)) ?? _t; // now it has
     _m.add(newDish);
-    return database?.setMenu(_m);
+    return newDish;
   }
 
-  Future<void>? updateDish(Dish dish) async {
-    assert(dish.dish != '');
-    assert(dish.price > 0);
+  /// Input value is from current [Menu] instance
+  Future<void> updateDish(Dish dish, [String? name, double? price, Uint8List? image]) async {
     assert(_m.contains(dish));
-
-    _m.set(dish);
-    return database?.setMenu(_m);
+    dish.dish = name ?? dish.dish;
+    dish.price = price ?? dish.price;
+    dish.imgProvider = image != null ? MemoryImage(image) : dish.imgProvider;
+    return database?.update(dish);
   }
 
-  Future<void>? removeDish(Dish dish) {
+  /// Input value is from current [Menu] instance
+  Future<void> removeDish(Dish dish) async {
     assert(_m.contains(dish));
 
     _m.remove(dish);
-    return database?.setMenu(_m);
+    return database?.delete(dish);
   }
 }
 
-Menu _defaultMenu() {
-  return Menu([
+List<Dish> _defaultMenu() {
+  return [
     Dish.fromAsset(
-      0,
       'Rice Noodles',
       10000,
       'assets/rice_noodles.png',
     ),
     Dish.fromAsset(
-      1,
       'Lime Juice',
       20000,
       'assets/lime_juice.png',
     ),
     Dish.fromAsset(
-      2,
       'Vegan Noodle',
       30000,
       'assets/vegan_noodles.png',
     ),
     Dish.fromAsset(
-      3,
       'Oatmeal with Berries and Coconut',
       40000,
       'assets/oatmeal_with_berries_and_coconut.png',
     ),
     Dish.fromAsset(
-      4,
       'Fried Chicken with Egg',
       50000,
       'assets/fried_chicken-with_with_wit_egg.png',
     ),
     Dish.fromAsset(
-      5,
       'Kimchi',
       60000,
       'assets/kimchi.png',
     ),
     Dish.fromAsset(
-      6,
       'Coffee',
       70000,
       'assets/coffee.png',
     ),
-  ]);
+  ];
 }

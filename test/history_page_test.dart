@@ -1,65 +1,58 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/database_factory.dart';
 import 'package:posapp/provider/src.dart';
 import 'package:posapp/screens/history/main.dart';
 import 'package:posapp/screens/history/first_tab/order_card.dart';
+import 'package:posapp/storage_engines/connection_interface.dart';
 import 'package:provider/provider.dart';
 
 final DateTime checkoutTime = DateTime.parse('20201112 13:00:00');
 
 void main() {
   Supplier supplier;
-  var checkedOutTable = TableModel(-1);
-  var storage = DatabaseFactory().create('local-storage');
+  var checkedOutTable = TableModel();
+  late DatabaseConnectionInterface storage;
+  late RIDRepository<Order> repo;
+  const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
 
   group('Same day report:', () {
     setUpAll(() async {
-      storage = DatabaseFactory().create('local-storage', 'test', {}, 'test-group-1');
+      storage = DatabaseFactory().create(_db, 'test', {}, 'test-group-1');
       await storage.open();
+      repo = DatabaseFactory().createRIDRepository<Order>(storage);
+      debugPrint('Testing database: $_db');
     });
     tearDownAll(() async {
       await storage.destroy();
-      storage.close();
-      // .close() is async, but lib does not await...
-      await Future.delayed(const Duration(milliseconds: 500));
-      try {
+      await storage.close();
+      if (_db == 'local-storage') {
         File('test/test-group-1').deleteSync();
-      } on Exception catch (e) {
-        if (kDebugMode) {
-          print('\x1B[94mtearDownAll (test/test-group-1): $e\x1B[0m');
-        }
       }
       // delete the newly created storage file
     });
 
     setUp(() async {
-      const testTableID = 1;
+      await storage.truncate();
+
+      final checkedOutTable = TableModel.withOrder(
+        Order.create(
+          tableID: 1,
+          lineItems: LineItemList([
+            LineItem(associatedDish: Dish('Test Dish 1', 120000), quantity: 1),
+          ]),
+        ),
+      );
       supplier = Supplier(
-        database: storage,
         mockModels: [
-          TableModel(0),
-          TableModel.withOrder(
-            Order.create(
-              tableID: 1,
-              lineItems: LineItemList(List.generate(
-                1,
-                (index) => LineItem(
-                  associatedDish: Dish(index, 'Test Dish $index', 120000),
-                  quantity: 1,
-                ),
-              )),
-            ),
-          ),
+          TableModel(),
+          checkedOutTable,
         ],
       );
-      checkedOutTable = supplier.getTable(testTableID);
 
-      // FOR SOME REASON "CHECK OUT" CAN'T BE DONE INSIDE `testWidgets`
-      await supplier.checkout(checkedOutTable, checkoutTime);
+      await supplier.checkout(checkedOutTable, repo, checkoutTime);
       await checkedOutTable.printClear();
     });
 
@@ -71,14 +64,20 @@ void main() {
         await tester.pumpWidget(MaterialApp(
           builder: (_, __) => ChangeNotifierProvider(
             create: (_) {
-              return HistorySupplierByDate(
-                database: storage,
+              return HistoryOrderSupplier(
+                database: repo,
                 range: DateTimeRange(start: checkoutTime, end: checkoutTime),
               );
             },
             child: DefaultTabController(length: 2, child: HistoryScreen()),
           ),
         ));
+
+        // this line is very important as HistoryOrderSupplier launches an async operation on
+        // creation, runAsync force flutter to execute that operation "for real", otherwise
+        // it'll stuck in loading state forever causing timeout in pumpAndSettle.
+        // local-storage would work without this line because originally non of its APIs are async
+        await tester.runAsync(() => Future.delayed(const Duration(milliseconds: 300)));
         await tester.pumpAndSettle();
 
         expect(
@@ -100,76 +99,55 @@ void main() {
 
   group('Cross day report:', () {
     setUpAll(() async {
-      // create existing checked out data
-      storage = DatabaseFactory().create(
-        'local-storage',
-        'test',
-        {
-          'order_id_highkey': 2,
-          '20201112': [
-            {
-              'orderID': 0,
-              'checkoutTime': '2020-11-12 01:31:32.840',
-              'discountRate': 1.0,
-              'lineItems': [
-                {'dishID': 0, 'dishName': 'Rice Noodles', 'quantity': 1, 'price': 10000.0},
-                {'dishID': 1, 'dishName': 'Lime Juice', 'quantity': 1, 'price': 20000.0},
-                {'dishID': 2, 'dishName': 'Vegan Noodle', 'quantity': 1, 'price': 30000.0}
-              ]
-            },
-          ],
-          '20201113': [
-            {
-              'orderID': 1,
-              'checkoutTime': '2020-11-13 01:31:47.658',
-              'discountRate': 1.0,
-              'lineItems': [
-                {'dishID': 0, 'dishName': 'Rice Noodles', 'quantity': 1, 'price': 10000.0},
-                {
-                  'dishID': 4,
-                  'dishName': 'Fried Chicken with Egg',
-                  'quantity': 1,
-                  'price': 50000.0
-                },
-                {'dishID': 5, 'dishName': 'Kimchi', 'quantity': 1, 'price': 60000.0}
-              ]
-            },
-          ],
-          '20201114': [
-            {
-              'orderID': 2,
-              'checkoutTime': '2020-11-14 01:31:59.936',
-              'discountRate': 1.0,
-              'lineItems': [
-                {'dishID': 6, 'dishName': 'Coffee', 'quantity': 1, 'price': 70000.0}
-              ]
-            },
-          ],
-        },
-        'test-group-2',
-      );
+      storage = DatabaseFactory().create(_db, 'test', {}, 'test-group-2');
       await storage.open();
+      repo = DatabaseFactory().createRIDRepository<Order>(storage);
     });
+
     tearDownAll(() async {
       await storage.destroy();
-      storage.close();
-      // .close() is async, but lib does not await...
-      await Future.delayed(const Duration(milliseconds: 500));
-      try {
+      await storage.close();
+      if (_db == 'local-storage') {
         File('test/test-group-2').deleteSync();
-      } on Exception catch (e) {
-        if (kDebugMode) {
-          print('\x1B[94mtearDownAll (test/test-group-2): $e\x1B[0m');
-        }
       }
-      // delete the newly created storage file
     });
 
-    test('Confirm data access normal', () async {
-      final nextInt = await storage.nextUID();
-      expect(nextInt, 3);
-    });
+    setUp(() async {
+      await storage.truncate();
 
+      final order1 = Order.fromJson(const {
+        'orderID': 1,
+        'checkoutTime': '2020-11-12 01:31:32.840',
+        'discountRate': 1.0,
+        'lineItems': [
+          {'dishID': 0, 'dish': 'Rice Noodles', 'quantity': 1, 'price': 10000.0},
+          {'dishID': 1, 'dish': 'Lime Juice', 'quantity': 1, 'price': 20000.0},
+          {'dishID': 2, 'dish': 'Vegan Noodle', 'quantity': 1, 'price': 30000.0}
+        ]
+      });
+      final order2 = Order.fromJson(const {
+        'orderID': 2,
+        'checkoutTime': '2020-11-13 01:31:47.658',
+        'discountRate': 1.0,
+        'lineItems': [
+          {'dishID': 0, 'dish': 'Rice Noodles', 'quantity': 1, 'price': 10000.0},
+          {'dishID': 4, 'dish': 'Fried Chicken with Egg', 'quantity': 1, 'price': 50000.0},
+          {'dishID': 5, 'dish': 'Kimchi', 'quantity': 1, 'price': 60000.0}
+        ]
+      });
+      final order3 = Order.fromJson(const {
+        'orderID': 3,
+        'checkoutTime': '2020-11-14 01:31:59.936',
+        'discountRate': 1.0,
+        'lineItems': [
+          {'dishID': 6, 'dish': 'Coffee', 'quantity': 1, 'price': 70000.0}
+        ]
+      });
+
+      await repo.insert(order1);
+      await repo.insert(order2);
+      await repo.insert(order3);
+    });
     testWidgets(
       'Should have 2 line in History page, price = 180,000',
       (tester) async {
@@ -177,8 +155,8 @@ void main() {
         await tester.pumpWidget(MaterialApp(
           builder: (_, __) => ChangeNotifierProvider(
             create: (_) {
-              return HistorySupplierByDate(
-                database: storage,
+              return HistoryOrderSupplier(
+                database: repo,
                 range: DateTimeRange(
                     start: checkoutTime, end: checkoutTime.add(const Duration(days: 1))),
               );
@@ -186,6 +164,8 @@ void main() {
             child: DefaultTabController(length: 2, child: HistoryScreen()),
           ),
         ));
+        // see previous test for note
+        await tester.runAsync(() => Future.delayed(const Duration(milliseconds: 300)));
         await tester.pumpAndSettle();
 
         expect(
@@ -212,64 +192,54 @@ void main() {
   });
 
   group('Soft delete order test:', () {
+    late Order order1, order2;
+
     setUpAll(() async {
-      // create existing checked out data
-      storage = DatabaseFactory().create(
-        'local-storage',
-        'test',
-        {
-          'order_id_highkey': 1,
-          '20201112': [
-            {
-              'orderID': 0,
-              'checkoutTime': '2020-11-12 01:31:32.840',
-              'discountRate': 1.0,
-              'lineItems': [
-                {'dishID': 0, 'dishName': 'Rice Noodles', 'quantity': 1, 'price': 10000.0},
-                {'dishID': 1, 'dishName': 'Lime Juice', 'quantity': 1, 'price': 20000.0},
-              ],
-              'isDeleted': false,
-            },
-            {
-              'orderID': 1,
-              'checkoutTime': '2020-11-12 02:31:32.840',
-              'discountRate': 1.0,
-              'lineItems': [
-                {'dishID': 1, 'dishName': 'Lime Juice', 'quantity': 2, 'price': 40000.0},
-                {'dishID': 2, 'dishName': 'Vegan Noodle', 'quantity': 1, 'price': 30000.0}
-              ],
-              'isDeleted': false,
-            },
-          ],
-        },
-        'test-group-3',
-      );
+      storage = DatabaseFactory().create(_db, 'test', {}, 'test-group-3');
       await storage.open();
-    });
-    tearDownAll(() async {
-      await storage.destroy();
-      storage.close();
-      // .close() is async, but lib does not await...
-      await Future.delayed(const Duration(milliseconds: 500));
-      try {
-        File('test/test-group-3').deleteSync();
-      } on Exception catch (e) {
-        if (kDebugMode) {
-          print('\x1B[94mteardownAll (test/test-group-3): $e\x1B[0m');
-        }
-      }
-      // delete the newly created storage file
+      repo = DatabaseFactory().createRIDRepository<Order>(storage);
     });
 
-    test('Confirm data access normal', () async {
-      final nextInt = await storage.nextUID();
-      expect(nextInt, 2);
+    tearDownAll(() async {
+      await storage.destroy();
+      await storage.close();
+      if (_db == 'local-storage') {
+        File('test/test-group-3').deleteSync();
+      }
+    });
+
+    setUp(() async {
+      await storage.truncate();
+
+      order1 = Order.fromJson(const {
+        'orderID': 1,
+        'checkoutTime': '2020-11-12 01:31:32.840',
+        'discountRate': 1.0,
+        'lineItems': [
+          {'dishID': 0, 'dish': 'Rice Noodles', 'quantity': 1, 'price': 10000.0},
+          {'dishID': 1, 'dish': 'Lime Juice', 'quantity': 1, 'price': 20000.0},
+        ],
+        'isDeleted': false,
+      });
+      order2 = Order.fromJson(const {
+        'orderID': 2,
+        'checkoutTime': '2020-11-12 02:31:32.840',
+        'discountRate': 1.0,
+        'lineItems': [
+          {'dishID': 1, 'dish': 'Lime Juice', 'quantity': 2, 'price': 40000.0},
+          {'dishID': 2, 'dish': 'Vegan Noodle', 'quantity': 1, 'price': 30000.0}
+        ],
+        'isDeleted': false,
+      });
+
+      await repo.insert(order1);
+      await repo.insert(order2);
     });
 
     test('Should be able to set isDeleted to true', () async {
-      await storage.delete(DateTime.parse('2020-11-12'), 1);
+      await repo.delete(order2);
 
-      var order = await storage.get(DateTime.parse('2020-11-12'));
+      var order = await repo.get(DateTime.parse('2020-11-12'));
 
       expect(order[0].isDeleted, false);
       expect(order[1].isDeleted, true);
@@ -278,76 +248,64 @@ void main() {
 
   group('Soft delete order widget test:', () {
     setUpAll(() async {
-      // create existing checked out data
-      storage = DatabaseFactory().create(
-        'local-storage',
-        'test',
-        {
-          'order_id_highkey': 3,
-          '20201112': [
-            {
-              'orderID': 0,
-              'checkoutTime': '2020-11-12 01:31:32.840',
-              'discountRate': 1.0,
-              'lineItems': [
-                {'dishID': 0, 'dishName': 'Rice Noodles', 'quantity': 2, 'price': 20000.0},
-                {'dishID': 1, 'dishName': 'Egg', 'quantity': 1, 'price': 5000.0},
-              ],
-              'isDeleted': false,
-            },
-            {
-              'orderID': 1,
-              'checkoutTime': '2020-11-12 02:31:32.840',
-              'discountRate': 1.0,
-              'lineItems': [
-                {'dishID': 1, 'dishName': 'Lime Juice', 'quantity': 2, 'price': 40000.0},
-              ],
-              'isDeleted': true,
-            },
-          ],
-          '20201113': [
-            {
-              'orderID': 2,
-              'checkoutTime': '2020-11-13 01:31:32.840',
-              'discountRate': 0.1,
-              'lineItems': [
-                {'dishID': 0, 'dishName': 'Rice Noodles', 'quantity': 5, 'price': 50000.0},
-              ],
-              'isDeleted': false,
-            },
-            {
-              'orderID': 3,
-              'checkoutTime': '2020-11-13 01:31:32.840',
-              'discountRate': 0.5,
-              'lineItems': [
-                {'dishID': 0, 'dishName': "Royce da 5'9", 'quantity': 1, 'price': 1000.0},
-              ],
-              'isDeleted': false,
-            },
-          ],
-        },
-        'test-group-4',
-      );
+      storage = DatabaseFactory().create(_db, 'test', {}, 'test-group-4');
       await storage.open();
-    });
-    tearDownAll(() async {
-      await storage.destroy();
-      storage.close();
-      // .close() is async, but lib does not await...
-      await Future.delayed(const Duration(milliseconds: 500));
-      try {
-        File('test/test-group-4').deleteSync();
-      } on Exception catch (e) {
-        if (kDebugMode) {
-          print('\x1B[94mtearDownAll: (test/test-group-4)$e\x1B[0m');
-        }
-      }
-      // delete the newly created storage file
+      repo = DatabaseFactory().createRIDRepository<Order>(storage);
     });
 
-    test('Confirm data access normal', () async {
-      final nextInt = await storage.nextUID();
-      expect(nextInt, 4);
+    tearDownAll(() async {
+      await storage.destroy();
+      await storage.close();
+      if (_db == 'local-storage') {
+        File('test/test-group-4').deleteSync();
+      }
+    });
+
+    setUp(() async {
+      await storage.truncate();
+
+      final order1 = Order.fromJson(const {
+        'orderID': 1,
+        'checkoutTime': '2020-11-12 01:31:32.840',
+        'discountRate': 1.0,
+        'lineItems': [
+          {'dishID': 0, 'dish': 'Rice Noodles', 'quantity': 2, 'price': 20000.0},
+          {'dishID': 1, 'dish': 'Egg', 'quantity': 1, 'price': 5000.0},
+        ],
+        'isDeleted': false,
+      });
+      final order2 = Order.fromJson(const {
+        'orderID': 2,
+        'checkoutTime': '2020-11-12 02:31:32.840',
+        'discountRate': 1.0,
+        'lineItems': [
+          {'dishID': 1, 'dish': 'Lime Juice', 'quantity': 2, 'price': 40000.0},
+        ],
+        'isDeleted': true,
+      });
+      final order3 = Order.fromJson(const {
+        'orderID': 3,
+        'checkoutTime': '2020-11-13 01:31:32.840',
+        'discountRate': 0.1,
+        'lineItems': [
+          {'dishID': 0, 'dish': 'Rice Noodles', 'quantity': 5, 'price': 50000.0},
+        ],
+        'isDeleted': false,
+      });
+      final order4 = Order.fromJson(const {
+        'orderID': 4,
+        'checkoutTime': '2020-11-13 01:31:32.840',
+        'discountRate': 0.5,
+        'lineItems': [
+          {'dishID': 0, 'dish': "Royce da 5'9", 'quantity': 1, 'price': 1000.0},
+        ],
+        'isDeleted': false,
+      });
+
+      await repo.insert(order1);
+      await repo.insert(order2);
+      await repo.insert(order3);
+      await repo.insert(order4);
     });
 
     testWidgets(
@@ -356,14 +314,16 @@ void main() {
         await tester.pumpWidget(MaterialApp(
           builder: (_, __) => ChangeNotifierProvider(
             create: (_) {
-              return HistorySupplierByDate(
-                database: storage,
+              return HistoryOrderSupplier(
+                database: repo,
                 range: DateTimeRange(start: checkoutTime, end: checkoutTime), //view by same day,
               );
             },
             child: DefaultTabController(length: 2, child: HistoryScreen()),
           ),
         ));
+        // see above tests for note
+        await tester.runAsync(() => Future.delayed(const Duration(milliseconds: 300)));
         await tester.pumpAndSettle();
 
         expect(
@@ -387,8 +347,8 @@ void main() {
     testWidgets(
       'Exclude deleted item in the summary price (appbar)',
       (tester) async {
-        final provider = HistorySupplierByDate(
-          database: storage,
+        final provider = HistoryOrderSupplier(
+          database: repo,
           range: DateTimeRange(start: checkoutTime, end: checkoutTime), //view by same day,
         );
 
@@ -404,6 +364,8 @@ void main() {
             child: DefaultTabController(length: 2, child: HistoryScreen()),
           ),
         ));
+        // see above tests for note
+        await tester.runAsync(() => Future.delayed(const Duration(milliseconds: 300)));
         await tester.pumpAndSettle();
 
         expect(
@@ -422,6 +384,8 @@ void main() {
         //
         final tomorrow = checkoutTime.add(const Duration(days: 1));
         provider.selectedRange = DateTimeRange(start: checkoutTime, end: tomorrow);
+        // see above tests for note
+        await tester.runAsync(() => Future.delayed(const Duration(milliseconds: 300)));
         await tester.pumpAndSettle();
 
         expect(
@@ -431,8 +395,6 @@ void main() {
           findsNWidgets(4),
           reason: 'Not finding 4 lines in view',
         );
-        await tester.pump();
-
         // (450000 * 1.0 discount)
         // + (250000 * 0.1 discount) + (1000 * 0.5 discount)
         expect(
@@ -442,6 +404,23 @@ void main() {
         );
         expect(
           find.text('(2020/11/12 - 2020/11/13)'),
+          findsOneWidget,
+          reason: 'Selected range is not 11/12',
+        );
+
+        // back to one day
+        provider.selectedRange = DateTimeRange(start: checkoutTime, end: checkoutTime);
+        // see above tests for note
+        await tester.runAsync(() => Future.delayed(const Duration(milliseconds: 300)));
+        await tester.pumpAndSettle(const Duration(milliseconds: 300));
+
+        expect(
+          find.widgetWithText(Wrap, '45,000'),
+          findsOneWidget,
+          reason: 'Summary price is not 45,000',
+        );
+        expect(
+          find.text('(2020/11/12 - 2020/11/12)'),
           findsOneWidget,
           reason: 'Selected range is not 11/12',
         );

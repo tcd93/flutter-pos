@@ -1,5 +1,8 @@
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  exclude: ["lib/generated_plugin_registrant.dart"]
+
 strong-mode:
   implicit-casts: false
   implicit-dynamic: false

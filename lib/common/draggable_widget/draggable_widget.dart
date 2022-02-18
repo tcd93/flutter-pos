@@ -50,8 +50,11 @@ class DraggableWidgetState extends State<DraggableWidget> {
   }
 
   void getSize() {
-    final box = key.currentContext!.findRenderObject() as RenderBox;
-    normalSize = box.size;
+    final renderObject = key.currentContext?.findRenderObject();
+    if (renderObject != null) {
+      final box = renderObject as RenderBox;
+      normalSize = box.size;
+    }
   }
 
   @override

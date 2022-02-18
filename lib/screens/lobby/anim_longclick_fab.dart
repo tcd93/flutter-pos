@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:super_tooltip/super_tooltip.dart';
 import '../../theme/rally.dart';
 
@@ -11,20 +12,11 @@ const _targetTime = Duration(seconds: 2);
 /// callback after 2s
 ///
 /// Have a [CircularProgressIndicator] around showing progress
-class AnimatedLongClickableFAB extends StatefulWidget {
+class AnimatedLongClickableFAB extends HookWidget {
+  final ColorTween cTween = ColorTween(begin: RallyColors.gray, end: RallyColors.primaryColor);
   final VoidCallback onLongPress;
 
-  const AnimatedLongClickableFAB({required this.onLongPress});
-
-  @override
-  _AnimatedLongClickableFABState createState() => _AnimatedLongClickableFABState();
-}
-
-class _AnimatedLongClickableFABState extends State<AnimatedLongClickableFAB>
-    with TickerProviderStateMixin {
-  Timer? t;
-  late final AnimationController valueController, colorController;
-  ColorTween cTween = ColorTween(begin: RallyColors.gray, end: RallyColors.primaryColor);
+  AnimatedLongClickableFAB({required this.onLongPress});
 
   final tooltip = SuperTooltip(
     popupDirection: TooltipDirection.up,
@@ -41,31 +33,18 @@ class _AnimatedLongClickableFABState extends State<AnimatedLongClickableFAB>
     }),
   );
 
-  _AnimatedLongClickableFABState() {
-    valueController = AnimationController(
-      duration: _targetTime,
-      vsync: this,
-      lowerBound: 0.0,
-      upperBound: 1.0,
-    );
-    colorController = AnimationController(duration: _targetTime, vsync: this);
-  }
-
-  @override
-  void initState() {
-    WidgetsBinding.instance!.addPostFrameCallback((_) => tooltip.show(context));
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    valueController.dispose();
-    colorController.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
+    useMemoized(() {
+      WidgetsBinding.instance!.addPostFrameCallback((_) => tooltip.show(context));
+    });
+
+    // controllers
+    final valueController = useAnimationController(duration: _targetTime);
+    final colorController = useAnimationController(duration: _targetTime);
+    // states
+    final t = useState<Timer?>(null);
+
     return Stack(
       alignment: AlignmentDirectional.center,
       children: [
@@ -89,17 +68,17 @@ class _AnimatedLongClickableFABState extends State<AnimatedLongClickableFAB>
           backgroundColor: RallyColors.buttonColor,
           child: GestureDetector(
             onTapDown: (_) {
-              t = Timer(_targetTime, widget.onLongPress);
+              t.value = Timer(_targetTime, onLongPress);
               valueController.forward();
               colorController.forward();
             },
             onTapUp: (_) {
-              if (t != null && t!.isActive) t!.cancel();
+              if (t.value != null && t.value!.isActive) t.value!.cancel();
               valueController.reset();
               colorController.reset();
             },
             onTapCancel: () {
-              if (t != null && t!.isActive) t!.cancel();
+              if (t.value != null && t.value!.isActive) t.value!.cancel();
               valueController.reset();
               colorController.reset();
             },

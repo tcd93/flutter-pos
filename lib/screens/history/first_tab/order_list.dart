@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 
-import 'order_card.dart';
 import '../../../provider/src.dart';
+import 'order_card.dart';
 
 class HistoryOrderList extends StatelessWidget {
-  final Iterable<Order> orders;
-
-  const HistoryOrderList(this.orders);
-
   @override
   Widget build(BuildContext context) {
+    final length = context.select<HistoryOrderSupplier, int>(
+        (HistoryOrderSupplier supplier) => supplier.orders.length);
     return ListView.builder(
       physics: const BouncingScrollPhysics(),
-      itemCount: orders.length,
+      itemCount: length,
       itemBuilder: (context, index) {
-        return OrderCard(orders.elementAt(index));
+        return OrderCard(index);
       },
     );
   }

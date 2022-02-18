@@ -1,29 +1,29 @@
 class SlidingWindow<T> extends Iterable<T> {
   @override
   final int length;
-  List<T> lst;
+  final List<T> _lst;
 
-  SlidingWindow(this.length, List<T> list)
-      : assert(length > 0),
-        assert(length == list.length),
-        lst = list.toList(growable: true);
+  SlidingWindow(List<T> list)
+      : assert(list.isNotEmpty),
+        length = list.length,
+        _lst = list.toList(growable: true);
 
   /// slide in from right, remove fist
-  T slideRight(T n) {
-    var oldState = lst.removeAt(0);
-    lst.add(n);
-    return oldState;
+  slideRight(T n) {
+    _lst.removeAt(0);
+    _lst.add(n);
   }
 
   /// slide in from left, remove last
-  T slideLeft(T n) {
-    var lastState = lst.removeAt(length - 1);
-    lst.insert(0, n);
-    return lastState;
+  slideLeft(T n) {
+    _lst.removeAt(length - 1);
+    _lst.insert(0, n);
   }
 
-  T get current => lst.elementAt(length - 1);
+  replaceFirst(T n) {
+    _lst.first = n;
+  }
 
   @override
-  Iterator<T> get iterator => lst.iterator;
+  Iterator<T> get iterator => _lst.iterator;
 }

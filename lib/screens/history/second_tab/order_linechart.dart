@@ -6,18 +6,14 @@ import '../../../theme/rally.dart';
 import '../../../provider/src.dart';
 
 class HistoryOrderLineChart extends StatelessWidget {
-  final Iterable<Order> orders;
-
-  const HistoryOrderLineChart(this.orders);
-
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<HistorySupplierByLine>(context, listen: false);
+    final provider = Provider.of<HistoryOrderSupplier>(context);
 
     return Container(
       alignment: Alignment.center,
       margin: const EdgeInsets.fromLTRB(48, 60, 48, 48),
-      child: _drawLineChart(context, provider.group(orders)),
+      child: _drawLineChart(context, provider.group()),
     );
   }
 

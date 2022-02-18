@@ -1,9 +1,49 @@
+import 'package:flutter/foundation.dart';
+
 import '../provider/src.dart';
 
-class SupplierRepository with NodeIO, OrderIO, CoordinateIO {}
+class NodeIO = TableIO with CoordinateIO;
 
 /// Represents a storage engine, like "localstorage", "sqlite", or "aws-s3"...
-class DatabaseConnectionInterface = SupplierRepository with MenuIO, JournalIO;
+typedef DatabaseConnectionInterface = Control;
+
+/// Readable & Insertable
+abstract class RIRepository<T> = Readable<T> with Insertable<T>;
+abstract class RIDRepository<T> = RIRepository<T> with Deletable<T>;
+abstract class RIUDRepository<T> = RIDRepository<T> with Updatable<T>;
+
+/// Operations on a more generic/global level
+class Control {
+  Future<dynamic> open() => Future.value();
+
+  Future<void> close() => Future.value();
+
+  /// Removes all items from database, should be wrapped in try/catch block
+  Future<void> destroy() => Future.value();
+
+  @visibleForTesting
+  Future<void> truncate() => Future.value();
+}
+
+typedef QueryKey<C> = Comparable<C>;
+
+abstract class Readable<T> {
+  Future<List<T>> get([QueryKey? from, QueryKey? to]);
+}
+
+abstract class Insertable<T> {
+  Future<T> insert(T value);
+}
+
+abstract class Deletable<T> {
+  Future<void> delete(T value);
+}
+
+abstract class Updatable<T> {
+  Future<void> update(T value);
+
+  Future<void> upsert(T value) => throw UnimplementedError();
+}
 
 /// Specific operations on table nodes, like inserting an order
 class OrderIO {
@@ -20,41 +60,19 @@ class OrderIO {
 
 /// Operations with the journal entries
 class JournalIO {
-  List<Journal> getJournal(DateTime day) => [];
+  Future<List<Journal>> getJournal(DateTime day) => Future.value([]);
 
-  List<Journal> getJournals(DateTime from, DateTime to) => [];
+  Future<List<Journal>> getJournals(DateTime from, DateTime to) => Future.value([]);
 
   Future<void> insertJournal(Journal journal) => Future.value();
 }
 
-/// Specific CRUD operations on Menu
-class MenuIO {
-  /// Get menu from storage
-  Menu? getMenu() => null;
+class TableIO {
+  Future<List<int>> tableIDs() => Future.value([]);
 
-  /// Overrides current menu in storage with new menu object
-  Future<void> setMenu(Menu newMenu) => Future.value();
-}
+  Future<int> addTable() => Future.value(-1);
 
-/// Operations on a more generic/global level, like retrieving the list of nodes
-class NodeIO {
-  Future<dynamic> open() => Future.value();
-
-  void close() {
-    return;
-  }
-
-  /// Removes all items from database, should be wrapped in try/catch block
-  Future<void> destroy() => Future.value();
-
-  /// Get next incremental unique ID
-  Future<int> nextUID() => Future.value(-1);
-
-  List<int> tableIDs() => [];
-
-  Future<List<int>> addTable(int tableID) => Future.value([]);
-
-  Future<List<int>> removeTable(int tableID) => Future.value([]);
+  Future<void> removeTable(int tableID) => Future.value();
 }
 
 class CoordinateIO {
@@ -62,8 +80,8 @@ class CoordinateIO {
   Future<void> setCoordinate(int tableID, double x, double y) => Future.value();
 
   /// Get position X of table node on screen
-  double getX(int tableID) => 0;
+  Future<double> getX(int tableID) async => 0;
 
   /// Get position Y of table node on screen
-  double getY(int tableID) => 0;
+  Future<double> getY(int tableID) async => 0;
 }

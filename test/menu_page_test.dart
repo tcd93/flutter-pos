@@ -2,14 +2,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:posapp/provider/src.dart';
 
 void main() {
-  var _testModel = TableModel(-1);
+  var _testModel = TableModel();
 
   setUp(() {
-    _testModel = TableModel(0)
-      ..putIfAbsent(Dish(1, 'test1', 100)).quantity = 5
-      ..putIfAbsent(Dish(2, 'test2', 200)).quantity = 0
-      ..putIfAbsent(Dish(3, 'test3', 300)).quantity = 15
-      ..putIfAbsent(Dish(4, 'test4', 400)).quantity = 10;
+    _testModel = TableModel()
+      ..putIfAbsent(Dish('test1', 100)).quantity = 5
+      ..putIfAbsent(Dish('test2', 200)).quantity = 0
+      ..putIfAbsent(Dish('test3', 300)).quantity = 15
+      ..putIfAbsent(Dish('test4', 400)).quantity = 10;
   });
 
   group('Not confirmed: ', () {
@@ -32,8 +32,8 @@ void main() {
     });
 
     test('Should keep previous state when add to current state, then revert', () {
-      _testModel.putIfAbsent(Dish(1, 'test1', 100)).quantity++;
-      _testModel.putIfAbsent(Dish(5, 'test5', 500)).quantity = 1; // new item here
+      _testModel.putIfAbsent(Dish('test1', 100)).quantity++;
+      _testModel.putIfAbsent(Dish('test5', 500)).quantity = 1; // new item here
 
       _testModel.revert();
 

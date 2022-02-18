@@ -1,17 +1,16 @@
 import 'dart:typed_data';
 import 'package:flutter/widgets.dart';
 
-@immutable
 class Dish {
   final int id;
 
-  final double price;
+  double price;
 
   /// Dish name
-  final String dish;
+  String dish;
 
   /// A "view" to the underlying image (can be from asset or from raw bytes)
-  late final ImageProvider imgProvider;
+  late ImageProvider imgProvider;
 
   /// image bytes data
   final Uint8List? _imageBytes;
@@ -19,29 +18,23 @@ class Dish {
   /// or a string of asset path, if [_imageBytes] is not defined
   final String? _asset;
 
-  @override
-  // ignore: always_declare_return_types, type_annotate_public_apis
-  operator ==(other) => other is Dish && other.id == id;
-  @override
-  int get hashCode => id;
-
-  Dish(this.id, this.dish, [this.price = 0, this._imageBytes])
-      : assert(id >= 0),
-        assert(dish != ''),
+  Dish(this.dish, [this.price = 0, this._imageBytes])
+      : assert(dish != ''),
+        id = -1,
         _asset = null {
     _initImgProvider();
   }
 
-  Dish.fromAsset(this.id, this.dish, [this.price = 0, this._asset])
-      : assert(id >= 0),
-        assert(dish != ''),
+  Dish.fromAsset(this.dish, [this.price = 0, this._asset])
+      : assert(dish != ''),
+        id = -1,
         _imageBytes = null {
     _initImgProvider();
   }
 
   // will be called implicitly
   Dish.fromJson(Map<String, dynamic> json)
-      : id = json['id'],
+      : id = json['ID'] ?? json['dishID'] ?? json['id'],
         dish = json['dish'],
         price = json['price'],
         _imageBytes = json['imageBytes'] != null
@@ -61,10 +54,10 @@ class Dish {
 
   Map<String, dynamic> toJson() {
     return _imageBytes != null
-        ? {'id': id, 'dish': dish, 'price': price, 'imageBytes': _imageBytes}
+        ? {'ID': id, 'dish': dish, 'price': price, 'imageBytes': _imageBytes}
         : _asset != null
-            ? {'id': id, 'dish': dish, 'price': price, 'asset': _asset}
-            : {'id': id, 'dish': dish, 'price': price};
+            ? {'ID': id, 'dish': dish, 'price': price, 'asset': _asset}
+            : {'ID': id, 'dish': dish, 'price': price};
   }
 
   @override

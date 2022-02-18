@@ -15,18 +15,19 @@ import 'screens/menu/main.dart';
 import 'storage_engines/connection_interface.dart';
 
 void main() {
+  final storage = DatabaseFactory().create('local-storage');
+  final configStorage = DatabaseFactory().create('local-storage');
   WidgetsFlutterBinding.ensureInitialized();
 
-  final storage = DatabaseFactory().create('local-storage');
-
-  runApp(PosApp(storage));
+  runApp(PosApp(storage, configStorage));
 }
 
 class PosApp extends StatelessWidget {
-  final DatabaseConnectionInterface _storage;
+  final DatabaseConnectionInterface _storage, _configStorage;
   final Future _init;
 
-  PosApp(this._storage) : _init = _storage.open();
+  PosApp(this._storage, this._configStorage)
+      : _init = Future.wait([_storage.open(), _configStorage.open()]);
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +48,26 @@ class PosApp extends StatelessWidget {
           if (dbSnapshot.hasData) {
             return MultiProvider(
               providers: [
-                ChangeNotifierProvider(create: (_) => Supplier(database: _storage)),
-                Provider(create: (_) => MenuSupplier(database: _storage)),
+                Provider.value(value: _storage),
+                FutureProvider(
+                  create: (_) => ConfigSupplier(
+                    database: DatabaseFactory().createRIUDRepository<Config>(_configStorage),
+                  ).init(),
+                  initialData: null,
+                  lazy: false,
+                ),
+                ChangeNotifierProvider(
+                  create: (_) => Supplier(
+                    database: DatabaseFactory().createRIUDRepository<Node>(_storage),
+                  ),
+                ),
+                FutureProvider(
+                  create: (_) => MenuSupplier(
+                    database: DatabaseFactory().createRIUDRepository<Dish>(_storage),
+                  ).init(),
+                  initialData: null,
+                  lazy: false,
+                ),
               ],
               child: screen,
             );
@@ -89,17 +108,10 @@ class PosApp extends StatelessWidget {
             return routeBuilder(
               DefaultTabController(
                 length: 2,
-                child: MultiProvider(
-                  providers: [
-                    // TODO: restructure to use parent model HistoryOrderSupplier
-                    ChangeNotifierProvider(
-                      create: (_) => HistorySupplierByDate(database: _storage),
-                    ),
-                    ChangeNotifierProxyProvider<HistorySupplierByDate, HistorySupplierByLine>(
-                      create: (_) => HistorySupplierByLine(database: _storage),
-                      update: (_, firstTab, lineChart) => lineChart!..update(firstTab),
-                    ),
-                  ],
+                child: ChangeNotifierProvider(
+                  create: (_) => HistoryOrderSupplier(
+                    database: DatabaseFactory().createRIUDRepository<Order>(_storage),
+                  ),
                   child: HistoryScreen(),
                 ),
               ),
@@ -108,7 +120,9 @@ class PosApp extends StatelessWidget {
             return routeBuilder(
               ChangeNotifierProvider(
                 create: (_) {
-                  return ExpenseSupplier(database: _storage);
+                  return ExpenseSupplier(
+                    database: DatabaseFactory().createRIRepository<Journal>(_storage),
+                  );
                 },
                 child: ExpenseJournalScreen(),
               ),

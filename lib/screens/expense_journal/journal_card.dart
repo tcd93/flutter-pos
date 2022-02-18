@@ -11,8 +11,12 @@ class JournalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<ExpenseSupplier>(context);
-    final journal = provider.data.elementAt(index);
+    var journal = context.select<ExpenseSupplier, Journal?>(
+      (ExpenseSupplier supplier) =>
+          (index < supplier.data.length) ? supplier.data.elementAt(index) : null,
+    );
+    if (journal == null) return const SizedBox.shrink();
+
     return Align(
       alignment: Alignment.center,
       widthFactor: 0.95,

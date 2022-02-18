@@ -28,7 +28,7 @@ class DetailsScreen extends StatelessWidget {
             )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      body: ItemList(order, fromScreen: fromScreen),
+      body: ItemList(order),
     );
   }
 }
