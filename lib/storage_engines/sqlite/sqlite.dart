@@ -83,7 +83,8 @@ class SQLite implements DatabaseConnectionInterface {
             CREATE TABLE $nodeTable(
               ID           INTEGER PRIMARY KEY AUTOINCREMENT, 
               x            REAL DEFAULT 0,
-              y            REAL DEFAULT 0
+              y            REAL DEFAULT 0,
+              page         INT
             );
 
             CREATE TABLE $orderTable(
