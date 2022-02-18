@@ -8,34 +8,33 @@ import '../../storage_engines/connection_interface.dart';
 
 import '../src.dart';
 
-class MenuSupplier {
-  late List<Dish> _m;
+class MenuSupplier extends ChangeNotifier {
+  List<Dish> _m = [];
 
-  /// must call [init] beforehand
   List<Dish> get menu => _m;
-  final Completer<MenuSupplier> _completer = Completer();
+
+  bool _loading = false;
+  bool get loading => _loading;
 
   final RIUDRepository<Dish>? database;
 
   MenuSupplier({this.database, List<Dish>? mockMenu}) {
     if (mockMenu != null) {
       _m = mockMenu;
-      _completer.complete(this);
+      _loading = false;
       return;
     }
+    _loading = true;
     Future(() async {
       _m = (await database?.get()) ?? [];
       if (_m.isEmpty) {
         _m = _defaultMenu();
         if (database != null) _m.forEach(database!.insert);
       }
-      // in case getMenu() too fast causing screen rebuilt twice in a row -> weird janky effect ->
-      // delay completion by 500 milliseconds
-      Future.delayed(const Duration(milliseconds: 500), () => _completer.complete(this));
+      _loading = false;
+      notifyListeners();
     });
   }
-
-  Future<MenuSupplier> init() async => await _completer.future;
 
   Dish getDish(int index) {
     return _m.elementAt(index);
@@ -53,6 +52,7 @@ class MenuSupplier {
     final _t = Dish(name, price, image); // _t has no ID yet
     final newDish = (await database?.insert(_t)) ?? _t; // now it has
     _m.add(newDish);
+    notifyListeners();
     return newDish;
   }
 
@@ -70,6 +70,7 @@ class MenuSupplier {
     assert(_m.contains(dish));
 
     _m.remove(dish);
+    notifyListeners();
     return database?.delete(dish);
   }
 }

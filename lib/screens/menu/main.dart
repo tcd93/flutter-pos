@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../common/common.dart';
 import '../../provider/src.dart';
+import '../menu_filterer.dart';
 import 'counter.dart';
 
 class MenuScreen extends StatelessWidget {
@@ -24,7 +25,7 @@ class MenuScreen extends StatelessWidget {
           ],
         ),
       ),
-      body: _MenuList(
+      body: MenuFilterer(
         builder: (context, menu) => ListView.builder(
             physics: const BouncingScrollPhysics(),
             itemCount: menu.length,
@@ -32,6 +33,7 @@ class MenuScreen extends StatelessWidget {
               final dish = menu[index];
               final supplier = Provider.of<Supplier>(context, listen: false);
               return Selector<Supplier, int>(
+                key: ObjectKey(dish),
                 selector: (_, __) => model.getByDish(dish)?.quantity ?? 0,
                 builder: (context, quantity, _) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -62,33 +64,6 @@ class MenuScreen extends StatelessWidget {
             }),
       ),
     );
-  }
-}
-
-class _MenuList extends StatelessWidget {
-  final Widget Function(BuildContext, List<Dish>) builder;
-
-  /// Return generic text 'No data found' or build a list of [_ListItem]
-  const _MenuList({required this.builder});
-
-  @override
-  Widget build(BuildContext context) {
-    final dishes = context.select<MenuSupplier?, List<Dish>?>((value) {
-      return value?.menu.toList();
-    });
-    if (dishes == null) {
-      return const Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-        ),
-      );
-    }
-    if (dishes.isEmpty) {
-      return Center(
-        child: Text(AppLocalizations.of(context)?.generic_empty ?? 'No data found'),
-      );
-    }
-    return builder(context, dishes);
   }
 }
 

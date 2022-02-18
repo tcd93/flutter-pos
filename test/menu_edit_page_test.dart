@@ -35,9 +35,8 @@ void main() {
   testWidgets('Expect default items', (tester) async {
     await tester.pumpWidget(MaterialApp(
       builder: (_, __) {
-        return FutureProvider(
-          create: (_) => MenuSupplier().init(),
-          initialData: null,
+        return ChangeNotifierProvider(
+          create: (_) => MenuSupplier(),
           child: EditMenuScreen(),
         );
       },
@@ -59,9 +58,8 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(
       builder: (_, __) {
-        return FutureProvider(
-          create: (_) => supplier.init(),
-          initialData: null,
+        return ChangeNotifierProvider(
+          create: (_) => supplier,
           child: EditMenuScreen(),
         );
       },

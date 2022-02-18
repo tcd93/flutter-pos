@@ -61,11 +61,10 @@ class PosApp extends StatelessWidget {
                     database: DatabaseFactory().createRIUDRepository<Node>(_storage),
                   ),
                 ),
-                FutureProvider(
+                ChangeNotifierProvider(
                   create: (_) => MenuSupplier(
                     database: DatabaseFactory().createRIUDRepository<Dish>(_storage),
-                  ).init(),
-                  initialData: null,
+                  ),
                   lazy: false,
                 ),
               ],

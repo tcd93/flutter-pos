@@ -4,8 +4,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../menu_filterer.dart';
 import './menu_form.dart';
 import '../../common/common.dart';
 import '../../theme/rally.dart';
@@ -13,7 +13,6 @@ import '../../provider/src.dart';
 import '../popup_del.dart';
 import '../avatar.dart';
 import 'custom_scaffold.dart';
-import 'debouncer.dart';
 
 const _animDuration = Duration(milliseconds: 500);
 
@@ -23,12 +22,6 @@ class EditMenuScreen extends StatefulWidget {
 }
 
 class EditMenuScreenState extends State<EditMenuScreen> {
-  final _debouncer = Debouncer(milliseconds: 300);
-
-  /// The filtered list of m if user use the filter input,
-  /// should be the central state object
-  List<Dish>? filteredDishes;
-
   // New code
   final ScrollController _scrollController = ScrollController();
 
@@ -43,102 +36,44 @@ class EditMenuScreenState extends State<EditMenuScreen> {
     return CustomScaffold(
       onAddDish: (name, price, [image]) async {
         final supplier = context.read<MenuSupplier>();
-        final dish = await supplier.addDish(name, price, image);
-        setState(() {
-          filteredDishes?.add(dish);
-        });
+        await supplier.addDish(name, price, image);
       },
-      body: SafeArea(
-        child: Column(
-          children: [
-            TextField(
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.all(15.0),
-                hintText: AppLocalizations.of(context)?.edit_menu_filterHint,
-              ),
-              onChanged: (string) {
-                _debouncer.run(() {
-                  setState(() {
-                    filteredDishes = context
-                        .read<MenuSupplier>()
-                        .menu
-                        .where((u) => (u.dish.toLowerCase().contains(string.toLowerCase())))
-                        .toList();
-                  });
+      body: MenuFilterer(
+        builder: (context, list) => ListView.builder(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.all(10.0),
+          controller: _scrollController,
+          itemCount: list.length,
+          itemBuilder: (_, index) {
+            return _ListItem(
+              list[index],
+              onShow: (ctx) {
+                // ensure visibility of this widget after expanded (so it is not obscured by the appbar),
+                // but only call after animation from the `AnimatedCrossFade` is completed so the `ctx.findRenderObject`
+                // find the render object at full height to work with
+                Timer(_animDuration, () {
+                  _scrollController.position.ensureVisible(
+                    ctx.findRenderObject()!,
+                    duration: _animDuration,
+                    curve: Curves.easeOut,
+                    alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+                  );
                 });
               },
-            ),
-            _MenuList(
-              builder: (initialList) {
-                filteredDishes ??= initialList;
-
-                return ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.all(10.0),
-                  controller: _scrollController,
-                  itemCount: filteredDishes!.length,
-                  itemBuilder: (_, index) {
-                    return _ListItem(
-                      filteredDishes![index],
-                      onShow: (ctx) {
-                        // ensure visibility of this widget after expanded (so it is not obscured by the appbar),
-                        // but only call after animation from the `AnimatedCrossFade` is completed so the `ctx.findRenderObject`
-                        // find the render object at full height to work with
-                        Timer(_animDuration, () {
-                          _scrollController.position.ensureVisible(
-                            ctx.findRenderObject()!,
-                            duration: _animDuration,
-                            curve: Curves.easeOut,
-                            alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
-                          );
-                        });
-                      },
-                      onDelete: () {
-                        setState(() {
-                          filteredDishes!.removeAt(index);
-                        });
-                      },
-                    );
-                  },
-                );
-              },
-            ),
-          ],
+              key: ObjectKey(list[index]),
+            );
+          },
         ),
       ),
     );
   }
 }
 
-class _MenuList extends StatelessWidget {
-  final Widget Function(List<Dish> initialList) builder;
-
-  /// Return generic text 'No data found' or build a list of [_ListItem]
-  const _MenuList({required this.builder});
-
-  @override
-  Widget build(BuildContext context) {
-    final dishes = context.select<MenuSupplier?, List<Dish>?>((value) {
-      return value?.menu.toList();
-    });
-    if (dishes == null) {
-      return const CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-      );
-    }
-    if (dishes.isEmpty) {
-      return Text(AppLocalizations.of(context)?.generic_empty ?? 'No data found');
-    }
-    return Expanded(child: builder(dishes));
-  }
-}
-
 class _ListItem extends HookWidget {
   final Function(BuildContext ctx) onShow;
-  final VoidCallback onDelete;
   final Dish dish;
 
-  const _ListItem(this.dish, {required this.onDelete, required this.onShow});
+  const _ListItem(this.dish, {required this.onShow, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +100,6 @@ class _ListItem extends HookWidget {
         if (delete != null && delete) {
           final supplier = context.read<MenuSupplier>();
           supplier.removeDish(dish);
-          onDelete();
         }
       },
       child: Padding(
