@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -79,8 +80,7 @@ class EditMenuScreenState extends State<EditMenuScreen> {
                   itemBuilder: (_, index) {
                     return _ListItem(
                       filteredDishes![index],
-                      onShow: (keyOfExpandedWidget) {
-                        final ctx = keyOfExpandedWidget.currentContext!;
+                      onShow: (ctx) {
                         // ensure visibility of this widget after expanded (so it is not obscured by the appbar),
                         // but only call after animation from the `AnimatedCrossFade` is completed so the `ctx.findRenderObject`
                         // find the render object at full height to work with
@@ -133,51 +133,39 @@ class _MenuList extends StatelessWidget {
   }
 }
 
-class _ListItem extends StatefulWidget {
-  final Function(GlobalKey keyOfExpandedWidget) onShow;
+class _ListItem extends HookWidget {
+  final Function(BuildContext ctx) onShow;
   final VoidCallback onDelete;
   final Dish dish;
 
   const _ListItem(this.dish, {required this.onDelete, required this.onShow});
 
   @override
-  __ListItemState createState() => __ListItemState();
-}
-
-class __ListItemState extends State<_ListItem> {
-  CrossFadeState currentState = CrossFadeState.showFirst;
-  // attach this global key to the "expanded" widget to get the sizes
-  // for the `ensureVisible` function to work!
-  final GlobalKey<__ListItemState> _gk = GlobalKey();
-
-  Uint8List? pickedImage;
-
-  @override
   Widget build(BuildContext context) {
+    final currentState = useState(CrossFadeState.showFirst);
+
     return Card(
       child: AnimatedCrossFade(
         duration: _animDuration,
-        crossFadeState: currentState,
-        firstChild: collapsed(context, widget.dish),
-        secondChild: expanded(context, widget.dish),
+        crossFadeState: currentState.value,
+        firstChild: collapsed(context, dish, currentState),
+        secondChild: expanded(context, dish, currentState),
       ),
     );
   }
 
-  Widget collapsed(BuildContext context, Dish dish) {
+  Widget collapsed(BuildContext context, Dish dish, ValueNotifier<CrossFadeState> currentState) {
     return InkWell(
       onTap: () {
-        setState(() {
-          currentState = CrossFadeState.showSecond;
-        });
-        widget.onShow.call(_gk);
+        currentState.value = CrossFadeState.showSecond;
+        onShow(context);
       },
       onLongPress: () async {
         var delete = await popUpDelete(context);
         if (delete != null && delete) {
           final supplier = context.read<MenuSupplier>();
           supplier.removeDish(dish);
-          widget.onDelete();
+          onDelete();
         }
       },
       child: Padding(
@@ -185,9 +173,9 @@ class __ListItemState extends State<_ListItem> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(widget.dish.dish),
+            Text(dish.dish),
             Chip(
-              label: Text(Money.format(widget.dish.price)),
+              label: Text(Money.format(dish.price)),
               backgroundColor: RallyColors.primaryColor,
               labelStyle: Theme.of(context).textTheme.caption,
             ),
@@ -197,19 +185,20 @@ class __ListItemState extends State<_ListItem> {
     );
   }
 
-  Widget expanded(BuildContext context, Dish dish) {
-    final dishNameController = TextEditingController(text: dish.dish);
-    final priceController = TextEditingController(text: Money.format(dish.price));
+  Widget expanded(BuildContext context, Dish dish, ValueNotifier<CrossFadeState> currentState) {
+    final dishNameController = useTextEditingController(text: dish.dish);
+    final priceController = useTextEditingController(text: Money.format(dish.price));
+    final pickedImage = useState<Uint8List?>(null);
 
     return Padding(
-      key: _gk,
       padding: const EdgeInsets.all(8.0),
       child: FormContent(
         inputs: buildInputs(context, dishNameController, priceController, TextAlign.start),
         avatar: Avatar(
-          imgProvider: pickedImage != null ? MemoryImage(pickedImage!) : dish.imgProvider,
+          imgProvider:
+              pickedImage.value != null ? MemoryImage(pickedImage.value!) : dish.imgProvider,
           onNew: (image) {
-            setState(() => pickedImage = image);
+            pickedImage.value = image;
           },
         ),
         gap: 12.0,
@@ -221,17 +210,13 @@ class __ListItemState extends State<_ListItem> {
               dish,
               dishNameController.text,
               Money.unformat(priceController.text).toDouble(),
-              pickedImage,
+              pickedImage.value,
             );
-            setState(() {
-              currentState = CrossFadeState.showFirst;
-            });
+            currentState.value = CrossFadeState.showFirst;
           }
         },
         onCancel: () {
-          setState(() {
-            currentState = CrossFadeState.showFirst;
-          });
+          currentState.value = CrossFadeState.showFirst;
         },
       ),
     );

@@ -28,7 +28,7 @@ class CustomScaffold extends HookWidget {
   Widget build(BuildContext context) {
     // controllers
     final animController = useAnimationController(duration: _animDuration);
-    final expanded = useValueNotifier(false);
+    final expanded = useState(false);
     useEffect(() {
       expanded.value ? animController.forward() : animController.reverse();
     }, [expanded.value]);
