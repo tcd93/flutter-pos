@@ -77,16 +77,16 @@ class SQLite implements DatabaseConnectionInterface {
     Future(() async {
       final _dtb = await openDatabase(
         join(path ?? await getDatabasesPath(), '$name.db'),
-        onCreate: (db, version) {
-          return db.execute(
-            '''
+        onCreate: (db, version) async {
+          await db.execute('''
             CREATE TABLE $nodeTable(
               ID           INTEGER PRIMARY KEY AUTOINCREMENT, 
               x            REAL DEFAULT 0,
               y            REAL DEFAULT 0,
               page         INT
-            );
-
+            )
+          ''');
+          await db.execute('''
             CREATE TABLE $orderTable(
               ID           INTEGER PRIMARY KEY AUTOINCREMENT, 
               date         TEXT, -- YYYYMMDD
@@ -95,17 +95,19 @@ class SQLite implements DatabaseConnectionInterface {
               status       TINYINT,
               discountRate REAL,
               isDeleted    BOOLEAN
-            );
-            CREATE INDEX ${orderTable}Idx ON $orderTable (date, ID);
-
+            )
+            ''');
+          await db.execute('CREATE INDEX ${orderTable}Idx ON $orderTable (date, ID)');
+          await db.execute('''
             CREATE TABLE $dishTable(
               ID             INTEGER PRIMARY KEY AUTOINCREMENT, 
               price          REAL,
               dish           TEXT,
               imageBytes     BLOB,
               asset          TEXT
-            );
-
+            )
+            ''');
+          await db.execute('''
             CREATE TABLE $lineItemTable(
               orderID        INTEGER,
               dishID         INT,
@@ -114,19 +116,22 @@ class SQLite implements DatabaseConnectionInterface {
               quantity       INT,
               FOREIGN KEY(orderID) REFERENCES $orderTable(ID),
               FOREIGN KEY(dishID) REFERENCES $dishTable(ID)
-            );
-            CREATE INDEX ${lineItemTable}Idx ON $lineItemTable (orderID);
-
+            )
+            ''');
+          await db.execute('CREATE INDEX ${lineItemTable}Idx ON $lineItemTable (orderID)');
+          await db.execute('''
             CREATE TABLE $journalTable(
               ID           INTEGER PRIMARY KEY AUTOINCREMENT, 
               date         TEXT, -- YYYYMMDD
               time         TEXT, -- HH24:MM:SS
               entry        TEXT, 
               amount       REAL
-            );
-            CREATE INDEX ${journalTable}Idx ON $journalTable (date, ID);
-            ''',
-          );
+            )
+            ''');
+          await db.execute('CREATE INDEX ${journalTable}Idx ON $journalTable (date, ID)');
+          if (kDebugMode) {
+            print('Table Creation complete');
+          }
         },
         version: 1,
       );

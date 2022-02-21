@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +16,7 @@ import 'screens/menu/main.dart';
 import 'storage_engines/connection_interface.dart';
 
 void main() {
-  final storage = DatabaseFactory().create('local-storage');
+  final storage = DatabaseFactory().create(kIsWeb ? 'local-storage' : 'sqlite');
   final configStorage = DatabaseFactory().create('local-storage');
   WidgetsFlutterBinding.ensureInitialized();
 
