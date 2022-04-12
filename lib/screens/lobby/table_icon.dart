@@ -126,6 +126,7 @@ class _RadialButton extends StatelessWidget {
       closedBuilder: (radialAnimationController, context) {
         return FloatingActionButton(
           heroTag: null,
+          mini: true,
           onPressed: () {
             radialAnimationController.forward();
           },
@@ -136,6 +137,7 @@ class _RadialButton extends StatelessWidget {
       openBuilder: (radialAnimationController, context) {
         return FloatingActionButton(
           heroTag: null,
+          mini: true,
           onPressed: () {
             radialAnimationController.reverse();
           },
