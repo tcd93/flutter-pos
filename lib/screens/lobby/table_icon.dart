@@ -17,13 +17,15 @@ class TableIcon extends StatelessWidget {
       padding: const EdgeInsets.all(15),
       child: _RadialButton(
         table,
-        surroundingButtonsBuilder: (context, animController, angles) =>
-            _build(context, animController, angles),
-        displayAngles: const [0, 90, 180],
+        surroundingButtonsBuilder: (context, animController) =>
+            _build(context, animController, [0, 90, 180]),
       ),
     );
   }
 
+  /// `angles`: Clock-wise placement angles for surrounding sub-buttons (add order, details...).
+  ///
+  /// Example: `[0, 90]` would place one at 3 o'clock, the other at 6 o'clock
   List<Widget> _build(
     BuildContext context,
     AnimationController radialAnimationController,
@@ -97,17 +99,11 @@ class TableIcon extends StatelessWidget {
 class _RadialButton extends StatelessWidget {
   final TableModel model;
 
-  final List<Widget> Function(BuildContext, AnimationController, List<double> displayAngles)
-      surroundingButtonsBuilder;
-
-  /// Clock-wise placement angles for surrounding sub-buttons (add order, details...).
-  /// Example: `[0, 90]` would place one at 3 o'clock, the other at 6 o'clock
-  final List<double> displayAngles;
+  final List<Widget> Function(BuildContext, AnimationController) surroundingButtonsBuilder;
 
   const _RadialButton(
     this.model, {
     required this.surroundingButtonsBuilder,
-    required this.displayAngles,
     Key? key,
   }) : super(key: key);
 
@@ -146,7 +142,7 @@ class _RadialButton extends StatelessWidget {
         );
       },
       drawerBuilder: (context, animController) =>
-          surroundingButtonsBuilder(context, animController, displayAngles),
+          surroundingButtonsBuilder(context, animController),
     );
   }
 }
