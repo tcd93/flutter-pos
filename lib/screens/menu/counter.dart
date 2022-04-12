@@ -63,6 +63,7 @@ class Counter extends HookWidget {
     // "subscribe" to prop changes
     useEffect(() {
       textEditingController.text = startingValue.toString();
+      return;
     }, [startingValue]);
 
     final animController = useAnimationController(duration: const Duration(milliseconds: 500));

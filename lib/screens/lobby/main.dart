@@ -42,6 +42,7 @@ class LobbyScreen extends HookWidget {
         _controller.index = _prevIdx.value!;
         _controller.animateTo(_maxTab.value - 1);
       }
+      return;
     }, [_maxTab.value]);
 
     return Scaffold(

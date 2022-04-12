@@ -31,6 +31,7 @@ class CustomScaffold extends HookWidget {
     final expanded = useState(false);
     useEffect(() {
       expanded.value ? animController.forward() : animController.reverse();
+      return;
     }, [expanded.value]);
     final dishNameController = useTextEditingController();
     final priceController = useTextEditingController();
@@ -40,6 +41,7 @@ class CustomScaffold extends HookWidget {
     useEffect(() {
       dishNameController.clear();
       priceController.clear();
+      return;
     }, [pickedImage.value]);
 
     return Scaffold(
