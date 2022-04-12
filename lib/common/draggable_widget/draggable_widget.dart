@@ -43,8 +43,8 @@ class DraggableWidgetState extends State<DraggableWidget> {
 
   @override
   void initState() {
-    top = widget.x;
-    left = widget.y;
+    top = widget.y;
+    left = widget.x;
     WidgetsBinding.instance!.addPostFrameCallback((_) => getSize());
     super.initState();
   }
@@ -85,7 +85,7 @@ class DraggableWidgetState extends State<DraggableWidget> {
             top = localOffset.dy;
             left = localOffset.dx;
           });
-          widget.onDragEnd?.call(top, left);
+          widget.onDragEnd?.call(left, top);
         },
         child: widget.child,
       ),
