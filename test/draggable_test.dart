@@ -5,8 +5,8 @@ import 'package:posapp/common/draggable_widget/draggable_widget.dart';
 void main() {
   final overlayCtnKey = GlobalKey();
   final btnKey = GlobalKey();
-  final fab = FloatingActionButton(onPressed: () {});
-  final positionedDraggable = DraggableWidget(containerKey: overlayCtnKey, key: btnKey, child: fab);
+  const fab = SizedBox(width: 100, height: 100, child: Text("123"));
+  final positionedDraggable = DraggableWidget(key: btnKey, child: fab);
   final stack = Stack(children: [Container(key: overlayCtnKey), positionedDraggable]);
 
   testWidgets(
