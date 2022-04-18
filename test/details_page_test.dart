@@ -25,10 +25,10 @@ void main() {
         builder: (_, __) {
           return MultiProvider(
             providers: [
-              ChangeNotifierProvider(create: (_) => Supplier()),
+              ChangeNotifierProvider(create: (_) => NodeSupplier()),
               Provider(create: (_) => MenuSupplier()),
             ],
-            child: DetailsScreen(table, fromScreen: ''),
+            child: const DetailsScreen(fromScreen: ''),
           );
         },
       ));

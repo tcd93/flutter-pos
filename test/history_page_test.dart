@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 final DateTime checkoutTime = DateTime.parse('20201112 13:00:00');
 
 void main() {
-  Supplier supplier;
+  NodeSupplier supplier;
   var checkedOutTable = TableModel();
   late DatabaseConnectionInterface storage;
   late RIDRepository<Order> repo;
@@ -45,7 +45,7 @@ void main() {
           ]),
         ),
       );
-      supplier = Supplier(
+      supplier = NodeSupplier(
         mockModels: [
           TableModel(),
           checkedOutTable,

@@ -6,7 +6,7 @@ import 'package:posapp/provider/src.dart';
 import 'package:posapp/storage_engines/connection_interface.dart';
 
 void main() {
-  late Supplier mockTracker;
+  late NodeSupplier mockTracker;
   const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
   var mockTable = TableModel();
   var storage = DatabaseFactory().create(_db, 'test', {}, 'model_test');
@@ -15,7 +15,7 @@ void main() {
   setUpAll(() async {
     await storage.open();
     repo = DatabaseFactory().createRIRepository<Order>(storage);
-    mockTracker = Supplier();
+    mockTracker = NodeSupplier();
   });
 
   tearDownAll(() async {
@@ -32,7 +32,7 @@ void main() {
       ..putIfAbsent(Dish('test1', 100)).quantity = 5
       ..putIfAbsent(Dish('test5', 500)).quantity = 10
       ..putIfAbsent(Dish('test3', 300)).quantity = 15;
-    mockTracker = Supplier(
+    mockTracker = NodeSupplier(
       mockModels: [mockTable],
     );
   });

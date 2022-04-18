@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../common/common.dart';
 import '../../theme/rally.dart';
 import '../../provider/src.dart';
+import '../menu/main.dart';
+import '../order_details/main.dart';
 import '../popup_del.dart';
 
 enum _Position {
@@ -22,14 +24,14 @@ enum _Position {
 }
 
 class TableIcon extends StatefulWidget {
-  final TableModel table;
+  final Node node;
 
   /// See [DraggableWidget.containerKey]
   final GlobalKey? containerKey;
   final Stream<Map<String, num>>? dragEndEventStream;
 
   const TableIcon({
-    required this.table,
+    required this.node,
     this.containerKey,
     this.dragEndEventStream,
   });
@@ -47,13 +49,13 @@ class _TableIconState extends State<TableIcon> {
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       size = (context.findRenderObject() as RenderBox).size;
-      determineOrientation({'id': widget.table.id, ...widget.table.getOffset()});
+      determineOrientation({'id': widget.node.id, 'x': widget.node.x, 'y': widget.node.y});
     });
     widget.dragEndEventStream?.listen(determineOrientation);
   }
 
   void determineOrientation(Map<String, num> event) {
-    if (event['id'] != widget.table.id) return;
+    if (event['id'] != widget.node.id) return;
 
     final bgRenderObject = widget.containerKey?.currentContext?.findRenderObject();
     if (bgRenderObject == null) return;
@@ -127,7 +129,7 @@ class _TableIconState extends State<TableIcon> {
     return Padding(
       padding: const EdgeInsets.all(15),
       child: _RadialButton(
-        widget.table,
+        widget.node,
         surroundingButtonsBuilder: (context, animController) =>
             _build(context, animController, angles),
       ),
@@ -142,6 +144,7 @@ class _TableIconState extends State<TableIcon> {
     AnimationController radialAnimationController,
     List<double> angles,
   ) {
+    final supplier = Provider.of<OrderSupplier>(context);
     return [
       // add order
       DrawerItem(
@@ -150,12 +153,18 @@ class _TableIconState extends State<TableIcon> {
         key: const ValueKey<int>(1),
         child: FloatingActionButton(
           mini: true,
-          heroTag: 'menu-subtag-table-${widget.table.id}',
+          heroTag: 'menu-subtag-table-${widget.node.id}',
           onPressed: () {
-            Navigator.pushNamed(context, '/menu', arguments: {
-              'heroTag': 'menu-subtag-table-${widget.table.id}',
-              'model': widget.table,
-            }).then((_) {
+            // since order provider are not placed at the root, named route changing will make it
+            // loses value
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) {
+                return ChangeNotifierProvider.value(
+                  value: supplier,
+                  child: MenuScreen(fromHeroTag: 'menu-subtag-table-${widget.node.id}'),
+                );
+              },
+            )).then((_) {
               Future.delayed(
                 const Duration(milliseconds: 600),
                 () => radialAnimationController.reverse(),
@@ -172,14 +181,20 @@ class _TableIconState extends State<TableIcon> {
         key: const ValueKey<int>(2),
         child: FloatingActionButton(
           mini: true,
-          heroTag: 'details-subtag-table-${widget.table.id}',
-          onPressed: widget.table.status == TableStatus.occupied
+          heroTag: 'details-subtag-table-${widget.node.id}',
+          onPressed: supplier.order.status == TableStatus.occupied
               ? () {
-                  Navigator.pushNamed(context, '/order-details', arguments: {
-                    'heroTag': 'details-subtag-table-${widget.table.id}',
-                    'state': widget.table,
-                    'from': 'lobby',
-                  }).then((_) {
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) {
+                      return ChangeNotifierProvider.value(
+                        value: supplier,
+                        child: DetailsScreen(
+                          fromHeroTag: 'details-subtag-table-${widget.node.id}',
+                          fromScreen: 'lobby',
+                        ),
+                      );
+                    },
+                  )).then((_) {
                     Future.delayed(
                       const Duration(milliseconds: 600),
                       () => radialAnimationController.reverse(),
@@ -187,7 +202,7 @@ class _TableIconState extends State<TableIcon> {
                   });
                 }
               : null,
-          backgroundColor: widget.table.status == TableStatus.occupied ? null : RallyColors.gray,
+          backgroundColor: supplier.order.status == TableStatus.occupied ? null : RallyColors.gray,
           child: const Icon(Icons.receipt),
         ),
       ),
@@ -198,8 +213,8 @@ class _TableIconState extends State<TableIcon> {
         key: const ValueKey<int>(3),
         child: FloatingActionButton(
           mini: true,
-          heroTag: 'delete-subtag-table-${widget.table.id}',
-          onPressed: () => _removeTable(context, widget.table),
+          heroTag: 'delete-subtag-table-${widget.node.id}',
+          onPressed: () => _removeNode(context, widget.node),
           child: const Icon(Icons.delete),
         ),
       ),
@@ -208,22 +223,23 @@ class _TableIconState extends State<TableIcon> {
 }
 
 class _RadialButton extends StatelessWidget {
-  final TableModel model;
+  final Node node;
 
   final List<Widget> Function(BuildContext, AnimationController) surroundingButtonsBuilder;
 
   const _RadialButton(
-    this.model, {
+    this.node, {
     required this.surroundingButtonsBuilder,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final order = context.select((OrderSupplier supplier) => supplier.order);
     final _colorTween = ColorTween(
-      begin: model.status == TableStatus.occupied
+      begin: order.status == TableStatus.occupied
           ? Colors.yellow[300]
-          : model.status == TableStatus.incomplete
+          : order.status == TableStatus.incomplete
               ? Colors.grey[500]
               : Theme.of(context).floatingActionButtonTheme.backgroundColor,
       end: RallyColors.focusColor,
@@ -238,7 +254,7 @@ class _RadialButton extends StatelessWidget {
             radialAnimationController.forward();
           },
           backgroundColor: _colorTween.animate(radialAnimationController).value,
-          child: Text(model.id.toString()),
+          child: Text(node.id.toString()),
         );
       },
       openBuilder: (radialAnimationController, context) {
@@ -260,10 +276,10 @@ class _RadialButton extends StatelessWidget {
 
 // ******************************* //
 
-void _removeTable(BuildContext context, TableModel table) async {
-  final supplier = Provider.of<Supplier>(context, listen: false);
+void _removeNode(BuildContext context, Node node) async {
+  final supplier = Provider.of<NodeSupplier>(context, listen: false);
   var delete = await popUpDelete(context);
   if (delete != null && delete) {
-    supplier.removeTable(table);
+    supplier.removeNode(node);
   }
 }

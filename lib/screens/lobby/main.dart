@@ -5,6 +5,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../database_factory.dart';
+import '../../storage_engines/connection_interface.dart';
 import './table_icon.dart';
 import '../../common/common.dart';
 import '../../theme/rally.dart';
@@ -76,7 +78,7 @@ class LobbyScreen extends HookWidget {
         ),
       ),
       floatingActionButton: AnimatedLongClickableFAB(
-        onLongPress: () => context.read<Supplier>().addTable(_controller.index),
+        onLongPress: () => context.read<NodeSupplier>().addNode(_controller.index),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       appBar: AppBar(
@@ -171,7 +173,7 @@ class _InteractiveBodyState extends State<_InteractiveBody>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final supplier = Provider.of<Supplier>(context, listen: true);
+    final supplier = Provider.of<NodeSupplier>(context, listen: true);
     return InteractiveViewer(
       maxScale: 2.0,
       transformationController: transformController,
@@ -179,19 +181,29 @@ class _InteractiveBodyState extends State<_InteractiveBody>
         children: [
           // create a container (1) here to act as fixed background
           Container(key: bgKey),
-          for (var model in supplier.tables(widget.page))
-            DraggableWidget(
-              x: model.getOffset()['x']!,
-              y: model.getOffset()['y']!,
-              onDragEnd: (x, y) {
-                model.setOffset(x, y, supplier.database);
-                _dragEndEvent.add({'id': model.id, 'x': x, 'y': y});
+          for (var node in supplier.nodes(widget.page))
+            ChangeNotifierProvider(
+              create: (_) {
+                final database = context.read<DatabaseConnectionInterface?>();
+                return OrderSupplier(
+                  database: database != null
+                      ? DatabaseFactory().createRIDRepository<Order>(database)
+                      : null,
+                );
               },
-              key: ObjectKey(model),
-              child: TableIcon(
-                table: model,
-                containerKey: bgKey,
-                dragEndEventStream: _dragEndEvent.stream,
+              child: DraggableWidget(
+                x: node.x,
+                y: node.y,
+                onDragEnd: (x, y) {
+                  supplier.updateNode(node);
+                  _dragEndEvent.add({'id': node.id, 'x': x, 'y': y});
+                },
+                key: ObjectKey(node),
+                child: TableIcon(
+                  node: node,
+                  containerKey: bgKey,
+                  dragEndEventStream: _dragEndEvent.stream,
+                ),
               ),
             ),
         ],

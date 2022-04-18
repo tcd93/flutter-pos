@@ -29,7 +29,7 @@ void main() {
   });
 
   testWidgets('Create/edit a table node', (tester) async {
-    final supplier = Supplier(database: repo);
+    final supplier = NodeSupplier(database: repo);
     await tester.pumpAndSettle();
 
     var newID = await tester.runAsync<int?>(() => supplier.addTable(0));
