@@ -34,8 +34,8 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: "96d9c6898f7749ddec7245bafb079b49da40cfb8"
-      url: "git://github.com/tcd93/blue_thermal_printer"
+      resolved-ref: "7a32c20478d54414185cbbcf14786ff4c38bdf06"
+      url: "https://github.com/tcd93/blue_thermal_printer"
     source: git
     version: "1.1.9"
   boolean_selector:
@@ -93,7 +93,7 @@ packages:
       path: "."
       ref: master
       resolved-ref: "645d99bfaefe289fe474c248bbfa09a0103f4787"
-      url: "git://github.com/tcd93/date_range_picker"
+      url: "https://github.com/tcd93/date_range_picker"
     source: git
     version: "2.0.1"
   equatable:
@@ -255,7 +255,7 @@ packages:
       path: "."
       ref: master
       resolved-ref: "710456f97e00f4330cf44126442f2be825988893"
-      url: "git://github.com/tcd93/flutter_localstorage"
+      url: "https://github.com/tcd93/flutter_localstorage"
     source: git
     version: "4.0.0+1"
   matcher:
@@ -451,7 +451,7 @@ packages:
       path: "."
       ref: master
       resolved-ref: "3f5e46ec7501e05bbb2f72611f7c10534760b644"
-      url: "git://github.com/tcd93/super_tooltip"
+      url: "https://github.com/tcd93/super_tooltip"
     source: git
     version: "0.10.0"
   synchronized:
