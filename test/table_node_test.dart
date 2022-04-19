@@ -32,7 +32,7 @@ void main() {
     final supplier = NodeSupplier(database: repo);
     await tester.pumpAndSettle();
 
-    var newID = await tester.runAsync<int?>(() => supplier.addTable(0));
+    var newID = await tester.runAsync<int?>(() => supplier.addNode(0));
     expect(newID, 1);
 
     var ids = await tester.runAsync(() => repo.get());
@@ -40,7 +40,7 @@ void main() {
     expect(ids[0].id, 1);
 
     // add second node
-    newID = await tester.runAsync<int?>(() => supplier.addTable(0));
+    newID = await tester.runAsync<int?>(() => supplier.addNode(0));
     expect(newID, 2);
 
     ids = await tester.runAsync(() => repo.get());
@@ -48,8 +48,8 @@ void main() {
     expect(ids[1].id, 2);
 
     // remove first node
-    await tester.runAsync(() => supplier.removeTable(supplier.tables(0).first));
-    expect(() => supplier.tables(0).firstWhere((t) => t.id == 1), throwsStateError);
+    await tester.runAsync(() => supplier.removeNode(supplier.nodes(0).first));
+    expect(() => supplier.nodes(0).firstWhere((t) => t.id == 1), throwsStateError);
 
     ids = await tester.runAsync(() => repo.get());
     expect(ids!.length, 1);
