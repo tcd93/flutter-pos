@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
@@ -145,21 +147,24 @@ class _InteractiveBody extends StatefulWidget {
 
 class _InteractiveBodyState extends State<_InteractiveBody>
     with AutomaticKeepAliveClientMixin<_InteractiveBody> {
-  /// The key to container (1), must be passed into all DraggableWidget widgets in Stack
+  /// The key to container (1)
   late GlobalKey bgKey;
 
   late TransformationController transformController;
 
+  final _dragEndEvent = StreamController<Map<String, num>>.broadcast();
+
   @override
   void initState() {
+    super.initState();
     bgKey = GlobalKey();
     transformController = TransformationController();
-    super.initState();
   }
 
   @override
   void dispose() {
     transformController.dispose();
+    _dragEndEvent.close();
     super.dispose();
   }
 
@@ -172,21 +177,22 @@ class _InteractiveBodyState extends State<_InteractiveBody>
       transformationController: transformController,
       child: Stack(
         children: [
-          // create a container (1) here to act as fixed background for the entire screen,
-          // pan & scale effect from InteractiveViewer will actually interact with this container
-          // thus also easily scale & pan all widgets inside the stack
+          // create a container (1) here to act as fixed background
           Container(key: bgKey),
           for (var model in supplier.tables(widget.page))
             DraggableWidget(
               x: model.getOffset()['x']!,
               y: model.getOffset()['y']!,
-              containerKey: bgKey,
-              transformController: transformController,
               onDragEnd: (x, y) {
                 model.setOffset(x, y, supplier.database);
+                _dragEndEvent.add({'id': model.id, 'x': x, 'y': y});
               },
               key: ObjectKey(model),
-              child: TableIcon(table: model),
+              child: TableIcon(
+                table: model,
+                containerKey: bgKey,
+                dragEndEventStream: _dragEndEvent.stream,
+              ),
             ),
         ],
       ),
