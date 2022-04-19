@@ -1,3 +1,5 @@
+import 'package:posapp/storage_engines/firebase/firebase.dart';
+
 import 'provider/src.dart';
 import 'storage_engines/connection_interface.dart';
 import 'storage_engines/local_storage/local_storage.dart';
@@ -26,6 +28,9 @@ class DatabaseFactory {
     }
     if (name == 'sqlite') {
       return SQLite(dbName ?? appName, path);
+    }
+    if (name == 'firebase') {
+      return Firebase();
     }
     throw UnimplementedError('$name is not implemented for database connection');
   }

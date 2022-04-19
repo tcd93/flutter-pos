@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "518652232663",
+    "firebase_url": "https://flutter-pos-936d6-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "flutter-pos-936d6",
+    "storage_bucket": "flutter-pos-936d6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:518652232663:android:0e07e304a6f7a15fa00192",
+        "android_client_info": {
+          "package_name": "com.example.posapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "518652232663-ij1p6rk3sopsvph9j0m1i0lvfajsl1cn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByVxLox1RPPcj836Tak4Thi8g1sKWpFH4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "518652232663-ij1p6rk3sopsvph9j0m1i0lvfajsl1cn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
