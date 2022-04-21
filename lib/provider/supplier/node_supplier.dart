@@ -49,7 +49,9 @@ class NodeSupplier extends ChangeNotifier {
     return;
   }
 
-  void updateNode(Node node) {
+  void updateNode(Node node, double x, double y) {
+    node.x = x;
+    node.y = y;
     database?.update(node);
   }
 }

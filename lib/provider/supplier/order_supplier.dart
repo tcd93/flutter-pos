@@ -19,13 +19,9 @@ class OrderSupplier extends ChangeNotifier {
   /// The current order
   Order get order => _s.first;
 
-  OrderSupplier({this.database, Order? order}) {
+  OrderSupplier({this.database, required Order order}) {
     _loading = true;
-    if (order != null) {
-      _s = SlidingWindow([order, order]);
-    } else {
-      _s = SlidingWindow([Order.create(), Order.create()]);
-    }
+    _s = SlidingWindow([Order.create(fromBase: order), Order.create(fromBase: order)]);
     notifyListeners();
     Future(() async {
       // TODO: get the order directly from db, ex: (await database?.get(node))

@@ -189,13 +189,14 @@ class _InteractiveBodyState extends State<_InteractiveBody>
                   database: database != null
                       ? DatabaseFactory().createRIDRepository<Order>(database)
                       : null,
+                  order: Order.create(tableID: node.id),
                 );
               },
               child: DraggableWidget(
                 x: node.x,
                 y: node.y,
                 onDragEnd: (x, y) {
-                  supplier.updateNode(node);
+                  supplier.updateNode(node, x, y);
                   _dragEndEvent.add({'id': node.id, 'x': x, 'y': y});
                 },
                 key: ObjectKey(node),

@@ -33,12 +33,14 @@ class HistoryOrderSupplier extends ChangeNotifier {
   }
 
   HistoryOrderSupplier({this.database, DateTimeRange? range}) {
-    _selectedRange = range ?? DateTimeRange(start: DateTime.now(), end: DateTime.now());
+    final now = DateTime.now();
+    final lastMidnight = DateTime(now.year, now.month, now.day);
+    _selectedRange = range ?? DateTimeRange(start: lastMidnight, end: lastMidnight);
     _retrieveOrders();
   }
 
   /// Mark an order from history list as 'ignored'
-  void ignoreOrder(Order order) async {
+  Future<void> ignoreOrder(Order order) async {
     await database?.delete(order);
     final copy = Order.create(fromBase: order, isDeleted: true);
     orders[orders.indexOf(order)] = copy;

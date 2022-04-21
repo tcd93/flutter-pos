@@ -50,7 +50,12 @@ class OrderCard extends StatelessWidget {
                             Text(AppLocalizations.of(context)?.history_delPopUpTitle ?? 'Ignore?'),
                       );
                       if (result == true) {
-                        context.read<HistoryOrderSupplier>().ignoreOrder(order);
+                        try {
+                          await context.read<HistoryOrderSupplier>().ignoreOrder(order);
+                        } catch (ex) {
+                          var snackbar = SnackBar(content: Text(ex.toString()));
+                          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                        }
                       }
                     },
               onTap: () {

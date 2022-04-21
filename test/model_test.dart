@@ -26,7 +26,7 @@ void main() {
 
   setUp(() async {
     await storage.truncate();
-    mockTable = OrderSupplier(database: repo)
+    mockTable = OrderSupplier(database: repo, order: Order.create())
       ..putIfAbsent(Dish('test1', 100)).quantity = 5
       ..putIfAbsent(Dish('test5', 500)).quantity = 10
       ..putIfAbsent(Dish('test3', 300)).quantity = 15;
@@ -58,7 +58,8 @@ void main() {
     await mockTable.printClear();
 
     // create new order
-    final mockTable2 = OrderSupplier(database: repo)..putIfAbsent(Dish('test1', 100)).quantity = 5;
+    final mockTable2 = OrderSupplier(database: repo, order: Order.create())
+      ..putIfAbsent(Dish('test1', 100)).quantity = 5;
 
     await mockTable2.checkout(DateTime.parse('20200201 13:00:00'));
     await mockTable2.printClear();

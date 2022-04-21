@@ -5,7 +5,7 @@ void main() {
   late OrderSupplier _testModel;
 
   setUp(() {
-    _testModel = OrderSupplier()
+    _testModel = OrderSupplier(order: Order.create())
       ..putIfAbsent(Dish('test1', 100)).quantity = 5
       ..putIfAbsent(Dish('test2', 200)).quantity = 0
       ..putIfAbsent(Dish('test3', 300)).quantity = 15

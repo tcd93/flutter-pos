@@ -36,7 +36,12 @@ class EditMenuScreenState extends State<EditMenuScreen> {
     return CustomScaffold(
       onAddDish: (name, price, [image]) async {
         final supplier = context.read<MenuSupplier>();
-        await supplier.addDish(name, price, image);
+        try {
+          await supplier.addDish(name, price, image);
+        } catch (ex) {
+          var snackbar = SnackBar(content: Text(ex.toString()));
+          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+        }
       },
       body: MenuFilterer(
         builder: (context, list) => ListView.builder(
