@@ -28,8 +28,15 @@ class MenuSupplier extends ChangeNotifier {
     Future(() async {
       _m = (await database?.get()) ?? [];
       if (_m.isEmpty) {
-        _m = _defaultMenu();
-        if (database != null) _m.forEach(database!.insert);
+        if (database != null) {
+          List<Future<Dish>> tasks = [];
+          _defaultMenu().forEach(
+            (element) => tasks.add(database!.insert(element)),
+          );
+          _m = await Future.wait(tasks);
+        } else {
+          _m = _defaultMenu();
+        }
       }
       _loading = false;
       notifyListeners();

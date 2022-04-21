@@ -29,8 +29,8 @@ class DatabaseFactory {
     if (name == 'sqlite') {
       return SQLite(dbName ?? appName, path);
     }
-    if (name == 'firebase') {
-      return Firebase();
+    if (name == 'firestore') {
+      return Firestore();
     }
     throw UnimplementedError('$name is not implemented for database connection');
   }
@@ -54,6 +54,18 @@ class DatabaseFactory {
           return OrderSQL(connectionType.db) as RIRepository<T>;
         case Journal:
           return JournalSQL(connectionType.db) as RIRepository<T>;
+        case dynamic:
+          throw 'Do not use createRIRepository() without specifying an object type';
+        default:
+          throw UnimplementedError('createRIRepository: unrecognized Object type');
+      }
+    }
+    if (connectionType is Firestore) {
+      switch (T) {
+        case Order:
+          return OrderFB() as RIRepository<T>;
+        // case Journal:
+        //   return JournalSQL(connectionType.db) as RIRepository<T>;
         case dynamic:
           throw 'Do not use createRIRepository() without specifying an object type';
         default:
@@ -84,6 +96,16 @@ class DatabaseFactory {
           throw UnimplementedError('createRIDRepository: unrecognized Object type');
       }
     }
+    if (connectionType is Firestore) {
+      switch (T) {
+        case Order:
+          return OrderFB() as RIDRepository<T>;
+        case dynamic:
+          throw 'Do not use createRIDRepository() without specifying an object type';
+        default:
+          throw UnimplementedError('createRIDRepository: unrecognized Object type');
+      }
+    }
     throw UnimplementedError('createRIDRepository: unsupported storage type');
   }
 
@@ -108,6 +130,18 @@ class DatabaseFactory {
           return MenuSQL(connectionType.db) as RIUDRepository<T>;
         case Node:
           return NodeSQL(connectionType.db) as RIUDRepository<T>;
+        case dynamic:
+          throw 'Do not use createRIUDRepository() without specifying an object type';
+        default:
+          throw UnimplementedError('createRIUDRepository: unrecognized Object type');
+      }
+    }
+    if (connectionType is Firestore) {
+      switch (T) {
+        case Dish:
+          return MenuFB() as RIUDRepository<T>;
+        case Node:
+          return NodeFB() as RIUDRepository<T>;
         case dynamic:
           throw 'Do not use createRIUDRepository() without specifying an object type';
         default:

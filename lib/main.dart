@@ -13,7 +13,7 @@ import 'screens/lobby/main.dart';
 import 'storage_engines/connection_interface.dart';
 
 void main() {
-  final storage = DatabaseFactory().create('firebase');
+  final storage = DatabaseFactory().create('firestore');
   final configStorage = DatabaseFactory().create('local-storage');
   WidgetsFlutterBinding.ensureInitialized();
 
