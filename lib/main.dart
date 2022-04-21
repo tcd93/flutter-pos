@@ -7,12 +7,10 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'theme/theme.dart';
 import 'database_factory.dart';
 import 'provider/src.dart';
-import 'screens/order_details/main.dart';
 import 'screens/edit_menu/main.dart';
 import 'screens/history/main.dart';
 import 'screens/expense_journal/main.dart';
 import 'screens/lobby/main.dart';
-import 'screens/menu/main.dart';
 import 'storage_engines/connection_interface.dart';
 
 void main() {
@@ -58,7 +56,7 @@ class PosApp extends StatelessWidget {
                   lazy: false,
                 ),
                 ChangeNotifierProvider(
-                  create: (_) => Supplier(
+                  create: (_) => NodeSupplier(
                     database: DatabaseFactory().createRIUDRepository<Node>(_storage),
                   ),
                 ),
@@ -86,24 +84,7 @@ class PosApp extends StatelessWidget {
       ),
       home: LobbyScreen(),
       onGenerateRoute: (settings) {
-        final argMap = settings.arguments as Map?;
-        final String heroTag = argMap != null ? argMap['heroTag'] ?? '' : '';
-
         switch (settings.name) {
-          case '/menu':
-            final TableModel model = argMap!['model'];
-            return routeBuilder(MenuScreen(model, fromHeroTag: heroTag));
-          case '/order-details':
-            final TableModel order = argMap!['state'];
-            final String fromScreen = argMap['from'] ?? '';
-
-            return routeBuilder(
-              DetailsScreen(
-                order,
-                fromHeroTag: heroTag,
-                fromScreen: fromScreen,
-              ),
-            );
           case '/history':
             return routeBuilder(
               DefaultTabController(

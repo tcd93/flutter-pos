@@ -2,18 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../../database_factory.dart';
-import '../../storage_engines/connection_interface.dart';
 import '../../common/common.dart' show Money, MoneyFormatter, NumberEL100Formatter;
 import '../../theme/rally.dart';
-import '../../provider/src.dart' show Order, Supplier, TableModel;
+import '../../provider/src.dart' show OrderSupplier;
 
 class BottomNavBar extends StatelessWidget {
   final String fromScreen;
   final String? fromHeroTag;
-  final TableModel order;
 
-  const BottomNavBar(this.order, {required this.fromScreen, this.fromHeroTag});
+  const BottomNavBar({required this.fromScreen, this.fromHeroTag});
 
   @override
   Widget build(BuildContext context) {
@@ -22,15 +19,8 @@ class BottomNavBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: fromScreen != 'history'
             ? [
-                _ApplyDiscountButton(
-                  order,
-                  fromScreen: fromScreen,
-                ),
-                _CheckoutButton(
-                  order,
-                  fromHeroTag: fromHeroTag,
-                  fromScreen: fromScreen,
-                ),
+                _ApplyDiscountButton(fromScreen: fromScreen),
+                _CheckoutButton(fromHeroTag: fromHeroTag, fromScreen: fromScreen),
               ]
             : [
                 const SizedBox(height: bottomNavbarHeight), // dummy
@@ -42,31 +32,27 @@ class BottomNavBar extends StatelessWidget {
 }
 
 class _CheckoutButton extends StatelessWidget {
-  final TableModel order;
   final String? fromHeroTag;
   final String fromScreen;
 
-  const _CheckoutButton(this.order, {this.fromHeroTag, required this.fromScreen});
+  const _CheckoutButton({this.fromHeroTag, required this.fromScreen});
 
   @override
   Widget build(BuildContext context) {
+    final supplier = Provider.of<OrderSupplier>(context, listen: false);
     return Hero(
       tag: fromHeroTag ?? 'CheckoutButtonHeroTag',
       child: MaterialButton(
         minWidth: MediaQuery.of(context).size.width / 2,
         onPressed: () async {
           if (fromScreen == 'history') {
-            await order.printClear(context: context);
+            await supplier.printClear(context: context);
             Navigator.pop(context);
           } else {
-            final customerPaid = await _popUpPayment(context, order.totalPriceAfterDiscount);
+            final customerPaid = await _popUpPayment(context, supplier.totalPriceAfterDiscount);
             if (customerPaid != null) {
-              final database = context.read<DatabaseConnectionInterface?>();
-              await context.read<Supplier>().checkout(
-                    order,
-                    database != null ? DatabaseFactory().createRIRepository<Order>(database) : null,
-                  );
-              await order.printClear(
+              await supplier.checkout();
+              await supplier.printClear(
                 context: context,
                 customerPayAmount: customerPaid,
               );
@@ -81,19 +67,20 @@ class _CheckoutButton extends StatelessWidget {
 }
 
 class _ApplyDiscountButton extends StatelessWidget {
-  final TableModel order;
   final String fromScreen;
 
-  const _ApplyDiscountButton(this.order, {required this.fromScreen});
+  const _ApplyDiscountButton({required this.fromScreen});
 
   @override
   Widget build(BuildContext context) {
+    final supplier = Provider.of<OrderSupplier>(context, listen: false);
+
     return MaterialButton(
       minWidth: MediaQuery.of(context).size.width / 2,
       onPressed: () async {
-        final discountPct = await _popUpDiscount(context, order.totalPricePreDiscount);
+        final discountPct = await _popUpDiscount(context, supplier.totalPricePreDiscount);
         if (discountPct != null) {
-          context.read<Supplier>().setTableDiscount(order, (100 - discountPct) / 100);
+          supplier.setDiscount((100 - discountPct) / 100);
         }
       },
       child: const Icon(Icons.local_offer),

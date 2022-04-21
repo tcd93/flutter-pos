@@ -1,4 +1,3 @@
-export 'model/table.dart';
 export 'model/state/dish.dart';
 export 'model/state/line_item.dart';
 export 'model/line_item_list.dart';
@@ -8,8 +7,9 @@ export 'model/state/order.dart';
 export 'model/state/journal.dart';
 export 'model/state/state_object.dart';
 export 'model/state/status.dart';
-export 'supplier/supplier.dart';
+export 'supplier/node_supplier.dart';
 export 'supplier/menu_supplier.dart';
+export 'supplier/order_supplier.dart';
 export 'supplier/history_order_supplier.dart';
 export 'supplier/expense_journal_supplier.dart';
 export 'supplier/configurations_supplier.dart';

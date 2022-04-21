@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../common/common.dart';
 import '../../../provider/src.dart';
+import '../../order_details/main.dart';
 import '../../popup_del.dart';
 
 class OrderCard extends StatelessWidget {
@@ -53,10 +54,14 @@ class OrderCard extends StatelessWidget {
                       }
                     },
               onTap: () {
-                Navigator.pushNamed(context, '/order-details', arguments: {
-                  'state': TableModel.withOrder(order),
-                  'from': 'history',
-                });
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) {
+                    return ChangeNotifierProvider.value(
+                      value: OrderSupplier(order: order),
+                      child: const DetailsScreen(fromScreen: 'history'),
+                    );
+                  },
+                ));
               },
               trailing: Text(
                 Money.format(order.saleAmount(discountFlag)),

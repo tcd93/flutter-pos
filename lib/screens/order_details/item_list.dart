@@ -6,46 +6,40 @@ import '../../common/common.dart';
 import '../../provider/src.dart';
 
 class ItemList extends StatelessWidget {
-  final TableModel order;
-
-  const ItemList(this.order);
+  const ItemList();
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _Header(order),
-        _Items(order.activeLineItems),
+        _Header(),
+        _Items(),
       ],
     );
   }
 }
 
 class _Header extends StatelessWidget {
-  final TableModel order;
-
-  const _Header(this.order);
-
   @override
   Widget build(BuildContext context) {
-    context.watch<Supplier>();
+    final supplier = Provider.of<OrderSupplier>(context);
     final headline6Style = Theme.of(context).textTheme.headline6!;
-    final priceAfterDisc = order.totalPriceAfterDiscount;
+    final priceAfterDisc = supplier.totalPriceAfterDiscount;
     return SafeArea(
       child: ListTile(
         dense: true,
         title: Text(
           Money.format(priceAfterDisc, symbol: true),
-          style: (order.discountPercent > 0)
+          style: (supplier.discountPercent > 0)
               ? headline6Style.apply(color: Colors.green[400], fontWeightDelta: 7) //apply bold
               : headline6Style,
           textAlign: TextAlign.center,
         ),
-        subtitle: order.discountPercent > 0
+        subtitle: supplier.discountPercent > 0
             ? Text(
                 AppLocalizations.of(context)!.details_discountTxt(
-                  Money.format(order.totalPricePreDiscount),
-                  order.discountPercent.toStringAsFixed(2),
+                  Money.format(supplier.totalPricePreDiscount),
+                  supplier.discountPercent.toStringAsFixed(2),
                 ),
                 textAlign: TextAlign.center,
               )
@@ -56,18 +50,15 @@ class _Header extends StatelessWidget {
 }
 
 class _Items extends StatelessWidget {
-  final LineItemList orders;
-
-  const _Items(this.orders);
-
   @override
   Widget build(BuildContext context) {
+    final supplier = Provider.of<OrderSupplier>(context);
     return Expanded(
       child: ListView.builder(
         physics: const BouncingScrollPhysics(),
-        itemCount: orders.length,
+        itemCount: supplier.activeLineItems.length,
         itemBuilder: (context, index) {
-          final order = orders.elementAt(index);
+          final order = supplier.activeLineItems.elementAt(index);
           return Card(
             key: ObjectKey(order),
             child: ListTile(

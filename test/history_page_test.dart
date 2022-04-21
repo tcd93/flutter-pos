@@ -12,8 +12,7 @@ import 'package:provider/provider.dart';
 final DateTime checkoutTime = DateTime.parse('20201112 13:00:00');
 
 void main() {
-  Supplier supplier;
-  var checkedOutTable = TableModel();
+  late OrderSupplier supplier;
   late DatabaseConnectionInterface storage;
   late RIDRepository<Order> repo;
   const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
@@ -37,29 +36,24 @@ void main() {
     setUp(() async {
       await storage.truncate();
 
-      final checkedOutTable = TableModel.withOrder(
-        Order.create(
+      supplier = OrderSupplier(
+        database: repo,
+        order: Order.create(
           tableID: 1,
           lineItems: LineItemList([
             LineItem(associatedDish: Dish('Test Dish 1', 120000), quantity: 1),
           ]),
         ),
       );
-      supplier = Supplier(
-        mockModels: [
-          TableModel(),
-          checkedOutTable,
-        ],
-      );
 
-      await supplier.checkout(checkedOutTable, repo, checkoutTime);
-      await checkedOutTable.printClear();
+      await supplier.checkout(checkoutTime);
+      await supplier.printClear();
     });
 
     testWidgets(
       'Should have 1 line in History page, price = 120,000',
       (tester) async {
-        expect(checkedOutTable.totalMenuItemQuantity, 0); // confirm checked out
+        expect(supplier.totalMenuItemQuantity, 0); // confirm checked out
 
         await tester.pumpWidget(MaterialApp(
           builder: (_, __) => ChangeNotifierProvider(
