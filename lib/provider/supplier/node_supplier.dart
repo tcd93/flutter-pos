@@ -33,7 +33,7 @@ class NodeSupplier extends ChangeNotifier {
     });
   }
 
-  Future<int?> addNode(int page) async {
+  Future<QueryKey?> addNode(int page) async {
     final n = await database?.insert(Node(page: page));
     if (n != null) _nodes.add(n);
     notifyListeners();

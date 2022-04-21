@@ -107,7 +107,7 @@ class MenuLS extends RIUDRepository<Dish>
   String get _idHighkey => 'dish_id_highkey';
 
   @override
-  int _getKeyFromObject(value) => value.id;
+  QueryKey _getKeyFromObject(value) => value.id;
 }
 
 class NodeLS extends RIUDRepository<Node>
@@ -126,7 +126,7 @@ class NodeLS extends RIUDRepository<Node>
   String get _idHighkey => 'node_id_highkey';
 
   @override
-  int _getKeyFromObject(value) => value.id;
+  QueryKey _getKeyFromObject(value) => value.id;
 }
 
 class ConfigLS extends RIUDRepository<Config>

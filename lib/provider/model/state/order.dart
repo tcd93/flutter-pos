@@ -1,15 +1,16 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../storage_engines/connection_interface.dart';
 import '../../src.dart';
 
 /// an data class to encapsulate the state of a node
 @immutable
 class Order extends StateObject {
-  final int _id;
-  int get id => _id;
+  final QueryKey _id;
+  QueryKey get id => _id;
 
   /// The associated table id
-  final int tableID;
+  final QueryKey tableID;
 
   final TableStatus status;
 
@@ -18,7 +19,7 @@ class Order extends StateObject {
 
   /// copy to a new instance
   Order.create({
-    int? tableID,
+    QueryKey? tableID,
     bool? isDeleted,
     TableStatus? status,
     LineItemList? lineItems,

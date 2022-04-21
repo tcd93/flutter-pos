@@ -1,8 +1,10 @@
 import 'dart:typed_data';
 import 'package:flutter/widgets.dart';
 
+import '../../../storage_engines/connection_interface.dart';
+
 class Dish {
-  final int id;
+  final QueryKey id;
 
   double price;
 

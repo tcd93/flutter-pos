@@ -154,7 +154,7 @@ class _InteractiveBodyState extends State<_InteractiveBody>
 
   late TransformationController transformController;
 
-  final _dragEndEvent = StreamController<Map<String, num>>.broadcast();
+  final _dragEndEvent = StreamController<Map<String, dynamic>>.broadcast();
 
   @override
   void initState() {

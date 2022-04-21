@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../common/common.dart';
+import '../../storage_engines/connection_interface.dart';
 import '../../theme/rally.dart';
 import '../../provider/src.dart';
 import '../menu/main.dart';
@@ -28,7 +29,7 @@ class TableIcon extends StatefulWidget {
 
   /// See [DraggableWidget.containerKey]
   final GlobalKey? containerKey;
-  final Stream<Map<String, num>>? dragEndEventStream;
+  final Stream<Map<String, dynamic>>? dragEndEventStream;
 
   const TableIcon({
     required this.node,
@@ -54,15 +55,17 @@ class _TableIconState extends State<TableIcon> {
     widget.dragEndEventStream?.listen(determineOrientation);
   }
 
-  void determineOrientation(Map<String, num> event) {
+  void determineOrientation(Map<String, dynamic> event) {
     if (event['id'] != widget.node.id) return;
 
     final bgRenderObject = widget.containerKey?.currentContext?.findRenderObject();
     if (bgRenderObject == null) return;
 
     final bgRenderBox = bgRenderObject as RenderBox;
-    final centerX = event['x']! + size.height / 2; // the X pos at this element's center point
-    final centerY = event['y']! + size.width / 2; // the Y pos at this element's center point
+    final centerX =
+        (event['x']! as double) + size.height / 2; // the X pos at this element's center point
+    final centerY =
+        (event['y']! as double) + size.width / 2; // the Y pos at this element's center point
     const bandWidth = 140;
 
     setState(() {

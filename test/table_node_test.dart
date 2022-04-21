@@ -32,7 +32,7 @@ void main() {
     final supplier = NodeSupplier(database: repo);
     await tester.pumpAndSettle();
 
-    var newID = await tester.runAsync<int?>(() => supplier.addNode(0));
+    var newID = await tester.runAsync<QueryKey?>(() => supplier.addNode(0));
     expect(newID, 1);
 
     var ids = await tester.runAsync(() => repo.get());
@@ -40,7 +40,7 @@ void main() {
     expect(ids[0].id, 1);
 
     // add second node
-    newID = await tester.runAsync<int?>(() => supplier.addNode(0));
+    newID = await tester.runAsync<QueryKey?>(() => supplier.addNode(0));
     expect(newID, 2);
 
     ids = await tester.runAsync(() => repo.get());

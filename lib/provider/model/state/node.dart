@@ -1,5 +1,7 @@
+import '../../../storage_engines/connection_interface.dart';
+
 class Node {
-  final int id;
+  final QueryKey id;
   double x, y;
 
   /// The tab index on Lobby screen

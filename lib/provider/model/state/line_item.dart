@@ -1,4 +1,5 @@
 import 'dart:io';
+import '../../../storage_engines/connection_interface.dart';
 import '../../src.dart';
 
 class LineItem {
@@ -8,7 +9,7 @@ class LineItem {
 
   int addOne() => ++_quantity;
 
-  int get dishID => associatedDish.id;
+  QueryKey get dishID => associatedDish.id;
 
   String get dishName => associatedDish.dish;
 

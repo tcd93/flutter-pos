@@ -1,13 +1,15 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../storage_engines/connection_interface.dart';
+
 @immutable
 class Journal {
-  final int _id; // currently of no use...
+  final QueryKey _id;
   final DateTime dateTime;
   final String entry;
   final double amount;
 
-  int get id => _id;
+  QueryKey get id => _id;
 
   Journal({required this.entry, DateTime? entryTime, double? amount})
       : dateTime = entryTime ?? DateTime.now(),
