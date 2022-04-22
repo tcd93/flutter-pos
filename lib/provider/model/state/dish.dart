@@ -11,6 +11,9 @@ class Dish {
   /// Dish name
   String dish;
 
+  /// File name on external storage
+  String? storageFileName;
+
   /// A "view" to the underlying image (can be from asset or from raw bytes)
   late ImageProvider imgProvider;
 
@@ -35,6 +38,7 @@ class Dish {
       : id = json['ID'] ?? json['dishID'] ?? json['id'],
         dish = json['dish'],
         price = json['price'],
+        storageFileName = json['storageFileName'],
         _asset = json['asset'] {
     _initImgProvider(json['imageBytes'] != null
         ? Uint8List.fromList(List.castFrom<dynamic, int>(json['imageBytes']))
@@ -52,7 +56,13 @@ class Dish {
   Map<String, dynamic> toJson() {
     final img = imgProvider;
     return img is MemoryImage
-        ? {'ID': id, 'dish': dish, 'price': price, 'imageBytes': img.bytes}
+        ? {
+            'ID': id,
+            'dish': dish,
+            'price': price,
+            'imageBytes': img.bytes,
+            'storageFileName': storageFileName
+          }
         : _asset != null
             ? {'ID': id, 'dish': dish, 'price': price, 'asset': _asset}
             : {'ID': id, 'dish': dish, 'price': price};

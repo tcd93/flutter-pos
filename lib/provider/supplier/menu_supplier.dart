@@ -3,9 +3,11 @@ import 'dart:typed_data';
 
 // import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../storage_engines/connection_interface.dart';
 
+import '../../storage_engines/firebase/firebase.dart';
 import '../src.dart';
 
 class MenuSupplier extends ChangeNotifier {
@@ -27,6 +29,16 @@ class MenuSupplier extends ChangeNotifier {
     _loading = true;
     Future(() async {
       _m = (await database?.get()) ?? [];
+      // retrieve image from storage
+      if (database != null && database is MenuFB) {
+        for (var element in _m) {
+          if (element.storageFileName != null) {
+            final bytes = await (database as MenuFB).downloadImage(element.storageFileName!);
+            if (bytes != null) element.imgProvider = MemoryImage(bytes);
+          }
+        }
+      }
+
       if (_m.isEmpty) {
         if (database != null) {
           List<Future<Dish>> tasks = [];
@@ -59,6 +71,15 @@ class MenuSupplier extends ChangeNotifier {
     final _t = Dish(name, price, image);
     final newDish = (await database?.insert(_t)) ?? _t;
     _m.add(newDish);
+    // upload to storage
+    if (newDish.imgProvider is MemoryImage && database is MenuFB) {
+      final img = newDish.imgProvider as MemoryImage;
+      final fb = database as MenuFB;
+
+      final fileName = '${newDish.dish}_${newDish.id}.jpg'; // storage file name
+      newDish.storageFileName = fileName;
+      fb.uploadImage(fileName, img.bytes);
+    }
     notifyListeners();
     return newDish;
   }
@@ -68,7 +89,20 @@ class MenuSupplier extends ChangeNotifier {
     assert(_m.contains(dish));
     dish.dish = name ?? dish.dish;
     dish.price = price ?? dish.price;
-    dish.imgProvider = image != null ? MemoryImage(image) : dish.imgProvider;
+    // compare, if different then update new image in storage
+    if (image != null &&
+        dish.imgProvider is MemoryImage &&
+        dish.storageFileName != null &&
+        database is MenuFB) {
+      final fb = database as MenuFB;
+      final currentImage = (dish.imgProvider as MemoryImage).bytes;
+
+      if (!listEquals(image, currentImage)) {
+        fb.uploadImage(dish.storageFileName!, image);
+      }
+
+      dish.imgProvider = MemoryImage(image);
+    }
     return database?.update(dish);
   }
 

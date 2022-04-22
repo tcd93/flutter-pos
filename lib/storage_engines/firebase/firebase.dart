@@ -1,5 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart' as lib;
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 
 import '../../provider/src.dart';
 import 'firebase_options.dart';
@@ -93,10 +97,11 @@ class OrderFB extends RIDRepository<Order>
 class MenuFB extends RIUDRepository<Dish>
     with Readable<Dish>, Updatable<Dish>, Insertable<Dish>, Deletable<Dish> {
   final CollectionReference<Dish> ref;
+  final Reference storageRef;
 
-  /// Dish name will be used as document id
   MenuFB()
-      : ref = FirebaseFirestore.instance.collection('menu').withConverter<Dish>(
+      : storageRef = FirebaseStorage.instance.ref('public'),
+        ref = FirebaseFirestore.instance.collection('menu').withConverter<Dish>(
               fromFirestore: (snapshot, _) => Dish.fromJson(snapshot.data()!),
               toFirestore: (dish, _) =>
                   // avoid storing image data on Firestore
@@ -138,6 +143,27 @@ class MenuFB extends RIUDRepository<Dish>
     assert(value.dish.isNotEmpty);
 
     return ref.doc(value.id as String).set(value);
+  }
+
+  Future<void> uploadImage(String storageFileName, Uint8List bytes) async {
+    final avaRef = storageRef.child(storageFileName);
+    avaRef
+        .putData(bytes, SettableMetadata(contentType: 'image/jpg'))
+        .then((_) => null) // workaround for the onError() requiring a typed return
+        .onError<FirebaseException>((ex, _) {
+      debugPrint(ex.message);
+      return;
+    });
+  }
+
+  Future<Uint8List?> downloadImage(String storageFileName) async {
+    final avaRef = storageRef.child(storageFileName);
+    try {
+      return avaRef.getData(150 * 1024);
+    } on FirebaseException catch (ex) {
+      debugPrint(ex.message);
+      return null;
+    }
   }
 }
 
