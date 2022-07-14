@@ -131,9 +131,9 @@ class _ColoredBarrierLayer extends StatelessWidget {
 class _BottomAppBarContainer extends StatelessWidget {
   final ValueListenable<bool> expanded;
   final Widget child;
-  final double height;
+  final double height = 500;
 
-  const _BottomAppBarContainer(this.expanded, {required this.child, this.height = 500.0});
+  const _BottomAppBarContainer(this.expanded, {required this.child});
 
   @override
   Widget build(BuildContext context) {

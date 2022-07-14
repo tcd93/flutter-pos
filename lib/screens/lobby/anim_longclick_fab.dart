@@ -36,7 +36,7 @@ class AnimatedLongClickableFAB extends HookWidget {
   @override
   Widget build(BuildContext context) {
     useMemoized(() {
-      WidgetsBinding.instance!.addPostFrameCallback((_) => tooltip.show(context));
+      WidgetsBinding.instance.addPostFrameCallback((_) => tooltip.show(context));
     });
 
     // controllers

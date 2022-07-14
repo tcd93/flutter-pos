@@ -47,7 +47,7 @@ class _TableIconState extends State<TableIcon> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       size = (context.findRenderObject() as RenderBox).size;
       determineOrientation({'id': widget.node.id, 'x': widget.node.x, 'y': widget.node.y});
     });
