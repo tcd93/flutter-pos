@@ -8,10 +8,10 @@ import 'package:posapp/storage_engines/connection_interface.dart';
 void main() {
   late DatabaseConnectionInterface storage;
   late RIUDRepository<Node> repo;
-  const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
+  const db = String.fromEnvironment('database', defaultValue: 'local-storage');
 
   setUpAll(() async {
-    storage = DatabaseFactory().create(_db, 'test', {}, 'node_test');
+    storage = DatabaseFactory().create(db, 'test', {}, 'node_test');
     await storage.open();
     repo = DatabaseFactory().createRIUDRepository(storage);
   });
@@ -19,7 +19,7 @@ void main() {
   tearDownAll(() async {
     await storage.destroy();
     await storage.close();
-    if (_db == 'local-storage') {
+    if (db == 'local-storage') {
       File('test/node_test').deleteSync();
     }
   });

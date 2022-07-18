@@ -17,37 +17,37 @@ class LobbyScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
     // store previous index when adding tab
-    final _prevIdx = useRef<int?>(null);
+    final prevIdx = useRef<int?>(null);
 
     // states
-    final _maxTab = useState(0);
-    _maxTab.value = context
+    final maxTab = useState(0);
+    maxTab.value = context
         .select((ConfigSupplier? cs) => cs?.maxTab ?? 0); // "sync" internal state with repo changes
 
     // computed values
-    final _tabs = useMemoized(
-      () => [for (int i = 1; i <= _maxTab.value; i++) Tab(text: i.toString())],
-      [_maxTab.value],
+    final tabs = useMemoized(
+      () => [for (int i = 1; i <= maxTab.value; i++) Tab(text: i.toString())],
+      [maxTab.value],
     );
-    final _views = useMemoized(
-      () => [for (int i = 0; i < _maxTab.value; i++) _InteractiveBody(i)],
-      [_maxTab.value],
+    final views = useMemoized(
+      () => [for (int i = 0; i < maxTab.value; i++) _InteractiveBody(i)],
+      [maxTab.value],
     );
-    final _ticker = useSingleTickerProvider(keys: [_maxTab.value]);
+    final ticker = useSingleTickerProvider(keys: [maxTab.value]);
     // for dynamic tab length to work, new controller need to be created every time a tab is added
-    final _controller = useMemoized(
-      () => TabController(length: _maxTab.value, vsync: _ticker),
-      [_maxTab.value],
+    final controller = useMemoized(
+      () => TabController(length: maxTab.value, vsync: ticker),
+      [maxTab.value],
     );
 
     useEffect(() {
       // animate to new tab with the new controller
-      if (_prevIdx.value != null) {
-        _controller.index = _prevIdx.value!;
-        _controller.animateTo(_maxTab.value - 1);
+      if (prevIdx.value != null) {
+        controller.index = prevIdx.value!;
+        controller.animateTo(maxTab.value - 1);
       }
       return;
-    }, [_maxTab.value]);
+    }, [maxTab.value]);
 
     return Scaffold(
       bottomNavigationBar: BottomAppBar(
@@ -78,31 +78,31 @@ class LobbyScreen extends HookWidget {
         ),
       ),
       floatingActionButton: AnimatedLongClickableFAB(
-        onLongPress: () => context.read<NodeSupplier>().addNode(_controller.index),
+        onLongPress: () => context.read<NodeSupplier>().addNode(controller.index),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       appBar: AppBar(
         title: TabBar(
-          controller: _controller,
+          controller: controller,
           isScrollable: true,
-          tabs: _tabs,
+          tabs: tabs,
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              _maxTab.value++;
+              maxTab.value++;
               context.read<ConfigSupplier>().addTab();
-              _prevIdx.value = _controller.index;
-              _controller.dispose();
+              prevIdx.value = controller.index;
+              controller.dispose();
             },
           ),
         ],
       ),
       body: TabBarView(
         physics: const NeverScrollableScrollPhysics(),
-        controller: _controller,
-        children: _views,
+        controller: controller,
+        children: views,
       ),
     );
   }

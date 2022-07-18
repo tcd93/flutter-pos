@@ -26,7 +26,7 @@ List<Map<String, Object?>> mergeRaws(List<Map<String, Object?>> rawResults) {
         ...list,
         {
           'ID': element['ID'],
-          'checkoutTime': (element['date']! as String) + ' ' + (element['time']! as String),
+          'checkoutTime': '${element['date']! as String} ${element['time']! as String}',
           'tableID': element['tableID'],
           'status': element['status'],
           'discountRate': element['discountRate'],
@@ -75,7 +75,7 @@ class SQLite implements DatabaseConnectionInterface {
       databaseFactory = databaseFactoryFfi;
     }
     Future(() async {
-      final _dtb = await openDatabase(
+      final dtb = await openDatabase(
         join(path ?? await getDatabasesPath(), '$name.db'),
         onCreate: (db, version) async {
           await db.execute('''
@@ -138,8 +138,8 @@ class SQLite implements DatabaseConnectionInterface {
       if (kDebugMode) {
         print('Initiating sqlite database at path: ${await getDatabasesPath()}');
       }
-      db = _dtb;
-      _completer.complete(_dtb.isOpen);
+      db = dtb;
+      _completer.complete(dtb.isOpen);
     });
   }
 
@@ -248,7 +248,7 @@ class OrderSQL extends RIDRepository<Order>
   /// soft-delete by marking [Order.isDeleted] = true
   @override
   Future<void> delete(Order value) async {
-    final _r = await db.update(
+    final r = await db.update(
       orderTable,
       {
         'isDeleted': 1,
@@ -256,7 +256,7 @@ class OrderSQL extends RIDRepository<Order>
       where: 'date = ? AND ID = ?',
       whereArgs: [Common.extractYYYYMMDD(value.checkoutTime), value.id],
     );
-    if (_r <= 0) {
+    if (r <= 0) {
       throw 'Can not update a non-existing order with ID = ${value.id}';
     }
   }
@@ -283,7 +283,7 @@ class JournalSQL extends RIRepository<Journal> with Readable<Journal>, Insertabl
     return rawResults.map((j) {
       final json = {
         'ID': j['ID'],
-        'dateTime': (j['date']! as String) + ' ' + (j['time']! as String),
+        'dateTime': '${j['date']! as String} ${j['time']! as String}',
         'entry': j['entry'],
         'amount': j['amount'],
       };
@@ -355,8 +355,8 @@ class MenuSQL extends RIUDRepository<Dish>
   @override
   Future<void> update(Dish value) async {
     final json = value.toJson()..remove('ID');
-    final _r = await db.update(dishTable, json, where: 'ID = ?', whereArgs: [value.id]);
-    if (_r <= 0) {
+    final r = await db.update(dishTable, json, where: 'ID = ?', whereArgs: [value.id]);
+    if (r <= 0) {
       throw 'Can not update a non-existing dish with ID = ${value.id}';
     }
   }

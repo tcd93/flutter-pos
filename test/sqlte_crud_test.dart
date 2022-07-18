@@ -143,16 +143,16 @@ void main() {
       node.x = 100;
       node.y = 155.5;
       await repo.update(node);
-      var _newNode = await repo.get(node.id);
-      expect(_newNode.first.x, 100);
-      expect(_newNode.first.y, 155.5);
+      var newNode = await repo.get(node.id);
+      expect(newNode.first.x, 100);
+      expect(newNode.first.y, 155.5);
 
       node.x = 10;
       node.y = 15.5;
       await repo.update(node);
-      _newNode = await repo.get(node.id);
-      expect(_newNode.first.x, 10);
-      expect(_newNode.first.y, 15.5);
+      newNode = await repo.get(node.id);
+      expect(newNode.first.x, 10);
+      expect(newNode.first.y, 15.5);
     });
   });
 }

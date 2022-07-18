@@ -41,9 +41,9 @@ class HistoryOrderLineChart extends StatelessWidget {
 
   Widget _drawLineChart(BuildContext context, List<List<dynamic>> groupedData) {
     var showTooltipsOnAllSpots = false;
-    final _spots = _mapGroupDataToSpots(groupedData);
-    final _mainChart = LineChartBarData(
-      spots: _spots,
+    final spots = _mapGroupDataToSpots(groupedData);
+    final mainChart = LineChartBarData(
+      spots: spots,
       colors: [
         RallyColors.primaryColor,
       ],
@@ -55,7 +55,7 @@ class HistoryOrderLineChart extends StatelessWidget {
       preventCurveOverShooting: true,
       belowBarData: BarAreaData(show: false),
     );
-    return _spots.isEmpty
+    return spots.isEmpty
         ? const Center(child: Text('No data'))
         : StatefulBuilder(
             builder: (context, setState) => LineChart(
@@ -100,12 +100,12 @@ class HistoryOrderLineChart extends StatelessWidget {
                 minY: 0.0,
                 showingTooltipIndicators: showTooltipsOnAllSpots
                     ? [
-                        ..._spots.map(
-                          (spot) => ShowingTooltipIndicators([LineBarSpot(_mainChart, 0, spot)]),
+                        ...spots.map(
+                          (spot) => ShowingTooltipIndicators([LineBarSpot(mainChart, 0, spot)]),
                         ),
                       ]
                     : [],
-                lineBarsData: [_mainChart],
+                lineBarsData: [mainChart],
               ),
             ),
           );

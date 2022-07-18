@@ -37,10 +37,10 @@ class RadialMenu extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _RadialMenuState createState() => _RadialMenuState();
+  RadialMenuState createState() => RadialMenuState();
 }
 
-class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateMixin {
+class RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateMixin {
   late final AnimationController controller;
   late final Animation<double> rotation;
   late final Animation<double> downScale, upScale;

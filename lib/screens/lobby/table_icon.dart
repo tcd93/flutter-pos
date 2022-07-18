@@ -236,7 +236,7 @@ class _RadialButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final order = context.select((OrderSupplier supplier) => supplier.order);
-    final _colorTween = ColorTween(
+    final colorTween = ColorTween(
       begin: order.status == TableStatus.occupied
           ? Colors.yellow[300]
           : order.status == TableStatus.incomplete
@@ -253,7 +253,7 @@ class _RadialButton extends StatelessWidget {
           onPressed: () {
             radialAnimationController.forward();
           },
-          backgroundColor: _colorTween.animate(radialAnimationController).value,
+          backgroundColor: colorTween.animate(radialAnimationController).value,
           child: Text(node.id.toString()),
         );
       },
@@ -264,7 +264,7 @@ class _RadialButton extends StatelessWidget {
           onPressed: () {
             radialAnimationController.reverse();
           },
-          backgroundColor: _colorTween.animate(radialAnimationController).value,
+          backgroundColor: colorTween.animate(radialAnimationController).value,
           child: const Icon(Icons.circle),
         );
       },

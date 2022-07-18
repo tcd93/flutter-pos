@@ -10,7 +10,7 @@ part 'mixins.dart';
 class LocalStorage implements DatabaseConnectionInterface {
   final lib.LocalStorage ls;
 
-  LocalStorage(String name, [String? path, _JsonMap? initialData])
+  LocalStorage(String name, [String? path, JsonMap? initialData])
       : ls = lib.LocalStorage(name, path, initialData);
 
   @override
@@ -38,12 +38,12 @@ class OrderLS extends RIDRepository<Order>
   /// soft-delete by marking [Order.isDeleted] = true
   @override
   Future<void> delete(Order value) async {
-    final _key = _getKeyFromObject(value);
-    final List<Order> orders = await get(_key);
+    final key = _getKeyFromObject(value);
+    final List<Order> orders = await get(key);
     await ls.setItem(
-        _getKeyString(_key),
+        _getKeyString(key),
         orders.map((e) {
-          if (_getKeyFromObject(e).compareTo(_key) == 0) {
+          if (_getKeyFromObject(e).compareTo(key) == 0) {
             return {
               ...e.toJson(),
               ...{'isDeleted': true}

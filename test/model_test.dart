@@ -6,9 +6,9 @@ import 'package:posapp/provider/src.dart';
 import 'package:posapp/storage_engines/connection_interface.dart';
 
 void main() {
-  const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
+  const db = String.fromEnvironment('database', defaultValue: 'local-storage');
   late OrderSupplier mockTable;
-  var storage = DatabaseFactory().create(_db, 'test', {}, 'model_test');
+  var storage = DatabaseFactory().create(db, 'test', {}, 'model_test');
   late RIDRepository<Order> repo;
 
   setUpAll(() async {
@@ -19,7 +19,7 @@ void main() {
   tearDownAll(() async {
     await storage.destroy();
     await storage.close();
-    if (_db == 'local-storage') {
+    if (db == 'local-storage') {
       File('test/model_test').deleteSync();
     }
   });

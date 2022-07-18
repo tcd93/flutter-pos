@@ -14,17 +14,17 @@ final DateTime time = DateTime.parse('20201112 13:00:00');
 void main() {
   late DatabaseConnectionInterface storage;
   late RIRepository<Journal> repo;
-  const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
+  const db = String.fromEnvironment('database', defaultValue: 'local-storage');
 
   setUpAll(() async {
-    storage = DatabaseFactory().create(_db, 'test', {}, 'journal-test-1');
+    storage = DatabaseFactory().create(db, 'test', {}, 'journal-test-1');
     await storage.open();
     repo = DatabaseFactory().createRIRepository(storage);
   });
   tearDownAll(() async {
     await storage.destroy();
     await storage.close();
-    if (_db == 'local-storage') {
+    if (db == 'local-storage') {
       File('test/journal-test-1').deleteSync();
     }
   });

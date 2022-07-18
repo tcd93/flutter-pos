@@ -49,8 +49,8 @@ class MenuSupplier extends ChangeNotifier {
   }
 
   Future<Dish> addDish(String name, double price, [Uint8List? image]) async {
-    final _t = Dish(name, price, image); // _t has no ID yet
-    final newDish = (await database?.insert(_t)) ?? _t; // now it has
+    final t = Dish(name, price, image); // t has no ID yet
+    final newDish = (await database?.insert(t)) ?? t; // now it has
     _m.add(newDish);
     notifyListeners();
     return newDish;

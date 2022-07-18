@@ -11,10 +11,10 @@ import 'package:provider/provider.dart';
 void main() {
   late DatabaseConnectionInterface storage;
   late RIUDRepository<Dish> repo;
-  const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
+  const db = String.fromEnvironment('database', defaultValue: 'local-storage');
 
   setUpAll(() async {
-    storage = DatabaseFactory().create(_db, 'test', {}, 'menu_test');
+    storage = DatabaseFactory().create(db, 'test', {}, 'menu_test');
     await storage.open();
     repo = DatabaseFactory().createRIUDRepository(storage);
     // supplier = MenuSupplier(database: storage, mockMenu: Menu([dish1, dish2]));
@@ -23,7 +23,7 @@ void main() {
   tearDownAll(() async {
     await storage.destroy();
     await storage.close();
-    if (_db == 'local-storage') {
+    if (db == 'local-storage') {
       File('test/menu_test').deleteSync();
     }
   });

@@ -28,10 +28,10 @@ Future<Journal?> _popUpNewJournal(BuildContext scaffoldCtx) {
   return showDialog<Journal?>(
     context: scaffoldCtx,
     builder: (context) {
-      final _formKey = GlobalKey<FormState>();
+      final formKey = GlobalKey<FormState>();
       return AlertDialog(
         content: Form(
-          key: _formKey,
+          key: formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -83,7 +83,7 @@ Future<Journal?> _popUpNewJournal(BuildContext scaffoldCtx) {
         actions: [
           TextButton(
             onPressed: () async {
-              if (_formKey.currentState!.validate()) {
+              if (formKey.currentState!.validate()) {
                 final p = Money.unformat(m.text);
                 Navigator.pop<Journal>(
                   context,

@@ -98,12 +98,12 @@ class OrderSupplier extends ChangeNotifier {
   }
 
   Future<void> checkout([DateTime? atTime]) async {
-    final _t = Order.create(
+    final t = Order.create(
       fromBase: order,
       checkoutTime: atTime ?? DateTime.now(),
     ); // without ID
-    final _o = await database?.insert(_t) ?? _t;
-    _s.replaceFirst(_o);
+    final o = await database?.insert(t) ?? t;
+    _s.replaceFirst(o);
     notifyListeners();
   }
 

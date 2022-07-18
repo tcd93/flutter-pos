@@ -1,6 +1,6 @@
 part of 'local_storage.dart';
 
-typedef _JsonMap = Map<String, dynamic>;
+typedef JsonMap = Map<String, dynamic>;
 
 mixin _ReadableImpl<T> implements Readable<T> {
   lib.LocalStorage get ls;
@@ -21,11 +21,11 @@ mixin _ReadableImpl<T> implements Readable<T> {
   QueryKey _getKeyFromObject(T value);
 
   final _factories = <Type, Function>{
-    Order: (_JsonMap json) => Order.fromJson(json),
-    Journal: (_JsonMap json) => Journal.fromJson(json),
-    Dish: (_JsonMap json) => Dish.fromJson(json),
-    Node: (_JsonMap json) => Node.fromJson(json),
-    Config: (_JsonMap json) => Config.fromJson(json),
+    Order: (JsonMap json) => Order.fromJson(json),
+    Journal: (JsonMap json) => Journal.fromJson(json),
+    Dish: (JsonMap json) => Dish.fromJson(json),
+    Node: (JsonMap json) => Node.fromJson(json),
+    Config: (JsonMap json) => Config.fromJson(json),
   };
 
   Future<List<T>> _get(QueryKey key) async {
@@ -52,18 +52,18 @@ mixin _ReadableImpl<T> implements Readable<T> {
 
     assert(end.runtimeType == start.runtimeType);
 
-    List<Future<List<T>>> _f;
+    List<Future<List<T>>> f;
     if (start is DateTime && end is DateTime) {
-      _f = [
+      f = [
         for (int i = 0; i < end.difference(start).inDays + 1; i++)
           _get(DateTime(start.year, start.month, start.day + i))
       ];
     } else if (start is num && end is num) {
-      _f = [for (int i = 0; i < end - start + 1; i++) _get(start + i)];
+      f = [for (int i = 0; i < end - start + 1; i++) _get(start + i)];
     } else {
       throw '[get]: unknown QueryKey type';
     }
-    return (await Future.wait(_f)).expand((e) => e).toList();
+    return (await Future.wait(f)).expand((e) => e).toList();
   }
 }
 
@@ -81,7 +81,7 @@ mixin _InsertableImpl<T> on _ReadableImpl<T> implements Insertable<T> {
   @override
   Future<T> insert(T value) async {
     final key = _getKeyString(_getKeyFromObject(value));
-    _JsonMap objectWithID;
+    JsonMap objectWithID;
 
     try {
       objectWithID = {

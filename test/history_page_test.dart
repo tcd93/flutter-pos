@@ -15,19 +15,19 @@ void main() {
   late OrderSupplier supplier;
   late DatabaseConnectionInterface storage;
   late RIDRepository<Order> repo;
-  const _db = String.fromEnvironment('database', defaultValue: 'local-storage');
+  const db = String.fromEnvironment('database', defaultValue: 'local-storage');
 
   group('Same day report:', () {
     setUpAll(() async {
-      storage = DatabaseFactory().create(_db, 'test', {}, 'test-group-1');
+      storage = DatabaseFactory().create(db, 'test', {}, 'test-group-1');
       await storage.open();
       repo = DatabaseFactory().createRIDRepository<Order>(storage);
-      debugPrint('Testing database: $_db');
+      debugPrint('Testing database: $db');
     });
     tearDownAll(() async {
       await storage.destroy();
       await storage.close();
-      if (_db == 'local-storage') {
+      if (db == 'local-storage') {
         File('test/test-group-1').deleteSync();
       }
       // delete the newly created storage file
@@ -93,7 +93,7 @@ void main() {
 
   group('Cross day report:', () {
     setUpAll(() async {
-      storage = DatabaseFactory().create(_db, 'test', {}, 'test-group-2');
+      storage = DatabaseFactory().create(db, 'test', {}, 'test-group-2');
       await storage.open();
       repo = DatabaseFactory().createRIDRepository<Order>(storage);
     });
@@ -101,7 +101,7 @@ void main() {
     tearDownAll(() async {
       await storage.destroy();
       await storage.close();
-      if (_db == 'local-storage') {
+      if (db == 'local-storage') {
         File('test/test-group-2').deleteSync();
       }
     });
@@ -189,7 +189,7 @@ void main() {
     late Order order1, order2;
 
     setUpAll(() async {
-      storage = DatabaseFactory().create(_db, 'test', {}, 'test-group-3');
+      storage = DatabaseFactory().create(db, 'test', {}, 'test-group-3');
       await storage.open();
       repo = DatabaseFactory().createRIDRepository<Order>(storage);
     });
@@ -197,7 +197,7 @@ void main() {
     tearDownAll(() async {
       await storage.destroy();
       await storage.close();
-      if (_db == 'local-storage') {
+      if (db == 'local-storage') {
         File('test/test-group-3').deleteSync();
       }
     });
@@ -242,7 +242,7 @@ void main() {
 
   group('Soft delete order widget test:', () {
     setUpAll(() async {
-      storage = DatabaseFactory().create(_db, 'test', {}, 'test-group-4');
+      storage = DatabaseFactory().create(db, 'test', {}, 'test-group-4');
       await storage.open();
       repo = DatabaseFactory().createRIDRepository<Order>(storage);
     });
@@ -250,7 +250,7 @@ void main() {
     tearDownAll(() async {
       await storage.destroy();
       await storage.close();
-      if (_db == 'local-storage') {
+      if (db == 'local-storage') {
         File('test/test-group-4').deleteSync();
       }
     });

@@ -167,11 +167,11 @@ class _CenterDockedButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // avoid unneccessary object recreations
-    final _avatar = Avatar(
+    final avatar = Avatar(
       onNew: onNewAvatar,
       imgProvider: pickedImage != null ? MemoryImage(pickedImage!) : null,
     );
-    final _fab = FloatingActionButton(
+    final fab = FloatingActionButton(
       backgroundColor: RallyColors.buttonColor,
       onPressed: () => expanded.value = true,
       child: const Icon(Icons.add),
@@ -185,10 +185,10 @@ class _CenterDockedButton extends StatelessWidget {
       endScale: 1.8,
       animationController: animation,
       closedBuilder: (_, __) {
-        return _fab;
+        return fab;
       },
       openBuilder: (_, __) {
-        return _avatar;
+        return avatar;
       },
     );
   }

@@ -39,9 +39,9 @@ class Dish {
         : null);
   }
 
-  void _initImgProvider([Uint8List? _imageBytes]) {
-    imgProvider = (_imageBytes != null
-        ? MemoryImage(_imageBytes)
+  void _initImgProvider([Uint8List? imageBytes]) {
+    imgProvider = (imageBytes != null
+        ? MemoryImage(imageBytes)
         : _asset != null
             ? AssetImage(_asset!)
             : const AssetImage('assets/coffee.png')) as ImageProvider;
