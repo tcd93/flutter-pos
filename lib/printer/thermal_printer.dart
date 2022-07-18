@@ -16,17 +16,18 @@ class Printer {
 
   static Future<void> print(BuildContext context, StateObject o,
       [double? customerPayAmount]) async {
+    final scaffoldState = ScaffoldMessenger.of(context);
     if (_bondedDevices == null || _bondedDevices!.isEmpty) {
       try {
         _bondedDevices = await instance.getBondedDevices();
         if (_bondedDevices!.isEmpty) {
           const snackbar = SnackBar(content: Text('No bluetooth devices!'));
-          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+          scaffoldState.showSnackBar(snackbar);
           return;
         }
       } on PlatformException catch (e) {
         final snackbar = SnackBar(content: Text(e.toString()));
-        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+        scaffoldState.showSnackBar(snackbar);
         return;
       }
     }
@@ -38,7 +39,7 @@ class Printer {
         await instance.connect(_device);
       } on PlatformException catch (e) {
         final snackbar = SnackBar(content: Text(e.toString()));
-        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+        scaffoldState.showSnackBar(snackbar);
         return;
       }
     }

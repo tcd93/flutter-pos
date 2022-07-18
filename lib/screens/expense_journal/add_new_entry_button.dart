@@ -10,9 +10,10 @@ class AddNewEntryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton(
       onPressed: () async {
+        final exSupplier = context.read<ExpenseSupplier>();
         final j = await _popUpNewJournal(context);
         if (j != null) {
-          context.read<ExpenseSupplier>().addJournal(j);
+          exSupplier.addJournal(j);
         }
       },
       child: const Icon(Icons.add),

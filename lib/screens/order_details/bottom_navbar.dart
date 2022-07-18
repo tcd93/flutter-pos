@@ -45,9 +45,9 @@ class _CheckoutButton extends StatelessWidget {
       child: MaterialButton(
         minWidth: MediaQuery.of(context).size.width / 2,
         onPressed: () async {
+          final navState = Navigator.of(context);
           if (fromScreen == 'history') {
             await supplier.printClear(context: context);
-            Navigator.pop(context);
           } else {
             final customerPaid = await _popUpPayment(context, supplier.totalPriceAfterDiscount);
             if (customerPaid != null) {
@@ -56,9 +56,9 @@ class _CheckoutButton extends StatelessWidget {
                 context: context,
                 customerPayAmount: customerPaid,
               );
-              Navigator.pop(context);
             }
           }
+          navState.pop();
         },
         child: const Icon(Icons.print),
       ),

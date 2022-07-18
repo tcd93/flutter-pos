@@ -96,9 +96,9 @@ class _ListItem extends HookWidget {
         onShow(context);
       },
       onLongPress: () async {
+        final supplier = context.read<MenuSupplier>();
         var delete = await popUpDelete(context);
         if (delete != null && delete) {
-          final supplier = context.read<MenuSupplier>();
           supplier.removeDish(dish);
         }
       },

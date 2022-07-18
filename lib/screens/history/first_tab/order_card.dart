@@ -44,13 +44,14 @@ class OrderCard extends StatelessWidget {
               onLongPress: del == true
                   ? null
                   : () async {
+                      final histOrderSupplier = context.read<HistoryOrderSupplier>();
                       var result = await popUpDelete(
                         context,
                         title:
                             Text(AppLocalizations.of(context)?.history_delPopUpTitle ?? 'Ignore?'),
                       );
                       if (result == true) {
-                        context.read<HistoryOrderSupplier>().ignoreOrder(order);
+                        histOrderSupplier.ignoreOrder(order);
                       }
                     },
               onTap: () {
