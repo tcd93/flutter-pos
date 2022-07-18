@@ -1,12 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:super_tooltip/super_tooltip.dart';
 import '../../theme/rally.dart';
 
-const _targetTime = Duration(seconds: 2);
+const _targetTime = Duration(milliseconds: 600);
 
 /// An extended version of [FloatingActionButton] that allows long press, fires a [onLongPress]
 /// callback after 2s
@@ -18,27 +16,8 @@ class AnimatedLongClickableFAB extends HookWidget {
 
   AnimatedLongClickableFAB({required this.onLongPress});
 
-  final tooltip = SuperTooltip(
-    popupDirection: TooltipDirection.up,
-    arrowTipDistance: 25.0,
-    borderWidth: 1.0,
-    backgroundColor: RallyColors.cardBackground,
-    content: Builder(builder: (context) {
-      return Material(
-        child: Text(
-          AppLocalizations.of(context)?.lobby_tooltip ?? '',
-          softWrap: true,
-        ),
-      );
-    }),
-  );
-
   @override
   Widget build(BuildContext context) {
-    useMemoized(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) => tooltip.show(context));
-    });
-
     // controllers
     final valueController = useAnimationController(duration: _targetTime);
     final colorController = useAnimationController(duration: _targetTime);
@@ -69,7 +48,7 @@ class AnimatedLongClickableFAB extends HookWidget {
           child: GestureDetector(
             onTapDown: (_) {
               t.value = Timer(_targetTime, onLongPress);
-              valueController.forward();
+              valueController.animateTo(1.0, curve: Curves.decelerate);
               colorController.forward();
             },
             onTapUp: (_) {

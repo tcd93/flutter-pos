@@ -445,15 +445,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.0"
-  super_tooltip:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: master
-      resolved-ref: "3f5e46ec7501e05bbb2f72611f7c10534760b644"
-      url: "https://github.com/tcd93/super_tooltip"
-    source: git
-    version: "0.10.0"
   synchronized:
     dependency: transitive
     description:

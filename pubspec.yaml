@@ -45,10 +45,6 @@ dependencies:
     git:
       url: https://github.com/tcd93/date_range_picker
       ref: master
-  super_tooltip:
-    git:
-      url: https://github.com/tcd93/super_tooltip
-      ref: master
   fl_chart: ^0.41.0
   flutter_hooks: ^0.18.0
 

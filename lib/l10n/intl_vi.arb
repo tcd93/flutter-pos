@@ -11,7 +11,6 @@
   "lobby_report": "Báo cáo",
   "lobby_journal": "Nhật ký nhập hàng",
   "lobby_menuEdit": "Chỉnh sửa thực đơn",
-  "lobby_tooltip": "Nhấn & giữ để thêm bàn",
   "details_discount": "Khuyến mãi",
   "details_discountTxt": "Tổng: {total}, giảm: {discountPct}%",
   "@details_discountTxt": {
