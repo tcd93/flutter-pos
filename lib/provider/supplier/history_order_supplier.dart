@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../common/common.dart';
 import '../../storage_engines/connection_interface.dart';
 import '../src.dart';
 
@@ -45,46 +44,10 @@ class HistoryOrderSupplier extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Returns a list of grouped orders:
-  ///   - If ranges over multiple days, then group by day: [['YYYY/MM/DD', value]]
-  ///   - If ranges over one day, the group by time: [['HH24:MM', value]]
-  ///
-  /// The outer list is for indexing the X axis (time).
-  /// The nested inner list is for marking the display titles and values
-  List<List<dynamic>> group() {
-    return orders.fold(
-      [],
-      (obj, o) {
-        String xAxis;
-        if (selectedRange.duration.inDays > 1) {
-          xAxis = Common.extractYYYYMMDD2(o.checkoutTime);
-        } else {
-          xAxis = _extractTime(o.checkoutTime);
-        }
-        final match = obj.firstWhere(
-          (element) => element.isNotEmpty && element.first == xAxis,
-          orElse: () {
-            final newObj = [xAxis, 0];
-            obj.add(newObj);
-            return newObj;
-          },
-        );
-        match[1] += o.saleAmount(discountFlag);
-        return obj;
-      },
-    );
-  }
-
   double calculateTotalSalesAmount(Iterable<Order> orders) => orders.fold(
         0,
         (previousValue, order) => previousValue + order.saleAmount(discountFlag),
       );
-
-  String _extractTime(DateTime dateTime) {
-    return '${dateTime.hour.toString().padLeft(2, '0')}'
-        ':'
-        '${dateTime.minute.toString().padLeft(2, '0')}';
-  }
 
   void _retrieveOrders() {
     _loading = true;

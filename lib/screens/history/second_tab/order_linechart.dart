@@ -1,6 +1,9 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
+import '../../../common/common.dart';
 import '../../../theme/rally.dart';
 
 import '../../../provider/src.dart';
@@ -9,44 +12,95 @@ class HistoryOrderLineChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<HistoryOrderSupplier>(context);
+    final displayMultipleDays = provider.selectedRange.duration.inDays >= 1;
 
     return Container(
       alignment: Alignment.center,
       margin: const EdgeInsets.fromLTRB(48, 60, 48, 48),
-      child: _drawLineChart(context, provider.group()),
+      child: _drawLineChart(
+        context,
+        _group(
+          provider.orders,
+          provider.selectedRange,
+          provider.discountFlag,
+          displayMultipleDays,
+        ),
+        displayMultipleDays,
+      ),
     );
+  }
+
+  /// Returns an ordered map [LinkedHashMap]:
+  ///   - If ranges over multiple days, then group by day: {[seconds since epoch]: value}
+  ///   - If ranges over one day, then group by time: {[seconds since midnight]: value}
+  LinkedHashMap<int, double> _group(
+    List<Order> orders,
+    DateTimeRange dateRange,
+    bool discountFlag,
+    bool displayMultipleDays,
+  ) {
+    return orders.fold(
+      LinkedHashMap(),
+      (groupedObject, o) {
+        int xAxis;
+        if (displayMultipleDays) {
+          xAxis = (DateUtils.dateOnly(o.checkoutTime).millisecondsSinceEpoch / 1000).floor();
+        } else {
+          xAxis = _secondsSinceMidnight(o.checkoutTime);
+        }
+
+        groupedObject[xAxis] = (groupedObject[xAxis] ?? 0) + o.saleAmount(discountFlag);
+
+        return groupedObject;
+      },
+    );
+  }
+
+  // Extract the seconds since midnight
+  int _secondsSinceMidnight(DateTime dateTime) =>
+      dateTime.difference(DateUtils.dateOnly(dateTime)).inSeconds;
+
+  // Show in 'hh:mm' format
+  String _reverSecondsSinceMidnight(double s) {
+    int hour = ((s / 3600) % 24).floor();
+    int minute = ((s / 60) % 60).floor();
+    // int second = (s.floor()) - (hour * 3600 + minute * 60);
+    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
   }
 
   /// for bigger number `getEfficientInterval` still display too much
   /// this is a adjustment to that issue
-  double _interval(List<List<dynamic>> groupedData) {
-    final maxVal = groupedData.fold<double>(0.0, (prev, e) {
-      if (prev < e[1]) {
-        return e[1];
+  num _interval(Iterable<num> array, [int maxSteps = 19]) {
+    final maxVal = array.fold<num>(0.0, (prev, curr) {
+      if (prev < curr) {
+        return curr;
       }
       return prev;
     });
-    final minVal = groupedData.fold<double>(double.maxFinite, (prev, e) {
-      if (prev >= e[1] && e[1] > 0) {
-        return e[1];
+    final minVal = array.fold<num>(double.maxFinite, (prev, curr) {
+      if (prev >= curr && curr > 0) {
+        return curr;
       }
       return prev;
     });
-    const maxSteps = 19;
     final expectedInterval = (maxVal % minVal) != 0 ? (maxVal % minVal) : minVal;
     final expectedSteps = maxVal ~/ expectedInterval;
-    final modifier = (expectedSteps ~/ maxSteps) + 1;
+    final modifier = expectedSteps > maxSteps ? (expectedSteps ~/ maxSteps) + 1 : 1;
     return expectedInterval * modifier;
   }
 
-  Widget _drawLineChart(BuildContext context, List<List<dynamic>> groupedData) {
+  Widget _drawLineChart(
+    BuildContext context,
+    LinkedHashMap<int, double> groupedData,
+    bool displayMultipleDays,
+  ) {
     var showTooltipsOnAllSpots = false;
+
     final spots = _mapGroupDataToSpots(groupedData);
+
     final mainChart = LineChartBarData(
       spots: spots,
-      colors: [
-        RallyColors.primaryColor,
-      ],
+      color: RallyColors.primaryColor,
       barWidth: 2,
       isStrokeCapRound: true,
       dotData: FlDotData(show: true),
@@ -55,6 +109,7 @@ class HistoryOrderLineChart extends StatelessWidget {
       preventCurveOverShooting: true,
       belowBarData: BarAreaData(show: false),
     );
+
     return spots.isEmpty
         ? const Center(child: Text('No data'))
         : StatefulBuilder(
@@ -63,7 +118,7 @@ class HistoryOrderLineChart extends StatelessWidget {
                 backgroundColor: RallyColors.primaryBackground,
                 lineTouchData: LineTouchData(
                   // show tooltips on all spots on long tap
-                  touchCallback: (FlTouchEvent event, BaseTouchResponse? touchResponse) {
+                  touchCallback: (FlTouchEvent event, LineTouchResponse? touchResponse) {
                     if (event is FlLongPressStart) {
                       setState(() => showTooltipsOnAllSpots = true);
                     } else if (event is FlLongPressEnd) {
@@ -82,19 +137,36 @@ class HistoryOrderLineChart extends StatelessWidget {
                   ),
                 ),
                 titlesData: FlTitlesData(
-                  leftTitles: SideTitles(
-                    showTitles: true,
-                    getTextStyles: (_, __) => Theme.of(context).textTheme.bodyText2,
-                    margin: 12.0,
-                    interval: _interval(groupedData),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: _interval(groupedData.values) as double,
+                      reservedSize: 40,
+                    ),
                   ),
-                  bottomTitles: SideTitles(
-                    showTitles: true,
-                    getTextStyles: (_, __) => Theme.of(context).textTheme.bodyText2,
-                    margin: 24.0,
-                    // convert index value back to yyyymmdd
-                    getTitles: (idx) => groupedData[idx.toInt()][0],
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: _interval(groupedData.keys, 23) as double,
+                      reservedSize: 40,
+                      getTitlesWidget: (x, _) {
+                        String text;
+                        if (displayMultipleDays) {
+                          text = Common.extractYYYYMMDD2(
+                            DateTime.fromMillisecondsSinceEpoch((x * 1000).floor()),
+                          );
+                        } else {
+                          text = _reverSecondsSinceMidnight(x);
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Text(text),
+                        );
+                      },
+                    ),
                   ),
+                  topTitles: AxisTitles(),
+                  rightTitles: AxisTitles(),
                 ),
                 gridData: FlGridData(show: false),
                 minY: 0.0,
@@ -111,10 +183,7 @@ class HistoryOrderLineChart extends StatelessWidget {
           );
   }
 
-  List<FlSpot> _mapGroupDataToSpots(List<List<dynamic>> groupedData) {
-    return groupedData.asMap().entries.map((entry) {
-      // second element of the inner list is set as the value
-      return FlSpot(entry.key.toDouble(), entry.value[1]);
-    }).toList();
+  List<FlSpot> _mapGroupDataToSpots(LinkedHashMap<int, double> groupedData) {
+    return groupedData.map((x, y) => MapEntry(x, FlSpot(x.toDouble(), y))).values.toList();
   }
 }

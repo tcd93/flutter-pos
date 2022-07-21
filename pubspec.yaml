@@ -47,7 +47,7 @@ dependencies:
     git:
       url: https://github.com/tcd93/date_range_picker
       ref: master
-  fl_chart: ^0.41.0
+  fl_chart: ^0.55.0
   flutter_hooks: ^0.18.0
   vector_math: ^2.1.2
 
