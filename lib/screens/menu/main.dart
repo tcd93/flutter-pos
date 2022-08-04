@@ -6,6 +6,7 @@ import '../../common/common.dart';
 import '../../provider/src.dart';
 import '../menu_filterer.dart';
 import 'counter.dart';
+import '../node_appbar_title.dart';
 
 class MenuScreen extends StatelessWidget {
   final String? fromHeroTag;
@@ -15,6 +16,10 @@ class MenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: const NodeAppBarTitle(),
+      ),
       bottomNavigationBar: BottomAppBar(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -77,24 +82,19 @@ class _ConfirmButton extends StatelessWidget {
 
     return Hero(
       tag: fromHeroTag ?? UniqueKey(),
-      child: Selector<NodeSupplier, TableStatus>(
-        selector: (_, __) => supplier.order.status,
-        builder: (context, status, _) {
-          return Tooltip(
-            message: AppLocalizations.of(context)!.menu_confirm,
-            child: MaterialButton(
-              minWidth: MediaQuery.of(context).size.width / 2,
-              onPressed: status == TableStatus.incomplete
-                  ? () {
-                      supplier.setStatus(TableStatus.occupied);
-                      supplier.memorizePreviousState();
-                      Navigator.pop(context); // Go back to Lobby Screen
-                    }
-                  : null,
-              child: const Icon(Icons.done),
-            ),
-          );
-        },
+      child: Tooltip(
+        message: AppLocalizations.of(context)!.menu_confirm,
+        child: MaterialButton(
+          minWidth: MediaQuery.of(context).size.width / 2,
+          onPressed: supplier.order.status == TableStatus.incomplete
+              ? () {
+                  supplier.setStatus(TableStatus.occupied);
+                  supplier.memorizePreviousState();
+                  Navigator.pop(context); // Go back to Lobby Screen
+                }
+              : null,
+          child: const Icon(Icons.done),
+        ),
       ),
     );
   }
@@ -107,18 +107,13 @@ class _UndoButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final supplier = Provider.of<OrderSupplier>(context);
     // refer to [_ConfirmButton]
-    return Selector<NodeSupplier, TableStatus>(
-      selector: (_, __) => supplier.order.status,
-      builder: (context, status, _) {
-        return Tooltip(
-          message: AppLocalizations.of(context)!.menu_undo,
-          child: MaterialButton(
-            minWidth: MediaQuery.of(context).size.width / 2,
-            onPressed: status == TableStatus.incomplete ? () => supplier.revert() : null,
-            child: const Icon(Icons.undo),
-          ),
-        );
-      },
+    return Tooltip(
+      message: AppLocalizations.of(context)!.menu_undo,
+      child: MaterialButton(
+        minWidth: MediaQuery.of(context).size.width / 2,
+        onPressed: supplier.order.status == TableStatus.incomplete ? () => supplier.revert() : null,
+        child: const Icon(Icons.undo),
+      ),
     );
   }
 }

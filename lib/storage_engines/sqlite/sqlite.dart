@@ -83,6 +83,7 @@ class SQLite implements DatabaseConnectionInterface {
               ID           INTEGER PRIMARY KEY AUTOINCREMENT, 
               x            REAL DEFAULT 0,
               y            REAL DEFAULT 0,
+              name         TEXT,
               page         INT
             )
           ''');

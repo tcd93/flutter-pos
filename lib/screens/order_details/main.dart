@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:posapp/provider/supplier/order_supplier.dart';
 import 'package:provider/provider.dart';
 
+import '../node_appbar_title.dart';
 import './bottom_navbar.dart';
 import './item_list.dart';
 import '../../theme/rally.dart';
@@ -15,13 +15,16 @@ class DetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final supplier = Provider.of<OrderSupplier>(context, listen: false);
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: const NodeAppBarTitle(),
+      ),
       bottomNavigationBar: BottomNavBar(fromScreen: fromScreen, fromHeroTag: fromHeroTag),
       floatingActionButton: fromScreen == 'history'
           ? FloatingActionButton(
               onPressed: () {
-                supplier.printClear(context: context);
+                context.read<OrderSupplier>().printClear(context: context);
                 Navigator.pop(context);
               },
               elevation: 4.0,

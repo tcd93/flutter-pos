@@ -10,19 +10,26 @@ void main() {
     (tester) async {
       await tester.pumpWidget(MaterialApp(
         builder: (_, __) {
-          return ChangeNotifierProvider(
-            create: (_) => OrderSupplier(
-              order: Order.create(
-                tableID: 1,
-                lineItems: LineItemList(List.generate(
-                  3,
-                  (index) => LineItem(
-                    associatedDish: Dish('Test Dish $index', 3333),
-                    quantity: (index + 1) * 2,
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider(
+                create: (_) => OrderSupplier(
+                  order: Order.create(
+                    tableID: 1,
+                    lineItems: LineItemList(List.generate(
+                      3,
+                      (index) => LineItem(
+                        associatedDish: Dish('Test Dish $index', 3333),
+                        quantity: (index + 1) * 2,
+                      ),
+                    )),
                   ),
-                )),
+                ),
               ),
-            ),
+              ChangeNotifierProvider(
+                create: (context) => NodeSupplier(mocks: [Node(page: 1)]),
+              ),
+            ],
             child: const DetailsScreen(fromScreen: ''),
           );
         },

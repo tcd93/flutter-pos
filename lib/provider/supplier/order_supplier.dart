@@ -24,7 +24,7 @@ class OrderSupplier extends ChangeNotifier {
     if (order != null) {
       _s = SlidingWindow([order, order]);
     } else {
-      _s = SlidingWindow([Order.create(), Order.create()]);
+      _s = SlidingWindow([Order.create(tableID: -1), Order.create(tableID: -1)]);
     }
     notifyListeners();
     Future(() async {
@@ -108,8 +108,8 @@ class OrderSupplier extends ChangeNotifier {
   }
 
   void _clear() {
-    _s.slideRight(Order.create());
-    _s.slideRight(Order.create());
+    _s.slideRight(Order.create(tableID: order.tableID));
+    _s.slideRight(Order.create(tableID: order.tableID));
     notifyListeners();
   }
 

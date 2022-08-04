@@ -31,6 +31,7 @@
   "details_notEnough": "Không đủ",
   "menu_confirm": "Xác nhận đơn",
   "menu_revert": "Hoàn tác",
+  "edit_menu_node": "Bấm để đặt tên bàn",
   "edit_menu_filterHint": "Lọc bằng tên món..",
   "edit_menu_formLabel": "Tên món",
   "edit_menu_formPrice": "Giá",

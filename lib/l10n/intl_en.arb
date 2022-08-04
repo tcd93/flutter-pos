@@ -31,6 +31,7 @@
   "details_notEnough": "Not enough",
   "menu_confirm": "Confirm Order",
   "menu_undo": "Undo",
+  "edit_menu_node": "Click to set table name",
   "edit_menu_filterHint": "Filter by dish name..",
   "edit_menu_formLabel": "Dish",
   "edit_menu_formPrice": "Price",

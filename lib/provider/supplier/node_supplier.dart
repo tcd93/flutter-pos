@@ -11,6 +11,11 @@ class NodeSupplier extends ChangeNotifier {
     return List.unmodifiable(_nodes.where((node) => node.page == page));
   }
 
+  Node? where(int id) {
+    final n = _nodes.where((n) => n.id == id);
+    return n.isNotEmpty ? n.first : null;
+  }
+
   bool _loading = false;
   bool get loading => _loading;
 
