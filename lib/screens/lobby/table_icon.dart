@@ -54,6 +54,12 @@ class _TableIconState extends State<TableIcon> {
     widget.dragEndEventStream?.listen(determineOrientation);
   }
 
+  @override
+  void dispose() {
+    widget.dragEndEventStream?.drain();
+    super.dispose();
+  }
+
   void determineOrientation(Map<String, num> event) {
     if (event['id'] != widget.node.id) return;
 

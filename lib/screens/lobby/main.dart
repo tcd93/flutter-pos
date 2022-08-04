@@ -183,6 +183,7 @@ class _InteractiveBodyState extends State<_InteractiveBody>
           Container(key: bgKey),
           for (var node in supplier.nodes(widget.page))
             ChangeNotifierProvider(
+              key: ObjectKey(node),
               create: (_) {
                 final database = context.read<DatabaseConnectionInterface?>();
                 return OrderSupplier(
@@ -196,6 +197,8 @@ class _InteractiveBodyState extends State<_InteractiveBody>
                 x: node.x,
                 y: node.y,
                 onDragEnd: (x, y) {
+                  node.x = x;
+                  node.y = y;
                   supplier.updateNode(node);
                   _dragEndEvent.add({'id': node.id, 'x': x, 'y': y});
                 },
