@@ -15,7 +15,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 3.0.0
+version: 3.0.1
 
 environment:
   sdk: ">=2.15.0 <3.0.0"
@@ -32,17 +32,14 @@ dependencies:
   sqflite:
   sqflite_common_ffi:
   path:
-  localstorage:
-    git:
-      url: https://github.com/tcd93/flutter_localstorage
-      ref: master
+  localstorage: ^4.0.0+1
   image_picker: ^0.8.4
   image_picker_for_web: ^2.0.0
   blue_thermal_printer:
     git:
       url: https://github.com/tcd93/blue_thermal_printer
       ref: master
-  google_fonts: ^2.0.0
+  google_fonts: ^3.0.1
   date_range_picker:
     git:
       url: https://github.com/tcd93/date_range_picker
@@ -59,7 +56,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints:
-  flutter_launcher_icons: ^0.9.0
+  flutter_launcher_icons: ^0.11.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

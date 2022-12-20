@@ -57,12 +57,12 @@ ThemeData buildRallyTheme() {
     highlightColor: RallyColors.primaryColor,
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        primary: RallyColors.focusColor,
+        foregroundColor: RallyColors.focusColor,
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        primary: RallyColors.buttonColor,
+        foregroundColor: RallyColors.buttonColor,
       ),
     ),
     canvasColor: RallyColors.primaryBackground, // also works for dropdown button
