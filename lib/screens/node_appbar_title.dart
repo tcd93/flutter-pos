@@ -27,7 +27,8 @@ class NodeAppBarTitle extends HookWidget {
           border: const UnderlineInputBorder(),
         ),
         textAlign: TextAlign.center,
-        onSubmitted: (string) {
+        // [onSubmitted] currently not working on web, use [onChange] instead
+        onChanged: (string) {
           node.name = string;
         },
       ),
