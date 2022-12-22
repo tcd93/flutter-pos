@@ -30,6 +30,7 @@ class NodeAppBarTitle extends HookWidget {
         // [onSubmitted] currently not working on web, use [onChange] instead
         onChanged: (string) {
           node.name = string;
+          context.read<NodeSupplier>().updateNode(node);
         },
       ),
     );
