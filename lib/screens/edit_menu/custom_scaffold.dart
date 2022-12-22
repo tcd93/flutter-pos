@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../common/common.dart';
-import '../../theme/rally.dart';
 import '../avatar.dart';
 import 'menu_form.dart';
 
@@ -170,7 +169,6 @@ class _CenterDockedButton extends StatelessWidget {
       imgProvider: pickedImage != null ? MemoryImage(pickedImage!) : null,
     );
     final fab = FloatingActionButton(
-      backgroundColor: RallyColors.buttonColor,
       onPressed: () => expanded.value = true,
       child: const Icon(Icons.add),
     );

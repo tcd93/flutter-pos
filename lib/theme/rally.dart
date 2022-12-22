@@ -16,11 +16,12 @@ class RallyColors {
   static const Color primaryColor = Color(0xFF1EB980);
 }
 
-ThemeData buildRallyTheme() {
+ThemeData buildTheme() {
   final base = ThemeData.dark();
   return ThemeData(
     appBarTheme: const AppBarTheme(systemOverlayStyle: SystemUiOverlayStyle.dark, elevation: 0),
     bottomSheetTheme: BottomSheetThemeData(backgroundColor: base.bottomAppBarColor),
+    textTheme: _buildTextTheme(base.textTheme),
     pageTransitionsTheme: const PageTransitionsTheme(builders: {
       TargetPlatform.android: SharedAxisPageTransitionsBuilder(
         fillColor: RallyColors.primaryBackground,
@@ -31,14 +32,16 @@ ThemeData buildRallyTheme() {
     scaffoldBackgroundColor: RallyColors.primaryBackground,
     primaryColor: RallyColors.primaryBackground,
     focusColor: RallyColors.focusColor,
-    textTheme: _buildRallyTextTheme(base.textTheme),
+    chipTheme: const ChipThemeData(
+      backgroundColor: RallyColors.primaryColor,
+    ),
     cardTheme: const CardTheme(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       elevation: 0.0,
       color: RallyColors.cardBackground,
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: RallyColors.primaryColor,
+      backgroundColor: RallyColors.buttonColor,
     ),
     bottomAppBarTheme: const BottomAppBarTheme(
       shape: AutomaticNotchedShape(
@@ -90,18 +93,18 @@ ThemeData buildRallyTheme() {
   );
 }
 
-TextTheme _buildRallyTextTheme(TextTheme base) {
+TextTheme _buildTextTheme(TextTheme base) {
   return base
       .copyWith(
-        bodyText2: GoogleFonts.robotoCondensed(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          letterSpacing: letterSpacingOrNone(0.5),
-        ),
         bodyText1: GoogleFonts.eczar(
           fontSize: 40,
           fontWeight: FontWeight.w400,
           letterSpacing: letterSpacingOrNone(1.4),
+        ),
+        bodyText2: GoogleFonts.robotoCondensed(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          letterSpacing: letterSpacingOrNone(0.5),
         ),
         button: GoogleFonts.robotoCondensed(
           fontWeight: FontWeight.w700,
@@ -111,7 +114,6 @@ TextTheme _buildRallyTextTheme(TextTheme base) {
           fontSize: 40,
           fontWeight: FontWeight.w600,
           letterSpacing: letterSpacingOrNone(1.4),
-          color: Colors.red,
         ),
       )
       .apply(
