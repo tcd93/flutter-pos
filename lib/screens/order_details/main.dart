@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../node_appbar_title.dart';
 import './bottom_navbar.dart';
 import './item_list.dart';
-import '../../theme/rally.dart';
 import '../../provider/src.dart';
 
 class DetailsScreen extends StatelessWidget {
@@ -28,7 +27,6 @@ class DetailsScreen extends StatelessWidget {
                 Navigator.pop(context);
               },
               elevation: 4.0,
-              backgroundColor: RallyColors.buttonColor,
               child: const Icon(Icons.print_sharp),
             )
           : null,

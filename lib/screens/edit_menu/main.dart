@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import '../menu_filterer.dart';
 import './menu_form.dart';
 import '../../common/common.dart';
-import '../../theme/rally.dart';
 import '../../provider/src.dart';
 import '../popup_del.dart';
 import '../avatar.dart';
@@ -110,7 +109,6 @@ class _ListItem extends HookWidget {
             Text(dish.dish),
             Chip(
               label: Text(Money.format(dish.price)),
-              backgroundColor: RallyColors.primaryColor,
               labelStyle: Theme.of(context).textTheme.caption,
             ),
           ],

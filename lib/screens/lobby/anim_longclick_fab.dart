@@ -44,7 +44,6 @@ class AnimatedLongClickableFAB extends HookWidget {
         // must be last to receive tap events
         FloatingActionButton(
           onPressed: () {}, // ignore, let [GestureDetector] take care of this
-          backgroundColor: RallyColors.buttonColor,
           child: GestureDetector(
             onTapDown: (_) {
               t.value = Timer(_targetTime, onLongPress);

@@ -1,3 +1,3 @@
 import 'rally.dart';
 
-final appTheme = buildRallyTheme();
+final appTheme = buildTheme();
