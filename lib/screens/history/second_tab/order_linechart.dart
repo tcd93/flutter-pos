@@ -140,14 +140,14 @@ class HistoryOrderLineChart extends StatelessWidget {
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      interval: _interval(groupedData.values) as double,
+                      interval: _interval(groupedData.values).toDouble(),
                       reservedSize: 40,
                     ),
                   ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      interval: _interval(groupedData.keys, 23) as double,
+                      interval: _interval(groupedData.keys, 23).toDouble(),
                       reservedSize: 40,
                       getTitlesWidget: (x, _) {
                         String text;
