@@ -21,7 +21,7 @@ class ExpenseJournalScreen extends StatelessWidget {
           Theme(
             data: Theme.of(context).copyWith(
               textTheme: Theme.of(context).textTheme.copyWith(
-                    bodyText1: GoogleFonts.eczar(fontSize: 20),
+                    bodyLarge: GoogleFonts.eczar(fontSize: 20),
                   ),
             ),
             child: DatePicker(),
@@ -40,7 +40,8 @@ class ExpenseJournalScreen extends StatelessWidget {
           final List<Journal> journals = context.read<ExpenseSupplier>().data;
           if (journals.isEmpty) {
             return Center(
-              child: Text(AppLocalizations.of(context)?.generic_empty ?? 'No data found'),
+              child: Text(AppLocalizations.of(context)?.generic_empty ??
+                  'No data found'),
             );
           } else {
             return ExpenseJournalList();
@@ -71,7 +72,7 @@ class _LeadingTitle extends StatelessWidget {
         ),
         Text(
           '(${Common.extractYYYYMMDD2(range.start)} - ${Common.extractYYYYMMDD2(range.end)})',
-          style: Theme.of(context).textTheme.caption,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
     );

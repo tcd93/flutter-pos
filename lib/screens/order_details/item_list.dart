@@ -23,7 +23,7 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final supplier = Provider.of<OrderSupplier>(context);
-    final headline6Style = Theme.of(context).textTheme.headline6!;
+    final headline6Style = Theme.of(context).textTheme.titleLarge!;
     final priceAfterDisc = supplier.totalPriceAfterDiscount;
     return SafeArea(
       child: ListTile(
@@ -31,7 +31,8 @@ class _Header extends StatelessWidget {
         title: Text(
           Money.format(priceAfterDisc, symbol: true),
           style: (supplier.discountPercent > 0)
-              ? headline6Style.apply(color: Colors.green[400], fontWeightDelta: 7) //apply bold
+              ? headline6Style.apply(
+                  color: Colors.green[400], fontWeightDelta: 7) //apply bold
               : headline6Style,
           textAlign: TextAlign.center,
         ),

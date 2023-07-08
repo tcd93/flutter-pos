@@ -59,14 +59,16 @@ class Counter extends HookWidget {
   @override
   Widget build(BuildContext context) {
     // controllers
-    final textEditingController = useTextEditingController(text: startingValue.toString());
+    final textEditingController =
+        useTextEditingController(text: startingValue.toString());
     // "subscribe" to prop changes
     useEffect(() {
       textEditingController.text = startingValue.toString();
       return;
     }, [startingValue]);
 
-    final animController = useAnimationController(duration: const Duration(milliseconds: 500));
+    final animController =
+        useAnimationController(duration: const Duration(milliseconds: 500));
     var value = int.parse(textEditingController.text);
 
     return AnimatedBuilder(
@@ -93,9 +95,11 @@ class Counter extends HookWidget {
                 color: colorTween.animate(animController).value,
                 child: GestureDetector(
                   behavior: HitTestBehavior.translucent,
-                  onTap: () => value = add(animController, textEditingController, value),
+                  onTap: () =>
+                      value = add(animController, textEditingController, value),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 2.0, vertical: 4.0),
                     child: Row(
                       children: [
                         const Spacer(),
@@ -104,7 +108,8 @@ class Counter extends HookWidget {
                           child: ListTile(
                             minVerticalPadding: 2.0,
                             horizontalTitleGap: 2.0,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 2.0),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 2.0),
                             title: Text(
                               title,
                               overflow: TextOverflow.ellipsis,
@@ -117,8 +122,8 @@ class Counter extends HookWidget {
                           child: FloatingActionButton(
                             // decrease
                             heroTag: null,
-                            onPressed: () =>
-                                value = sub(animController, textEditingController, value),
+                            onPressed: () => value = sub(
+                                animController, textEditingController, value),
                             child: const Icon(Icons.remove),
                           ),
                         ),
@@ -128,15 +133,15 @@ class Counter extends HookWidget {
                             controller: textEditingController,
                             enabled: false,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.headline5,
+                            style: Theme.of(context).textTheme.headlineSmall,
                           ),
                         ),
                         Expanded(
                           child: FloatingActionButton(
                             // increase
                             heroTag: null,
-                            onPressed: () =>
-                                value = add(animController, textEditingController, value),
+                            onPressed: () => value = add(
+                                animController, textEditingController, value),
                             child: const Icon(Icons.add),
                           ),
                         ),
