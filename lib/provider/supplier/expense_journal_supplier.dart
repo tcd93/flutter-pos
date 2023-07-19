@@ -3,7 +3,7 @@ import '../src.dart';
 import '../../storage_engines/connection_interface.dart';
 
 /// A provider specifically for [ExpenseJournalScreen]
-class ExpenseSupplier extends ChangeNotifier {
+class ExpenseSupplier extends ChangeNotifier implements DatePickerTemplate {
   final RIRepository<Journal>? database;
   late DateTimeRange _selectedRange;
 
@@ -13,6 +13,7 @@ class ExpenseSupplier extends ChangeNotifier {
   List<Journal> _list = [];
   List<Journal> get data => _list;
 
+  @override
   DateTimeRange get selectedRange => _selectedRange;
 
   /// total amount over the [_selectedRange]
@@ -35,6 +36,7 @@ class ExpenseSupplier extends ChangeNotifier {
     notifyListeners();
   }
 
+  @override
   set selectedRange(DateTimeRange newRange) {
     if (_selectedRange != newRange) {
       _selectedRange = newRange;

@@ -5,9 +5,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../common/common.dart';
 import '../../provider/src.dart';
+import '../date_picker.dart';
 import 'journal_list.dart';
 import 'add_new_entry_button.dart';
-import 'date_picker.dart';
 
 class ExpenseJournalScreen extends StatelessWidget {
   @override
@@ -24,7 +24,7 @@ class ExpenseJournalScreen extends StatelessWidget {
                     bodyLarge: GoogleFonts.eczar(fontSize: 20),
                   ),
             ),
-            child: DatePicker(),
+            child: DatePicker<ExpenseSupplier>(),
           ),
         ],
       ),
@@ -40,8 +40,7 @@ class ExpenseJournalScreen extends StatelessWidget {
           final List<Journal> journals = context.read<ExpenseSupplier>().data;
           if (journals.isEmpty) {
             return Center(
-              child: Text(AppLocalizations.of(context)?.generic_empty ??
-                  'No data found'),
+              child: Text(AppLocalizations.of(context)?.generic_empty ?? 'No data found'),
             );
           } else {
             return ExpenseJournalList();

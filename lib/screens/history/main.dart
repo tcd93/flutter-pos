@@ -7,7 +7,7 @@ import '../../common/common.dart';
 import '../../provider/src.dart';
 import 'first_tab/order_list.dart';
 import 'second_tab/order_linechart.dart';
-import 'date_picker.dart';
+import '../date_picker.dart';
 
 @immutable
 class HistoryScreen extends StatelessWidget {
@@ -30,20 +30,14 @@ class HistoryScreen extends StatelessWidget {
                 selector: (context, supplier) => supplier.discountFlag,
                 builder: (context, flag, _) {
                   return Switch.adaptive(
-                    value: context
-                        .select((HistoryOrderSupplier s) => s.discountFlag),
-                    onChanged: (s) =>
-                        context.read<HistoryOrderSupplier>().discountFlag = s,
+                    value: context.select((HistoryOrderSupplier s) => s.discountFlag),
+                    onChanged: (s) => context.read<HistoryOrderSupplier>().discountFlag = s,
                   );
                 },
               ),
               Text(
-                AppLocalizations.of(context)?.history_toggleDiscount ??
-                    'Apply Discount Rate',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.apply(fontSizeFactor: 0.5),
+                AppLocalizations.of(context)?.history_toggleDiscount ?? 'Apply Discount Rate',
+                style: Theme.of(context).textTheme.bodySmall?.apply(fontSizeFactor: 0.5),
               ),
             ],
           ),
@@ -55,15 +49,14 @@ class HistoryScreen extends StatelessWidget {
                     bodyLarge: GoogleFonts.eczar(fontSize: 20),
                   ),
             ),
-            child: DatePicker(),
+            child: DatePicker<HistoryOrderSupplier>(),
           ),
         ],
       ),
       body: Selector<HistoryOrderSupplier, bool>(
         selector: (context, supplier) => supplier.loading,
         builder: (context, loading, _) {
-          final List<Order> orders =
-              context.read<HistoryOrderSupplier>().orders;
+          final List<Order> orders = context.read<HistoryOrderSupplier>().orders;
           if (loading) {
             return const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
@@ -71,8 +64,7 @@ class HistoryScreen extends StatelessWidget {
           }
           if (orders.isEmpty) {
             return Center(
-              child: Text(AppLocalizations.of(context)?.generic_empty ??
-                  'No data found'),
+              child: Text(AppLocalizations.of(context)?.generic_empty ?? 'No data found'),
             );
           } else {
             return TabBarView(
@@ -94,8 +86,7 @@ class _LeadingTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = Provider.of<HistoryOrderSupplier>(context);
     final range = provider.selectedRange;
-    final orders =
-        context.select((HistoryOrderSupplier supplier) => supplier.orders);
+    final orders = context.select((HistoryOrderSupplier supplier) => supplier.orders);
 
     return Wrap(
       direction: Axis.vertical,

@@ -3,7 +3,7 @@ import '../../storage_engines/connection_interface.dart';
 import '../src.dart';
 
 /// A provider specifically for [HistoryScreen]
-class HistoryOrderSupplier extends ChangeNotifier {
+class HistoryOrderSupplier extends ChangeNotifier implements DatePickerTemplate {
   final RIDRepository<Order>? database;
   late DateTimeRange _selectedRange;
   bool _discountFlag = true;
@@ -14,8 +14,10 @@ class HistoryOrderSupplier extends ChangeNotifier {
   List<Order> _orders = [];
   List<Order> get orders => _orders;
 
+  @override
   DateTimeRange get selectedRange => _selectedRange;
 
+  @override
   set selectedRange(DateTimeRange newRange) {
     if (_selectedRange != newRange) {
       _selectedRange = newRange;
