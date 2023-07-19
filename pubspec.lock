@@ -332,7 +332,7 @@ packages:
       name: google_fonts
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.1"
+    version: "4.0.4"
   graphs:
     dependency: transitive
     description:

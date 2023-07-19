@@ -39,7 +39,7 @@ dependencies:
     git:
       url: https://github.com/tcd93/blue_thermal_printer
       ref: master
-  google_fonts: ^3.0.1
+  google_fonts: ^4.0.4
   date_range_picker:
     git:
       url: https://github.com/tcd93/date_range_picker
