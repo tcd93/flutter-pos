@@ -18,7 +18,7 @@ A mobile POS written in _Flutter_, suitable for small cafe/restaurant, fully off
 
 ## Install & Run
 
-Get [flutter](https://flutter.dev/)
+Get [flutter](https://flutter.dev/) 3.10
 
 ```
 flutter pub get
@@ -26,16 +26,13 @@ flutter run
 ```
 
 **For web**
+1. `flutter run -d chrome`
 
-1. `flutter config --enable-web`
-2. `flutter run -d web-server`
-3. Browse from Firefox (don't use Chrome version >= 100.x for debugging)
-
-**For emulator**
+**For Android**  
+**Requirement: JAVA sdk >=18**
 1. `flutter run`
 
 ## Testing
-
 `flutter test`
 
 ## TODO
