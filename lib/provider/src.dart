@@ -7,6 +7,7 @@ export 'model/state/order.dart';
 export 'model/state/journal.dart';
 export 'model/state/state_object.dart';
 export 'model/state/status.dart';
+export 'supplier/date_picker_template.dart';
 export 'supplier/node_supplier.dart';
 export 'supplier/menu_supplier.dart';
 export 'supplier/order_supplier.dart';

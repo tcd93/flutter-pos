@@ -19,8 +19,10 @@ class RallyColors {
 ThemeData buildTheme() {
   final base = ThemeData.dark();
   return ThemeData(
-    appBarTheme: const AppBarTheme(systemOverlayStyle: SystemUiOverlayStyle.dark, elevation: 0),
-    bottomSheetTheme: BottomSheetThemeData(backgroundColor: base.bottomAppBarColor),
+    appBarTheme: const AppBarTheme(
+        systemOverlayStyle: SystemUiOverlayStyle.dark, elevation: 0),
+    bottomSheetTheme:
+        BottomSheetThemeData(backgroundColor: base.bottomAppBarColor),
     textTheme: _buildTextTheme(base.textTheme),
     pageTransitionsTheme: const PageTransitionsTheme(builders: {
       TargetPlatform.android: SharedAxisPageTransitionsBuilder(
@@ -68,7 +70,8 @@ ThemeData buildTheme() {
         foregroundColor: RallyColors.buttonColor,
       ),
     ),
-    canvasColor: RallyColors.primaryBackground, // also works for dropdown button
+    canvasColor:
+        RallyColors.primaryBackground, // also works for dropdown button
     dialogTheme: const DialogTheme(
       elevation: 36.0,
       backgroundColor: RallyColors.primaryBackground,
@@ -96,21 +99,21 @@ ThemeData buildTheme() {
 TextTheme _buildTextTheme(TextTheme base) {
   return base
       .copyWith(
-        bodyText1: GoogleFonts.eczar(
+        bodyLarge: GoogleFonts.eczar(
           fontSize: 40,
           fontWeight: FontWeight.w400,
           letterSpacing: letterSpacingOrNone(1.4),
         ),
-        bodyText2: GoogleFonts.robotoCondensed(
+        bodyMedium: GoogleFonts.robotoCondensed(
           fontSize: 14,
           fontWeight: FontWeight.w400,
           letterSpacing: letterSpacingOrNone(0.5),
         ),
-        button: GoogleFonts.robotoCondensed(
+        labelLarge: GoogleFonts.robotoCondensed(
           fontWeight: FontWeight.w700,
           letterSpacing: letterSpacingOrNone(2.8),
         ),
-        headline5: GoogleFonts.eczar(
+        headlineSmall: GoogleFonts.eczar(
           fontSize: 40,
           fontWeight: FontWeight.w600,
           letterSpacing: letterSpacingOrNone(1.4),
@@ -124,7 +127,8 @@ TextTheme _buildTextTheme(TextTheme base) {
 
 /// Using letter spacing in Flutter for Web can cause a performance drop,
 /// see https://github.com/flutter/flutter/issues/51234.
-double letterSpacingOrNone(double letterSpacing) => kIsWeb ? 0.0 : letterSpacing;
+double letterSpacingOrNone(double letterSpacing) =>
+    kIsWeb ? 0.0 : letterSpacing;
 
 /// [left] is for buttons on the left side of bottom appbar
 enum CustomShapeSide {
@@ -142,10 +146,12 @@ class CustomShape extends ShapeBorder {
   EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
 
   @override
-  Path getInnerPath(Rect rect, {TextDirection? textDirection}) => _getPath(rect);
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
+      _getPath(rect);
 
   @override
-  Path getOuterPath(Rect rect, {TextDirection? textDirection}) => _getPath(rect);
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) =>
+      _getPath(rect);
 
   Path _getPath(Rect rect) {
     var baseX = 0.0, baseY = 0.0;
@@ -173,14 +179,18 @@ class CustomShape extends ShapeBorder {
       ..relativeMoveTo(0, rCn)
       ..relativeArcToPoint(
         // arc to create notch
-        side == CustomShapeSide.right ? rectNotchCn.topRight : rectNotchCn.topLeft,
+        side == CustomShapeSide.right
+            ? rectNotchCn.topRight
+            : rectNotchCn.topLeft,
         clockwise: side == CustomShapeSide.right ? false : true,
         radius: radCn,
       )
       // move to the starting curve point
       ..lineTo(((rect.width - baseX) - rTrc).abs(), 0)
       ..relativeArcToPoint(
-        side == CustomShapeSide.right ? rectNotchTrc.bottomRight : rectNotchTrc.bottomLeft,
+        side == CustomShapeSide.right
+            ? rectNotchTrc.bottomRight
+            : rectNotchTrc.bottomLeft,
         clockwise: side == CustomShapeSide.right ? true : false,
         radius: radTrc,
       ); // arc down

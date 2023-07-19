@@ -55,7 +55,8 @@ class EditMenuScreenState extends State<EditMenuScreen> {
                     ctx.findRenderObject()!,
                     duration: _animDuration,
                     curve: Curves.easeOut,
-                    alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+                    alignmentPolicy:
+                        ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
                   );
                 });
               },
@@ -72,7 +73,8 @@ class _ListItem extends HookWidget {
   final Function(BuildContext ctx) onShow;
   final Dish dish;
 
-  const _ListItem(this.dish, {required this.onShow, Key? key}) : super(key: key);
+  const _ListItem(this.dish, {required this.onShow, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +90,8 @@ class _ListItem extends HookWidget {
     );
   }
 
-  Widget collapsed(BuildContext context, Dish dish, ValueNotifier<CrossFadeState> currentState) {
+  Widget collapsed(BuildContext context, Dish dish,
+      ValueNotifier<CrossFadeState> currentState) {
     return InkWell(
       onTap: () {
         currentState.value = CrossFadeState.showSecond;
@@ -109,7 +112,7 @@ class _ListItem extends HookWidget {
             Text(dish.dish),
             Chip(
               label: Text(Money.format(dish.price)),
-              labelStyle: Theme.of(context).textTheme.caption,
+              labelStyle: Theme.of(context).textTheme.bodySmall,
             ),
           ],
         ),
@@ -117,18 +120,22 @@ class _ListItem extends HookWidget {
     );
   }
 
-  Widget expanded(BuildContext context, Dish dish, ValueNotifier<CrossFadeState> currentState) {
+  Widget expanded(BuildContext context, Dish dish,
+      ValueNotifier<CrossFadeState> currentState) {
     final dishNameController = useTextEditingController(text: dish.dish);
-    final priceController = useTextEditingController(text: Money.format(dish.price));
+    final priceController =
+        useTextEditingController(text: Money.format(dish.price));
     final pickedImage = useState<Uint8List?>(null);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: FormContent(
-        inputs: buildInputs(context, dishNameController, priceController, TextAlign.start),
+        inputs: buildInputs(
+            context, dishNameController, priceController, TextAlign.start),
         avatar: Avatar(
-          imgProvider:
-              pickedImage.value != null ? MemoryImage(pickedImage.value!) : dish.imgProvider,
+          imgProvider: pickedImage.value != null
+              ? MemoryImage(pickedImage.value!)
+              : dish.imgProvider,
           onNew: (image) {
             pickedImage.value = image;
           },
@@ -136,7 +143,8 @@ class _ListItem extends HookWidget {
         gap: 12.0,
         buttonMinWidth: 70.0,
         onSubmit: () {
-          if (priceController.text.isNotEmpty && dishNameController.text.isNotEmpty) {
+          if (priceController.text.isNotEmpty &&
+              dishNameController.text.isNotEmpty) {
             final supplier = context.read<MenuSupplier>();
             supplier.updateDish(
               dish,

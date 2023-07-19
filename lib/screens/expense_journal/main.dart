@@ -5,9 +5,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../common/common.dart';
 import '../../provider/src.dart';
+import '../date_picker.dart';
 import 'journal_list.dart';
 import 'add_new_entry_button.dart';
-import 'date_picker.dart';
 
 class ExpenseJournalScreen extends StatelessWidget {
   @override
@@ -21,10 +21,10 @@ class ExpenseJournalScreen extends StatelessWidget {
           Theme(
             data: Theme.of(context).copyWith(
               textTheme: Theme.of(context).textTheme.copyWith(
-                    bodyText1: GoogleFonts.eczar(fontSize: 20),
+                    bodyLarge: GoogleFonts.eczar(fontSize: 20),
                   ),
             ),
-            child: DatePicker(),
+            child: DatePicker<ExpenseSupplier>(),
           ),
         ],
       ),
@@ -71,7 +71,7 @@ class _LeadingTitle extends StatelessWidget {
         ),
         Text(
           '(${Common.extractYYYYMMDD2(range.start)} - ${Common.extractYYYYMMDD2(range.end)})',
-          style: Theme.of(context).textTheme.caption,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
     );
