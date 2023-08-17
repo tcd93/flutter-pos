@@ -1,9 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-import '../provider/src.dart';
-
-class NodeIO = TableIO with CoordinateIO;
-
 /// Represents a storage engine, like "localstorage", "sqlite", or "aws-s3"...
 typedef DatabaseConnectionInterface = Control;
 
@@ -43,45 +39,4 @@ abstract class Updatable<T> {
   Future<void> update(T value);
 
   Future<void> upsert(T value) => throw UnimplementedError();
-}
-
-/// Specific operations on table nodes, like inserting an order
-class OrderIO {
-  Future<List<Order>> get(DateTime day) => Future.value([]);
-
-  Future<List<Order>> getRange(DateTime from, DateTime to) => Future.value([]);
-
-  /// Insert stringified version of [TableState] into database
-  Future<void> insert(Order order) => Future.value();
-
-  /// Soft deletes an order in specified date
-  Future<void> delete(DateTime day, int orderID) => Future.value();
-}
-
-/// Operations with the journal entries
-class JournalIO {
-  Future<List<Journal>> getJournal(DateTime day) => Future.value([]);
-
-  Future<List<Journal>> getJournals(DateTime from, DateTime to) => Future.value([]);
-
-  Future<void> insertJournal(Journal journal) => Future.value();
-}
-
-class TableIO {
-  Future<List<int>> tableIDs() => Future.value([]);
-
-  Future<int> addTable() => Future.value(-1);
-
-  Future<void> removeTable(int tableID) => Future.value();
-}
-
-class CoordinateIO {
-  /// Saves the table node's position on lobby screen to storage
-  Future<void> setCoordinate(int tableID, double x, double y) => Future.value();
-
-  /// Get position X of table node on screen
-  Future<double> getX(int tableID) async => 0;
-
-  /// Get position Y of table node on screen
-  Future<double> getY(int tableID) async => 0;
 }
