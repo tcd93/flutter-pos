@@ -1,0 +1,16 @@
+services:
+  flutter:
+    container_name: flutter_dev
+    privileged: true
+    entrypoint:
+    - sleep
+    - infinity
+    build: .
+    init: true
+    volumes:
+    - type: bind
+      source: /var/run/docker.sock
+      target: /var/run/docker.sock
+    - ./:/usr/vscode/pos_app
+    - ./:/com.docker.devenvironments.code
+    working_dir: /usr/vscode/pos_app
