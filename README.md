@@ -1,6 +1,9 @@
 # Simple-POS
 
-### ❤️❤️ [Online Demo](https://tcd93.github.io/flutter-pos)❤️❤️
+## ⚠ Check this out! version 2 is at https://tcd93.github.io/flutter_2 ⚠ 
+## ❤️❤️ [Online Demo for v2](https://tcd93.github.io/flutter_pos2)❤️❤️
+
+### ❤️❤️ [Online Demo for v1](https://tcd93.github.io/flutter-pos)❤️❤️
 
 A mobile POS written in _Flutter_, suitable for small cafe/restaurant, fully offline.
 
