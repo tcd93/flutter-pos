@@ -1,7 +1,7 @@
 # Simple-POS
 
-## ⚠ Check this out! version 2 is at https://tcd93.github.io/flutter_2 ⚠ 
-## ❤️❤️ [Online Demo for v2](https://github.com/tcd93/flutter_pos2)❤️❤️
+## ⚠ Check this out! version 2 is at [https://tcd93.github.io/flutter_2](https://github.com/tcd93/flutter_pos2) ⚠ 
+## ❤️❤️ [Online Demo for v2](https://tcd93.github.io/flutter_pos2)❤️❤️
 
 ### ❤️❤️ [Online Demo for v1](https://tcd93.github.io/flutter-pos)❤️❤️
 
